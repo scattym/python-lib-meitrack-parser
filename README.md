@@ -1,1 +1,1 @@
-# Library for managing callouts to the geotool api
+# A library for parsing meitrack gprs data
