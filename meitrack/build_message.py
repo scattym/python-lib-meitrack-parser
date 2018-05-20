@@ -3,6 +3,17 @@ from meitrack.gprs_protocol import GPRS
 from meitrack.error import GPRSParameterError
 
 
+def cts_build_file_list(imei, file_name, file_bytes):
+    com = command.cts_file_download(file_name, 1, 0, file_bytes)
+    gprs = GPRS()
+    gprs.direction = b'$$'
+    gprs.data_identifier = b'A'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return [gprs]
+
+
 def stc_request_device_info(imei):
     com = command.stc_request_info()
     gprs = GPRS()

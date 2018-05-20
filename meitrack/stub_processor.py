@@ -1,5 +1,8 @@
 #!/usr/bin/env python
+import binascii
 import logging
+
+from meitrack.build_message import cts_build_file_list
 from meitrack.gprs_protocol import GPRS
 
 
@@ -90,6 +93,24 @@ def request_to_response(request_command, imei):
             gprs.imei = imei
             file_list_arr.append(gprs)
         return file_list_arr
+    if request_command[0:3] == b"""D00""":
+        print("Request command is %s", request_command)
+        detail_list = request_command.split(b",")
+        file_name = detail_list[1]
+        start_packet = detail_list[2]
+        # file_name, num_packets, packet_number, file_bytes = gprs.enclosed_data.get_file_data()
+        image_as_bytes = binascii.unhexlify(
+            "FFD8FFE000104A46494600010101004800480000"
+            "FFDB004300FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            "FFFFFFFFFFFFFFFFFFFFC2000B08000100010101"
+            "1100FFC400141001000000000000000000000000"
+            "00000000FFDA0008010100013F10"
+        )
+        response = cts_build_file_list(imei, file_name, image_as_bytes)
+        return response
+
     for key in REQUEST_TO_RESPONSE:
         command_length = len(key)
         if request_command[0:command_length] == key:
@@ -118,6 +139,11 @@ if __name__ == '__main__':
         for gprs in gprs_list:
             print(gprs.as_bytes())
     command = b"""D01,0"""
+    gprs_list = request_to_response(command, b"IMEI")
+    for gprs in gprs_list:
+        print(gprs.as_bytes())
+
+    command = b"""D00,180514120246_C1E1_N5U1D1.jpg,0"""
     gprs_list = request_to_response(command, b"IMEI")
     for gprs in gprs_list:
         print(gprs.as_bytes())

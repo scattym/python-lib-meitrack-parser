@@ -21,8 +21,16 @@ class FileListing(object):
         self.file_arr = []
 
     def remove_item(self, file_name):
-        if file_name in self.file_arr:
-            self.file_arr.remove(file_name)
+        try:
+            remove = file_name.decode()
+        except AttributeError:
+            remove = file_name
+        if remove in self.file_arr:
+            logger.debug("Found file, removing from list %s", file_name)
+            self.file_arr.remove(remove)
+            logger.debug("List is now %s", self.file_arr)
+        else:
+            logger.error("File was not in list. file_name: %s", file_name)
 
     def add_packet(self, gprs_packet):
         # self.packets.append(gprs_packet)
@@ -42,9 +50,11 @@ class FileListing(object):
                         logger.error("Max packet count has changed across packets.")
                         raise FileListingError("Max packet count has changed across packets")
                 self.full_file_list_dict[packet_number] = file_list
-        if self.is_complete():
-            self.file_arr = self.return_file_listing_list()
-            logger.debug("File list is complete %s", self.file_arr)
+            if self.is_complete():
+                self.file_arr = self.return_file_listing_list()
+                self.full_file_list_dict = {}
+                self.max_packets = 0
+                logger.debug("File list is complete %s", self.file_arr)
 
     def is_complete(self):
         if self.max_packets == 0:
@@ -84,7 +94,7 @@ class FileListing(object):
         return None
 
     def __str__(self):
-        return str(self.file_arr)
+        return "Length: {}, Content: {}".format(len(self.file_arr), str(self.file_arr))
 
 
 def gprs_file_list_as_str(list_of_gprs):

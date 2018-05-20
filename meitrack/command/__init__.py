@@ -10,6 +10,7 @@ from meitrack.command.command_D00 import FileDownloadCommand
 from meitrack.command.command_D01 import FileListCommand
 from meitrack.command.command_E91 import RequestDeviceInfoCommand
 from meitrack.command.common import Command
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER
 from meitrack.error import GPRSParameterError
 
 logger = logging.getLogger(__name__)
@@ -78,6 +79,28 @@ def command_to_object(direction, command_type, payload):
         return COMMAND_LIST[command_type]["class"](direction, payload)
     else:
         return Command(direction, payload)
+
+
+def cts_file_download(file_name, num_packets, packet_number, file_bytes):
+    try:
+        file_name = file_name.encode()
+    except AttributeError:
+        pass
+    try:
+        num_packets = str(num_packets).encode()
+    except AttributeError:
+        pass
+    try:
+        packet_number = str(packet_number).encode()
+    except AttributeError:
+        pass
+    try:
+        file_bytes = file_bytes.encode()
+    except AttributeError:
+        pass
+    file_download = FileDownloadCommand(DIRECTION_CLIENT_TO_SERVER)
+    file_download.build(file_name, num_packets, packet_number, file_bytes)
+    return file_download
 
 
 def stc_request_file_download(file_name, payload_start_index):
