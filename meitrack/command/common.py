@@ -27,7 +27,7 @@ class Command(object):
             for field in self.field_name_selector:
                 if self.field_dict.get(field):
                     if field == "date_time":
-                        logger.debug("Date field is %s", self.field_dict.get(field))
+                        logger.log(13, "Date field is %s", self.field_dict.get(field))
                         fields.append(datetime_to_meitrack_date(self.field_dict.get(field)))
                     else:
                         fields.append(self.field_dict.get(field))
@@ -56,12 +56,12 @@ class Command(object):
         if len(fields) < 1:
             raise GPRSParseError("Field length does not include event code", self.payload)
         if self.field_name_selector is None:
-            logger.debug("No field names set")
+            logger.log(13, "No field names set")
             return
 
         if len(self.field_name_selector) < len(fields):
-            logger.debug("%s %s", len(fields), len(self.field_name_selector))
-            logger.debug(payload)
+            logger.log(13, "%s %s", len(fields), len(self.field_name_selector))
+            logger.log(13, payload)
             raise GPRSParseError(
                 "Incorrect number of fields for data. Data field length is ", len(fields),
                 " but should be ", len(self.field_name_selector), ". Fields should be ",
@@ -78,8 +78,8 @@ class Command(object):
         if self.field_dict.get("analog_input_value"):
             analog_list = self.field_dict.get("analog_input_value").split(b"|")
             if input_number <= len(analog_list):
-                logger.debug(analog_list[input_number-1])
-                logger.debug(int(analog_list[input_number-1], 16))
+                logger.log(13, analog_list[input_number-1])
+                logger.log(13, int(analog_list[input_number-1], 16))
                 return int(analog_list[input_number-1], 16) / 100
 
     def get_battery_voltage(self):

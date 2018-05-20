@@ -16,7 +16,7 @@ class FileDownload(object):
             if file_name and file_name == self.file_name:
                 if not self.expecting_packets:
                     self.expecting_packets = int(num_packets.decode())
-                logger.debug("Adding packet %s to file %s", packet_number, self.file_name)
+                logger.log(13, "Adding packet %s to file %s", packet_number, self.file_name)
                 packet_number_int = int(packet_number.decode())
                 self.packets[packet_number_int] = copy.deepcopy(file_bytes)
 
@@ -33,9 +33,9 @@ class FileDownload(object):
             return False
         for i in range(0, self.expecting_packets):
             if i not in self.packets:
-                logger.debug("File is not yet complete. Missing %s from %s", i, self.expecting_packets)
+                logger.log(13, "File is not yet complete. Missing %s from %s", i, self.expecting_packets)
                 return False
-        logger.debug("File is complete")
+        logger.log(13, "File is complete")
         return True
 
     def fragment_list_as_string(self):
@@ -46,7 +46,7 @@ class FileDownload(object):
 
     def return_file_contents(self):
         if not self.is_complete():
-            logger.debug("File is not complete yet. Returning None")
+            logger.log(13, "File is not complete yet. Returning None")
             return None
         else:
             file_bytes = b""
