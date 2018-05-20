@@ -118,6 +118,16 @@ class Command(object):
         else:
             return None, None, None, None
 
+    def get_file_list(self):
+        if self.field_dict.get("file_list"):
+            return (
+                self.field_dict.get("number_of_data_packets"),
+                self.field_dict.get("data_packet_number"),
+                self.field_dict.get("file_list")
+            )
+        else:
+            return None, None, None
+
     def get_event_id(self):
         if self.field_dict.get("event_code"):
             return event_to_id(self.field_dict.get("event_code"))
