@@ -47,15 +47,15 @@ class TrackerCommand(Command):
         fields = payload.split(b',')
         if len(fields) < 2:
             raise GPRSParseError("Field length does not include event code", self.payload)
-        logger.debug("Fields is {}".format(fields[1]))
+        logger.log(13, "Fields is {}".format(fields[1]))
 
         if fields[1] in [b"50", b"51"]:
             self.field_name_selector = copy.deepcopy(self.field_names_50_51)
         elif fields[1] in [b"39"]:
-            logger.debug("Setting AAA fields for file event")
+            logger.log(13, "Setting AAA fields for file event")
             self.field_name_selector = copy.deepcopy(self.field_names_39)
         else:
-            logger.debug("Setting AAA to default fields")
+            logger.log(13, "Setting AAA to default fields")
             self.field_name_selector = copy.deepcopy(self.field_names)
 
         super(TrackerCommand, self).parse_payload(payload)

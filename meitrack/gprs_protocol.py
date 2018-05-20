@@ -169,7 +169,7 @@ def parse_data_payload(payload):
                 leftover = payload
                 payload = b''
             else:
-                logger.debug("Data length is %s", payload[3:first_comma])
+                logger.log(13, "Data length is %s", payload[3:first_comma])
                 try:
                     data_length = int(payload[3:first_comma])
                 except ValueError as err:
@@ -181,8 +181,8 @@ def parse_data_payload(payload):
                     raise GPRSParseError("Data length is longer than the protocol allows: {}".format(data_length))
 
                 if data_length != 0 and len(payload) >= (first_comma + data_length):
-                    logger.debug("Start of payload is {}".format(payload[0:2]))
-                    logger.debug("End of payload is {}".format(payload[-2:]))
+                    logger.log(13, "Start of payload is {}".format(payload[0:2]))
+                    logger.log(13, "End of payload is {}".format(payload[-2:]))
                     message = payload[:first_comma+data_length]
                     payload = payload[first_comma+data_length:]
 

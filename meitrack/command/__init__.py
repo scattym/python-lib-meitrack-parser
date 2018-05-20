@@ -74,7 +74,7 @@ COMMAND_LIST = {
 
 
 def command_to_object(direction, command_type, payload):
-    logger.debug("command type: %s, with payload %s", command_type, payload)
+    logger.log(13, "command type: %s, with payload %s", command_type, payload)
     if command_type in COMMAND_LIST and COMMAND_LIST[command_type]["class"] is not None:
         return COMMAND_LIST[command_type]["class"](direction, payload)
     else:

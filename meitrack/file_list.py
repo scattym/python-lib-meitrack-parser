@@ -26,9 +26,9 @@ class FileListing(object):
         except AttributeError:
             remove = file_name
         if remove in self.file_arr:
-            logger.debug("Found file, removing from list %s", file_name)
+            logger.log(13, "Found file, removing from list %s", file_name)
             self.file_arr.remove(remove)
-            logger.debug("List is now %s", self.file_arr)
+            logger.log(13, "List is now %s", self.file_arr)
         else:
             logger.error("File was not in list. file_name: %s", file_name)
 
@@ -54,14 +54,14 @@ class FileListing(object):
                 self.file_arr = self.return_file_listing_list()
                 self.full_file_list_dict = {}
                 self.max_packets = 0
-                logger.debug("File list is complete %s", self.file_arr)
+                logger.log(13, "File list is complete %s", self.file_arr)
 
     def is_complete(self):
         if self.max_packets == 0:
             return False
         for i in range(0, self.max_packets):
             if self.full_file_list_dict.get(i, None) is None:
-                logger.debug("Missing packet number %s", i)
+                logger.log(13, "Missing packet number %s", i)
                 return False
         return True
 
@@ -73,7 +73,7 @@ class FileListing(object):
 
     def return_file_listing(self):
         if not self.is_complete():
-            logger.debug("File list is not complete yet. Returning None")
+            logger.log(13, "File list is not complete yet. Returning None")
             return None
         else:
             full_file_list = ""

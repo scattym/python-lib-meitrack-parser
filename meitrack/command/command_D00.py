@@ -18,7 +18,7 @@ class FileDownloadCommand(Command):
 
     def __init__(self, direction, payload=None):
         super(FileDownloadCommand, self).__init__(direction, payload=payload)
-        logger.debug(payload)
+        logger.log(13, payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:
@@ -39,7 +39,7 @@ class FileDownloadCommand(Command):
         else:
             self.field_dict["command"] = b"D00"
 
-        logger.debug(self.field_dict)
+        logger.log(13, self.field_dict)
 
     def build(self, file_name, number_of_data_packets, data_packet_number, file_bytes):
         self.field_dict["file_name"] = file_name

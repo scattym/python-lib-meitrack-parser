@@ -31,7 +31,7 @@ class FileListCommand(Command):
 
     def __init__(self, direction, payload=None):
         super(FileListCommand, self).__init__(direction, payload=payload)
-        logger.debug(payload)
+        logger.log(13, payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:
