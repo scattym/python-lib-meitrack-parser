@@ -13,10 +13,12 @@ class FileListing(object):
     def __init__(self):
         self.max_packets = 0
         self.full_file_list_dict = {}
+        self.file_arr = []
 
     def clear_list(self):
         self.max_packets = 0
         self.full_file_list_dict = {}
+        self.file_arr = []
 
     def add_packet(self, gprs_packet):
         # self.packets.append(gprs_packet)
@@ -36,6 +38,9 @@ class FileListing(object):
                         logger.error("Max packet count has changed across packets.")
                         raise FileListingError("Max packet count has changed across packets")
                 self.full_file_list_dict[packet_number] = file_list
+        if self.is_complete():
+            self.file_arr = self.return_file_listing_list()
+            logger.debug("File list is complete %s", self.file_arr)
 
     def is_complete(self):
         if self.max_packets == 0:
