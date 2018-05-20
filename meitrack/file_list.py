@@ -1,0 +1,150 @@
+import logging
+import copy
+from meitrack.error import GPRSError
+
+logger = logging.getLogger(__name__)
+
+
+class FileListingError(GPRSError):
+    pass
+
+
+class FileListing(object):
+    def __init__(self):
+        self.max_packets = 0
+        self.full_file_list_dict = {}
+
+    def clear_list(self):
+        self.max_packets = 0
+        self.full_file_list_dict = {}
+
+    def add_packet(self, gprs_packet):
+        # self.packets.append(gprs_packet)
+        if gprs_packet.enclosed_data['command'] == b'D01':
+            packet_count, packet_number, file_list = gprs_packet.enclosed_data.get_file_list()
+            if packet_count is None or packet_number is None or file_list is None:
+                logger.error("Unable to extract details from packet")
+                raise FileListingError("Unable to extract details from packet")
+            else:
+                packet_count = int(packet_count.decode())
+                packet_number = int(packet_number.decode())
+                file_list = str(file_list.decode())
+                if not self.max_packets:
+                    self.max_packets = packet_count
+                else:
+                    if self.max_packets != packet_count:
+                        logger.error("Max packet count has changed across packets.")
+                        raise FileListingError("Max packet count has changed across packets")
+                self.full_file_list_dict[packet_number] = file_list
+
+    def is_complete(self):
+        if self.max_packets == 0:
+            return False
+        for i in range(0, self.max_packets):
+            if self.full_file_list_dict.get(i, None) is None:
+                logger.debug("Missing packet number %s", i)
+                return False
+        return True
+
+    def fragment_list_as_string(self):
+        return_str = ""
+        for i in self.full_file_list_dict:
+            return_str += "{}({}) ".format(i, len(self.full_file_list_dict[i]))
+        return return_str
+
+    def return_file_listing(self):
+        if not self.is_complete():
+            logger.debug("File list is not complete yet. Returning None")
+            return None
+        else:
+            full_file_list = ""
+            for i in range(0, self.max_packets):
+                if self.full_file_list_dict.get(i, None) is None:
+                    logger.error("Missing packet number %s", i)
+                    return None
+                else:
+                    full_file_list = full_file_list + self.full_file_list_dict[i]
+            if full_file_list[-1:] == '|':
+                full_file_list = full_file_list[0:-1]
+            return full_file_list
+
+    def return_file_listing_list(self):
+        file_str = self.return_file_listing()
+        if file_str:
+            return file_str.split('|')
+        return None
+
+
+def gprs_file_list_as_str(list_of_gprs):
+    full_file_list_dict = {}
+    max_packets = 0
+    for gprs in list_of_gprs:
+        if gprs.enclosed_data['command'] == b'D01':
+            packet_count, packet_number, file_list = gprs.enclosed_data.get_file_list()
+            if packet_count is not None and packet_number is not None and file_list is not None:
+                packet_count = int(packet_count.decode())
+                packet_number = int(packet_number.decode())
+                file_list = str(file_list.decode())
+                if not max_packets:
+                    max_packets = packet_count
+                else:
+                    if max_packets != packet_count:
+                        logger.error("Max packet count has changed across packets.")
+                        raise FileListingError("Max packet count has changed across packets")
+                full_file_list_dict[packet_number] = file_list
+    full_file_list = ""
+    for i in range(0, max_packets):
+        if full_file_list_dict.get(i, None) is None:
+            logger.error("Missing packet number %s", i)
+            raise FileListingError("Missing packet number %s" % (i,))
+        else:
+            full_file_list = full_file_list + full_file_list_dict[i]
+    if full_file_list[-1:] == '|':
+        full_file_list = full_file_list[0:-1]
+    return full_file_list
+
+
+def gprs_file_list_as_list(list_of_gprs):
+    full_file_list_str = gprs_file_list_as_str(list_of_gprs)
+    if full_file_list_str:
+        return full_file_list_str.split('|')
+    return None
+
+
+if __name__ == '__main__':
+    from meitrack.gprs_protocol import parse_data_payload
+    log_level = 11 - 11
+
+    logger = logging.getLogger('')
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+
+    file_listing = [
+        b"""$$p1054,864507032323403,D01,8,0,180520032140_C1E1_N4U1D1.jpg|180520041216_C1E35_N1U1D1.jpg|180520004140_C1E1_N4U1D1.jpg|180519204241_C1E1_N5U1D1.jpg|180519210839_C1E35_N1U1D1.jpg|180519211937_C1E1_N2U1D1.jpg|180519212140_C1E1_N4U1D1.jpg|180519212242_C1E1_N5U1D1.jpg|180519215836_C1E1_N1U1D1.jpg|180519215937_C1E1_N2U1D1.jpg|180519220140_C1E1_N4U1D1.jpg|180519220241_C1E1_N5U1D1.jpg|180519223836_C1E1_N1U1D1.jpg|180519231836_C1E1_N1U1D1.jpg|180519224140_C1E1_N4U1D1.jpg|180518223837_C1E1_N1U1D1.jpg|180518231837_C1E1_N1U1D1.jpg|180518224141_C1E1_N4U1D1.jpg|180518224242_C1E1_N5U1D1.jpg|180518231938_C1E1_N2U1D1.jpg|180518235837_C1E1_N1U1D1.jpg|180518232242_C1E1_N5U1D1.jpg|180519000039_C1E1_N3U1D1.jpg|180519000141_C1E1_N4U1D1.jpg|180519000242_C1E1_N5U1D1.jpg|180519004242_C1E1_N5U1D1.jpg|180519004141_C1E1_N4U1D1.jpg|180519010837_C1E3_N1U1D1.jpg|180519012039_C1E1_N3U1D1.jpg|180519012141_C1E1_N4U1D1.jpg|180519015837_C1E1_N1U1D1.jpg|180519023938_C1E1_N2U1D1.jpg|180519015939_C1E35_N1U1D1.jpg|180519020141_C1E1_N4U1D1.jpg|180519020242_C1E1_N5U1D1.jpg|180519*B0\r\n""",
+        b"""$$q1054,864507032323403,D01,8,1,024141_C1E1_N4U1D1.jpg|180519024242_C1E1_N5U1D1.jpg|180519030837_C1E3_N1U1D1.jpg|180519031837_C1E1_N1U1D1.jpg|180519031938_C1E1_N2U1D1.jpg|180519032039_C1E1_N3U1D1.jpg|180519032242_C1E1_N5U1D1.jpg|180519043837_C1E1_N1U1D1.jpg|180519035837_C1E1_N1U1D1.jpg|180519035938_C1E1_N2U1D1.jpg|180519040039_C1E1_N3U1D1.jpg|180519040040_C1E35_N1U1D1.jpg|180519040141_C1E1_N4U1D1.jpg|180519040242_C1E1_N5U1D1.jpg|180519043938_C1E1_N2U1D1.jpg|180519044039_C1E1_N3U1D1.jpg|180519044141_C1E1_N4U1D1.jpg|180519052242_C1E1_N5U1D1.jpg|180519050837_C1E3_N1U1D1.jpg|180519051837_C1E1_N1U1D1.jpg|180519051938_C1E1_N2U1D1.jpg|180519052039_C1E1_N3U1D1.jpg|180519060140_C1E1_N4U1D1.jpg|180519055837_C1E1_N1U1D1.jpg|180519055937_C1E1_N2U1D1.jpg|180519060039_C1E1_N3U1D1.jpg|180519060141_C1E35_N1U1D1.jpg|180519060242_C1E1_N5U1D1.jpg|180519064140_C1E1_N4U1D1.jpg|180519063837_C1E1_N1U1D1.jpg|180519063937_C1E1_N2U1D1.jpg|180519064039_C1E1_N3U1D1.jpg|180519064242_C1E1_N5U1D1.jpg|180519071938_C1E1_N2U1D1.jpg|180519071837_C1E1_N1U1D1.jpg|180519072040_*54\r\n""",
+        b"""$$A1054,864507032323403,D01,8,2,C1E1_N3U1D1.jpg|180519072243_C1E1_N5U1D1.jpg|180519080249_C1E1_N5U1D1.jpg|180519100141_C1E1_N4U1D1.jpg|180519103837_C1E1_N1U1D1.jpg|180519104040_C1E1_N3U1D1.jpg|180519104242_C1E1_N5U1D1.jpg|180519110409_C1E35_N1U1D1.jpg|180519111938_C1E1_N2U1D1.jpg|180519111837_C1E1_N1U1D1.jpg|180519112039_C1E1_N3U1D1.jpg|180519112242_C1E1_N5U1D1.jpg|180519124141_C1E1_N4U1D1.jpg|180519224241_C1E1_N5U1D1.jpg|180519230954_C1E35_N1U1D1.jpg|180519231937_C1E1_N2U1D1.jpg|180519232038_C1E1_N3U1D1.jpg|180519232241_C1E1_N5U1D1.jpg|180519235836_C1E1_N1U1D1.jpg|180520000038_C1E1_N3U1D1.jpg|180520000140_C1E1_N4U1D1.jpg|180520000241_C1E1_N5U1D1.jpg|180520004038_C1E1_N3U1D1.jpg|180520011050_C1E35_N1U1D1.jpg|180520011836_C1E1_N1U1D1.jpg|180520011937_C1E1_N2U1D1.jpg|180520012038_C1E1_N3U1D1.jpg|180520012241_C1E1_N5U1D1.jpg|180520015836_C1E1_N1U1D1.jpg|180520015937_C1E1_N2U1D1.jpg|180520020038_C1E1_N3U1D1.jpg|180520020140_C1E1_N4U1D1.jpg|180520020241_C1E1_N5U1D1.jpg|180520024038_C1E1_N3U1D1.jpg|180520023836_C1E1_N1U1D1.jpg|180520023937_C1E1_N*66\r\n""",
+        b"""$$B1054,864507032323403,D01,8,3,2U1D1.jpg|180520024140_C1E1_N4U1D1.jpg|180520024241_C1E1_N5U1D1.jpg|180520031836_C1E1_N1U1D1.jpg|180520031937_C1E1_N2U1D1.jpg|180520032038_C1E1_N3U1D1.jpg|180520032241_C1E1_N5U1D1.jpg|180520035836_C1E1_N1U1D1.jpg|180520035938_C1E1_N2U1D1.jpg|180520040039_C1E1_N3U1D1.jpg|180520040141_C1E1_N4U1D1.jpg|180520040242_C1E1_N5U1D1.jpg|180520043836_C1E1_N1U1D1.jpg|180520043938_C1E1_N2U1D1.jpg|180520044039_C1E1_N3U1D1.jpg|180520044141_C1E1_N4U1D1.jpg|180520044242_C1E1_N5U1D1.jpg|180513184246_C1E1_N5U1D1.jpg|180513191841_C1E1_N1U1D1.jpg|180513191942_C1E1_N2U1D1.jpg|180513192043_C1E1_N3U1D1.jpg|180513192145_C1E1_N4U1D1.jpg|180513192246_C1E1_N5U1D1.jpg|180513193259_C1E35_N1U1D1.jpg|180513195841_C1E1_N1U1D1.jpg|180513195942_C1E1_N2U1D1.jpg|180513200043_C1E1_N3U1D1.jpg|180513200145_C1E1_N4U1D1.jpg|180513200246_C1E1_N5U1D1.jpg|180513203328_C1E35_N1U1D1.jpg|180513203841_C1E1_N1U1D1.jpg|180513203942_C1E1_N2U1D1.jpg|180513204043_C1E1_N3U1D1.jpg|180513204144_C1E1_N4U1D1.jpg|180513204246_C1E1_N5U1D1.jpg|180513211841_C1E1_N1U1D1.j*5D\r\n""",
+        b"""$$C1054,864507032323403,D01,8,4,pg|180513211942_C1E1_N2U1D1.jpg|180513212043_C1E1_N3U1D1.jpg|180513212144_C1E1_N4U1D1.jpg|180513212246_C1E1_N5U1D1.jpg|180513213356_C1E35_N1U1D1.jpg|180513215841_C1E1_N1U1D1.jpg|180513215941_C1E1_N2U1D1.jpg|180513220043_C1E1_N3U1D1.jpg|180513220144_C1E1_N4U1D1.jpg|180513220246_C1E1_N5U1D1.jpg|180513223425_C1E35_N1U1D1.jpg|180513223841_C1E1_N1U1D1.jpg|180513223941_C1E1_N2U1D1.jpg|180513224043_C1E1_N3U1D1.jpg|180513224144_C1E1_N4U1D1.jpg|180513224246_C1E1_N5U1D1.jpg|180513231841_C1E1_N1U1D1.jpg|180513231941_C1E1_N2U1D1.jpg|180513232043_C1E1_N3U1D1.jpg|180513232144_C1E1_N4U1D1.jpg|180513232246_C1E1_N5U1D1.jpg|180513233454_C1E35_N1U1D1.jpg|180513235841_C1E1_N1U1D1.jpg|180513235941_C1E1_N2U1D1.jpg|180514000043_C1E1_N3U1D1.jpg|180514000144_C1E1_N4U1D1.jpg|180514000246_C1E1_N5U1D1.jpg|180514003522_C1E35_N1U1D1.jpg|180514003841_C1E1_N1U1D1.jpg|180514003941_C1E1_N2U1D1.jpg|180514004043_C1E1_N3U1D1.jpg|180514004144_C1E1_N4U1D1.jpg|180514004246_C1E1_N5U1D1.jpg|180514011841_C1E1_N1U1D1.jpg|180514011941_C1E1_N2U1D1.jpg|18*8B\r\n""",
+        b"""$$D1054,864507032323403,D01,8,5,0514012043_C1E1_N3U1D1.jpg|180514012144_C1E1_N4U1D1.jpg|180514012246_C1E1_N5U1D1.jpg|180514013551_C1E35_N1U1D1.jpg|180514015841_C1E1_N1U1D1.jpg|180514015941_C1E1_N2U1D1.jpg|180514020043_C1E1_N3U1D1.jpg|180514020144_C1E1_N4U1D1.jpg|180514020246_C1E1_N5U1D1.jpg|180514023620_C1E35_N1U1D1.jpg|180514023841_C1E1_N1U1D1.jpg|180514023941_C1E1_N2U1D1.jpg|180514024043_C1E1_N3U1D1.jpg|180514024144_C1E1_N4U1D1.jpg|180514024246_C1E1_N5U1D1.jpg|180514031841_C1E1_N1U1D1.jpg|180514031941_C1E1_N2U1D1.jpg|180514032043_C1E1_N3U1D1.jpg|180514032144_C1E1_N4U1D1.jpg|180514032246_C1E1_N5U1D1.jpg|180514033648_C1E35_N1U1D1.jpg|180514035841_C1E1_N1U1D1.jpg|180514035941_C1E1_N2U1D1.jpg|180514040043_C1E1_N3U1D1.jpg|180514040144_C1E1_N4U1D1.jpg|180514040246_C1E1_N5U1D1.jpg|180514043717_C1E35_N1U1D1.jpg|180514043841_C1E1_N1U1D1.jpg|180514043941_C1E1_N2U1D1.jpg|180514044043_C1E1_N3U1D1.jpg|180514044144_C1E1_N4U1D1.jpg|180514044246_C1E1_N5U1D1.jpg|180514051841_C1E1_N1U1D1.jpg|180514051942_C1E1_N2U1D1.jpg|180514052044_C1E1_N3U1D1.jpg|1805140*E4\r\n""",
+        b"""$$E1054,864507032323403,D01,8,6,52145_C1E1_N4U1D1.jpg|180514052247_C1E1_N5U1D1.jpg|180514053746_C1E35_N1U1D1.jpg|180514055841_C1E1_N1U1D1.jpg|180514055942_C1E1_N2U1D1.jpg|180514060044_C1E1_N3U1D1.jpg|180514060145_C1E1_N4U1D1.jpg|180514060246_C1E1_N5U1D1.jpg|180514063814_C1E35_N1U1D1.jpg|180514063841_C1E1_N1U1D1.jpg|180514063942_C1E1_N2U1D1.jpg|180514064043_C1E1_N3U1D1.jpg|180514064145_C1E1_N4U1D1.jpg|180514064246_C1E1_N5U1D1.jpg|180514071841_C1E1_N1U1D1.jpg|180514071942_C1E1_N2U1D1.jpg|180514072043_C1E1_N3U1D1.jpg|180514072145_C1E1_N4U1D1.jpg|180514072246_C1E1_N5U1D1.jpg|180514073843_C1E35_N1U1D1.jpg|180514075841_C1E1_N1U1D1.jpg|180514075942_C1E1_N2U1D1.jpg|180514080043_C1E1_N3U1D1.jpg|180514080145_C1E1_N4U1D1.jpg|180514080246_C1E1_N5U1D1.jpg|180514083841_C1E1_N1U1D1.jpg|180514083912_C1E35_N1U1D1.jpg|180514083942_C1E1_N2U1D1.jpg|180514084043_C1E1_N3U1D1.jpg|180514084145_C1E1_N4U1D1.jpg|180514084246_C1E1_N5U1D1.jpg|180514091841_C1E1_N1U1D1.jpg|180514091942_C1E1_N2U1D1.jpg|180514092043_C1E1_N3U1D1.jpg|180514092145_C1E1_N4U1D1.jpg|180514092246*98\r\n""",
+        b"""$$F309,864507032323403,D01,8,7,_C1E1_N5U1D1.jpg|180514093940_C1E35_N1U1D1.jpg|180514095840_C1E1_N1U1D1.jpg|180514100246_C1E1_N5U1D1.jpg|180514111942_C1E1_N2U1D1.jpg|180514100145_C1E1_N4U1D1.jpg|180514112043_C1E1_N3U1D1.jpg|180514120043_C1E1_N3U1D1.jpg|180514120144_C1E1_N4U1D1.jpg|180514120246_C1E1_N5U1D1.jpg|*8E\r\n""",
+    ]
+
+    file_part_list = []
+    for gprs_item in file_listing:
+        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item)
+        file_part_list.append(test_gprs_list[0])
+    print(gprs_file_list_as_list(file_part_list))
+
+    file_list_object = FileListing()
+    for gprs_item in file_listing:
+        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item)
+        file_list_object.add_packet(test_gprs_list[0])
+        print(file_list_object.return_file_listing_list())

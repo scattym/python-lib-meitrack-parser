@@ -7,6 +7,7 @@ import time
 from meitrack import event
 from meitrack.command.command_AAA import TrackerCommand
 from meitrack.command.command_D00 import FileDownloadCommand
+from meitrack.command.command_D01 import FileListCommand
 from meitrack.command.command_E91 import RequestDeviceInfoCommand
 from meitrack.command.common import Command
 from meitrack.error import GPRSParameterError
@@ -50,6 +51,7 @@ COMMAND_LIST = {
     b"C44": {"name": "Reading Temperature Sensor Parameters", "class": None},
     b"C46": {"name": "Checking Temperature Sensor Parameters", "class": None},
     b"D00": {"name": "File download command", "class": FileDownloadCommand},
+    b"D01": {"name": "File list command", "class": FileListCommand},
     b"D10": {"name": "Authorizing an iButton key", "class": None},
     b"D11": {"name": "Authorizing iButton Keys in Batches", "class": None},
     b"D12": {"name": "Checking iButton Authorization", "class": None},
