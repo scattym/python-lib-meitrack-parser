@@ -83,6 +83,9 @@ class FileListing(object):
             return file_str.split('|')
         return None
 
+    def __str__(self):
+        return str(self.file_arr)
+
 
 def gprs_file_list_as_str(list_of_gprs):
     full_file_list_dict = {}
