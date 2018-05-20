@@ -93,6 +93,7 @@ def stc_set_idle_alert_time(imei, consecutive_speed_time_secs=0, speed_kmh=0, al
 
     return gprs
 
+
 # B15
 def stc_set_fatigue_driving_alert_time(imei, consecutive_driving_time_mins=0, alert_time_secs=0, acc_off_time_mins=0):
     com = command.stc_set_fatigue_driving_alert(consecutive_driving_time_mins, alert_time_secs, acc_off_time_mins)
