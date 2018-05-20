@@ -53,3 +53,6 @@ class FileDownload(object):
             for i in range(0, self.expecting_packets):
                 file_bytes = b"".join([file_bytes, self.packets[i]])
             return file_bytes
+
+    def __str__(self):
+        return "{} {} of {}".format(self.file_name, len(self.packets), self.expecting_packets)
