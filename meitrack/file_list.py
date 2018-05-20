@@ -20,6 +20,10 @@ class FileListing(object):
         self.full_file_list_dict = {}
         self.file_arr = []
 
+    def remove_item(self, file_name):
+        if file_name in self.file_arr:
+            self.file_arr.remove(file_name)
+
     def add_packet(self, gprs_packet):
         # self.packets.append(gprs_packet)
         if gprs_packet.enclosed_data['command'] == b'D01':
