@@ -47,8 +47,8 @@ def stc_request_location_message(imei):
     return gprs
 
 
-def stc_request_photo_list(imei):
-    com = command.stc_request_photo_list()
+def stc_request_photo_list(imei, start=0):
+    com = command.stc_request_photo_list(start)
     gprs = GPRS()
     gprs.direction = b'@@'
     gprs.data_identifier = b'd'
