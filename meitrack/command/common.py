@@ -78,8 +78,8 @@ class Command(object):
         if self.field_dict.get("analog_input_value"):
             analog_list = self.field_dict.get("analog_input_value").split(b"|")
             if input_number <= len(analog_list):
-                logger.log(13, analog_list[input_number-1])
-                logger.log(13, int(analog_list[input_number-1], 16))
+                logger.debug(analog_list[input_number-1])
+                logger.debug(int(analog_list[input_number-1], 16))
                 return int(analog_list[input_number-1], 16) / 100
 
     def get_battery_voltage(self):
