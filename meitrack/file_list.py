@@ -34,6 +34,8 @@ class FileListing(object):
 
     def add_packet(self, gprs_packet):
         # self.packets.append(gprs_packet)
+        packet_count = None
+        packet_number = None
         if gprs_packet.enclosed_data['command'] == b'D01':
             packet_count, packet_number, file_list = gprs_packet.enclosed_data.get_file_list()
             if packet_count is None or packet_number is None or file_list is None:
@@ -55,6 +57,7 @@ class FileListing(object):
                 self.full_file_list_dict = {}
                 self.max_packets = 0
                 logger.log(13, "File list is complete %s", self.file_arr)
+        return packet_count, packet_number
 
     def is_complete(self):
         if self.max_packets == 0:

@@ -120,8 +120,8 @@ def stc_request_take_photo(camera_number, file_name):
     return Command(0, b"D03," + str(camera_number).encode() + b"," + str(file_name).encode())
 
 
-def stc_request_photo_list():
-    return Command(0, b"D01,0")
+def stc_request_photo_list(start=0):
+    return Command(0, b"D01,%b" % (str(start).endode(),))
 
 
 def stc_request_location():
@@ -140,12 +140,14 @@ def stc_set_tracking_by_time_interval(deci_seconds=0):
     return Command(0, b"A12,%b" % (str(deci_seconds).encode(),))
 
 
+# TODO: Should the following be %b or %s for the byte string replacement
 def stc_set_cornering_angle(angle=0):
     if angle < 0 or angle > 359:
         raise GPRSParameterError("Cornering angle must be between 0 and 359. Was %s" % (angle,))
     return Command(0, b"A13,%s" % (str(angle).encode(),))
 
 
+# TODO: Should the following be %b or %s for the byte string replacement
 def stc_set_time_zone(minutes=0):
     if minutes < -32768 or minutes > 32768:
         raise GPRSParameterError("Timezone offset must be between -32768 and 32768. Was %s" % (minutes,))
@@ -159,7 +161,7 @@ def stc_set_fatigue_driving_alert(consecutive_driving_time_mins=0, alert_time_se
         raise GPRSParameterError("Alert time must be between 0 and 60000. Was %s" % (alert_time_secs,))
     if acc_off_time_mins is None or acc_off_time_mins < 0 or acc_off_time_mins > 1000:
         raise GPRSParameterError("Acc off time must be between 0 and 1000. Was %s" % (alert_time_secs,))
-
+    # TODO: Should the following be %b or %s for the byte string replacement
     return Command(
         0,
         b"B15,%s,%s,%s" % (
@@ -178,6 +180,7 @@ def stc_set_idle_alert_time(consecutive_speed_time_secs=0, speed_kmh=0, alert_ti
     if alert_time_secs is None or alert_time_secs < 0 or alert_time_secs > 60000:
         raise GPRSParameterError("Alert time must be between 0 and 60000. Was %s" % (alert_time_secs,))
 
+    # TODO: Should the following be %b or %s for the byte string replacement
     return Command(
         0,
         b"B14,%s,%s,%s" % (
@@ -198,6 +201,7 @@ def stc_set_speeding_alert(speed_kmh=0, disabled=True):
         disabled_value = "1"
     else:
         disabled_value = "0"
+    # TODO: Should the following be %b or %s for the byte string replacement
     return Command(
         0,
         b"B07,%s,%s" % (
@@ -209,6 +213,7 @@ def stc_set_speeding_alert(speed_kmh=0, disabled=True):
 
 def stc_set_driver_license_type(license_type_str=""):
     if license_type_str:
+        # TODO: Should the following be %b or %s for the byte string replacement
         return Command(0, b"C50,%s" % (str(license_type_str).encode(),))
     else:
         return Command(0, b"C50")
@@ -216,6 +221,7 @@ def stc_set_driver_license_type(license_type_str=""):
 
 def stc_set_driver_license_validity_time(validity_time=0):
     if validity_time:
+        # TODO: Should the following be %b or %s for the byte string replacement
         return Command(0, b"C52,%s" % (str(validity_time).encode(),))
     else:
         return Command(0, b"C52")
