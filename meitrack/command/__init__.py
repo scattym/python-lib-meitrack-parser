@@ -121,7 +121,7 @@ def stc_request_take_photo(camera_number, file_name):
 
 
 def stc_request_photo_list(start=0):
-    return Command(0, b"D01,%b" % (str(start).endode(),))
+    return Command(0, b"D01,%b" % (str(start).encode(),))
 
 
 def stc_request_location():
