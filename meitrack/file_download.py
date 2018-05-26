@@ -57,7 +57,7 @@ class FileDownloadAggregator(object):
     def __str__(self):
         return_str = ""
         for key in self.download_list:
-            return_str = "{}\n{}".format(return_str, self.download_list[key])
+            return_str = "{}\n{} {}".format(return_str, key, self.download_list[key])
 
         return return_str
 
