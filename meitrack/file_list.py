@@ -20,6 +20,19 @@ class FileListing(object):
         self.full_file_list_dict = {}
         self.file_arr = []
 
+    def add_item(self, file_name):
+        try:
+            item = file_name.decode()
+        except AttributeError:
+            item = file_name
+        if item:
+            if item not in self.file_arr:
+                logger.log(13, "File was not in list. Adding: %s", file_name)
+                self.file_arr.append(item)
+                logger.log(13, "List is now %s", self.file_arr)
+            else:
+                logger.error("File was already in list. Not adding: %s", file_name)
+
     def remove_item(self, file_name):
         try:
             remove = file_name.decode()
@@ -53,7 +66,9 @@ class FileListing(object):
                         raise FileListingError("Max packet count has changed across packets")
                 self.full_file_list_dict[packet_number] = file_list
             if self.is_complete():
-                self.file_arr = self.return_file_listing_list()
+                for file in self.return_file_listing_list():
+                    self.add_item(file)
+                # self.file_arr = self.return_file_listing_list()
                 self.full_file_list_dict = {}
                 self.max_packets = 0
                 logger.log(13, "File list is complete %s", self.file_arr)
