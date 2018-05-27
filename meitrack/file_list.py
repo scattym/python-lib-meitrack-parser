@@ -14,6 +14,7 @@ class FileListing(object):
         self.max_packets = 0
         self.full_file_list_dict = {}
         self.file_arr = []
+        self.num_files = 0
 
     def clear_list(self):
         self.max_packets = 0
@@ -30,6 +31,7 @@ class FileListing(object):
                 logger.log(13, "File was not in list. Adding: %s", file_name)
                 self.file_arr.append(item)
                 logger.log(13, "List is now %s", self.file_arr)
+                self.num_files = len(self.file_arr)
             else:
                 logger.error("File was already in list. Not adding: %s", file_name)
 
@@ -41,6 +43,7 @@ class FileListing(object):
         if remove in self.file_arr:
             logger.log(13, "Found file, removing from list %s", file_name)
             self.file_arr.remove(remove)
+            self.num_files = len(self.file_arr)
             logger.log(13, "List is now %s", self.file_arr)
         else:
             logger.error("File was not in list. file_name: %s", file_name)
@@ -66,9 +69,10 @@ class FileListing(object):
                         raise FileListingError("Max packet count has changed across packets")
                 self.full_file_list_dict[packet_number] = file_list
             if self.is_complete():
+
                 for file in self.return_file_listing_list():
                     self.add_item(file)
-                # self.file_arr = self.return_file_listing_list()
+
                 self.full_file_list_dict = {}
                 self.max_packets = 0
                 logger.log(13, "File list is complete %s", self.file_arr)
