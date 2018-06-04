@@ -9,3 +9,5 @@ exclude .project
 exclude .pydevproject
 exclude .idea
 exclude setup.cfg
+exclude misc
+recursive-exclude misc *
