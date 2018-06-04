@@ -1,0 +1,4 @@
+1.6 (unreleased)
+-----------------
+
+- Add support for setting the counter in the outbound message when converting to bytes and signing.
