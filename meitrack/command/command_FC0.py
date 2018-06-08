@@ -1,9 +1,7 @@
 import logging
 
-from meitrack.error import GPRSParseError
-from meitrack.command.common import Command, meitrack_date_to_datetime, datetime_to_meitrack_date
+from meitrack.command.common import Command
 from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
-from meitrack.gprs_protocol import GPRS
 
 logger = logging.getLogger(__name__)
 
@@ -31,17 +29,6 @@ def stc_auth_ota_update_command():
     return AuthOtaUpdateCommand(0, b"FC0,AUTH")
 
 
-def stc_auth_ota_update(imei):
-    com = stc_auth_ota_update_command()
-    gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
-    gprs.enclosed_data = com
-    gprs.imei = imei
-
-    return gprs
-
-
 if __name__ == '__main__':
     log_level = 11 - 11
 
@@ -55,15 +42,4 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    tests = [
-        b"""E91""",
-        b"""E91,FWV1.00,12345678""",
-    ]
-
-    test_command = AuthOtaUpdateCommand(0, b"E91")
-    print(test_command.as_bytes())
-    print(test_command)
-    test_command = AuthOtaUpdateCommand(1, b"E91,FWV1.00,12345678")
-    print(test_command.as_bytes())
-    print(test_command)
-    print(stc_auth_ota_update())
+    print(stc_auth_ota_update_command())

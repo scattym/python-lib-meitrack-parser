@@ -2,7 +2,6 @@ import logging
 from meitrack.error import GPRSParseError
 from meitrack.command.common import Command, meitrack_date_to_datetime, datetime_to_meitrack_date
 from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
-from meitrack.gprs_protocol import GPRS
 
 logger = logging.getLogger(__name__)
 
@@ -30,17 +29,6 @@ def stc_check_device_code_command():
     return CheckDeviceCodeCommand(0, b'FC5')
 
 
-def stc_check_device_code(imei):
-    com = stc_check_device_code_command()
-    gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
-    gprs.enclosed_data = com
-    gprs.imei = imei
-
-    return gprs
-
-
 if __name__ == '__main__':
     log_level = 11 - 11
 
@@ -54,4 +42,4 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    print(stc_check_device_code())
+    print(stc_check_device_code_command())

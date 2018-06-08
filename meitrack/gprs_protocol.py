@@ -3,7 +3,7 @@ import logging
 
 import sys
 from meitrack import event
-from meitrack.command import command_to_object
+from meitrack.command.command_to_object import command_to_object
 from meitrack.error import GPRSParseError
 from meitrack.common import CLIENT_TO_SERVER_PREFIX, SERVER_TO_CLIENT_PREFIX, DIRECTION_CLIENT_TO_SERVER
 from meitrack.common import DIRECTION_SERVER_TO_CLIENT, END_OF_MESSAGE_STRING, MAX_DATA_LENGTH

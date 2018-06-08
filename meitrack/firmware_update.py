@@ -1,12 +1,25 @@
+import logging
 
+from meitrack.command.command_FC0 import stc_auth_ota_update_command
+from meitrack.command.command_FC1 import stc_send_ota_data_command
+from meitrack.command.command_FC2 import stc_obtain_ota_checksum_command
+from meitrack.command.command_FC3 import stc_start_ota_update_command
+from meitrack.command.command_FC4 import stc_cancel_ota_update_command
+from meitrack.command.command_FC5 import stc_check_device_code_command
+from meitrack.command.command_FC6 import stc_check_firmware_version_command
+from meitrack.command.command_FC7 import stc_set_ota_server_command
+from meitrack.gprs_protocol import GPRS
+
+logger = logging.getLogger(__name__)
 
 class FirmwareUpdate(object):
-    def __init__(self):
-        self.imei = None
+    def __init__(self, imei, file_name):
+        self.imei = imei
         self.device_code = None
-        self.file_name = None
+        self.file_name = file_name
         self.ip_address = None
         self.port = None
+        self.file_bytes = None
 
     def fc4(self):
         """
@@ -15,7 +28,7 @@ class FirmwareUpdate(object):
         FC4,OK
         :return: gprs object
         """
-        pass
+        return stc_cancel_ota_update(self.imei)
 
     def fc5(self):
         """
@@ -24,7 +37,7 @@ class FirmwareUpdate(object):
         FC5,Device code
         :return: gprs
         """
-        pass
+        return stc_check_device_code(self.imei)
 
     def fc6(self):
         """
@@ -33,7 +46,7 @@ class FirmwareUpdate(object):
         FC6,ACK
         :return: gprs
         """
-        pass
+        return stc_check_firmware_version(self.imei, self.file_name)
 
     def fc7(self):
         """
@@ -44,7 +57,7 @@ class FirmwareUpdate(object):
         FC7,OTA
         :return: gprs
         """
-        pass
+        return stc_set_ota_server(self.imei, self.ip_address, self.port)
 
     def fc0(self):
         """
@@ -54,7 +67,7 @@ class FirmwareUpdate(object):
         FC0,Device code,Err
         :return: gprs
         """
-        pass
+        return stc_auth_ota_update(self.imei)
 
     def fc1(self):
         """
@@ -62,9 +75,9 @@ class FirmwareUpdate(object):
         FC1,INDEX/OTA data length/OTA data
         FC1,Received INDEX/OTA data length received/Result
         Or FC1,NOT
-        :return:
+        :return: gprs
         """
-        pass
+        return stc_send_ota_data(self.imei, self.file_bytes)
 
     def fc2(self):
         """
@@ -72,9 +85,10 @@ class FirmwareUpdate(object):
         FC2,INDEX/Data length
         FC2,OTA data checksum
         Or FC2,NOT
-        :return:
+        :return: gprs
         """
-        pass
+        return stc_obtain_ota_checksum(self.imei)
+
 
     def fc3(self):
         """
@@ -84,6 +98,131 @@ class FirmwareUpdate(object):
         Or FC3,2
         Or FC3,3
         Or FC3,NOT
-        :return:
+        :return: gprs
         """
-        pass
+        return stc_start_ota_update(self.imei)
+
+
+def stc_auth_ota_update(imei):
+    com = stc_auth_ota_update_command()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
+def stc_send_ota_data(imei, file_bytes):
+    gprs_list = []
+    com_list = stc_send_ota_data_command(file_bytes)
+    for com in com_list:
+        gprs = GPRS()
+        gprs.direction = b'@@'
+        gprs.data_identifier = b'a'
+        gprs.enclosed_data = com
+        gprs.imei = imei
+        gprs_list.append(gprs)
+
+    return gprs_list
+
+
+def stc_obtain_ota_checksum(imei):
+    com = stc_obtain_ota_checksum_command()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
+def stc_start_ota_update(imei):
+    com = stc_start_ota_update_command()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
+def stc_cancel_ota_update(imei):
+    com = stc_cancel_ota_update_command()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
+def stc_check_device_code(imei):
+    com = stc_check_device_code_command()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
+def stc_check_firmware_version(imei, file_name):
+    com = stc_check_firmware_version_command(file_name)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
+def stc_set_ota_server(imei, ip_address, port):
+    com = stc_set_ota_server_command(ip_address, port)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+if __name__ == '__main__':
+    log_level = 11 - 11
+
+    logger = logging.getLogger('')
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    print(stc_auth_ota_update(b'0407'))
+    print(stc_auth_ota_update(b'0407').as_bytes())
+
+    gprss = stc_send_ota_data(b'0407', b"testfil"*190)
+    for gprs in gprss:
+        print(gprs)
+        print(gprs.as_bytes())
+
+    print(stc_obtain_ota_checksum(b'0407'))
+    print(stc_obtain_ota_checksum(b'0407').as_bytes())
+    print(stc_start_ota_update(b'0407'))
+    print(stc_start_ota_update(b'0407').as_bytes())
+    print(stc_cancel_ota_update(b'0407'))
+    print(stc_cancel_ota_update(b'0407').as_bytes())
+    print(stc_check_device_code(b'0407'))
+    print(stc_check_device_code(b'0407').as_bytes())
+    print(stc_check_firmware_version(b'0407', b'testfile.ota'))
+    print(stc_check_firmware_version(b'0407', b'testfile.ota').as_bytes())
+    print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100'))
+    print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100').as_bytes())
