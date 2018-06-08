@@ -110,22 +110,31 @@ class GPRS(object):
             return_str += str(self.enclosed_data)
         return return_str
 
-    def as_bytes(self):
+    def as_bytes(self, counter=0):
         # print(chr(self.data_identifier).encode())
         # print(type(chr(self.data_identifier).encode()))
         # print(self.data_length)
+        subset = (counter % 58) + 65
+        self.data_identifier = bytes([subset])
         string_to_sign = (
-                self.direction + self.data_identifier + self.data_length
-                + b"," + self.imei + b"," + self.leftover + b"*"
+            b"".join(
+                [
+                    self.direction, self.data_identifier, self.data_length,
+                    b",", self.imei, b",", self.leftover, b"*"
+                ]
+            )
         )
         checksum_hex = "{:02X}".format(calc_signature(string_to_sign))
         self.checksum = checksum_hex.encode()
         # self.checksum = "{:02X}".format(calc_signature(string_to_sign))
         # print(type(self.data_identifier))
         return_str = (
-                self.direction + self.data_identifier + self.data_length
-                + b"," + self.imei + b"," +
-                 self.leftover + b"*" + self.checksum + END_OF_MESSAGE_STRING
+            b"".join(
+                [
+                    self.direction, self.data_identifier, self.data_length, b",",
+                    self.imei, b",", self.leftover, b"*", self.checksum, END_OF_MESSAGE_STRING
+                ]
+            )
         )
         # print("RETURN STRING")
         # print(return_str)
@@ -385,6 +394,8 @@ if __name__ == '__main__':
         test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item)
         for gprs in test_gprs_list:
             print(gprs)
+            print("============================================================================================")
+            print(gprs.as_bytes())
         if before_bytes:
             print("Before bytes is ", before_bytes)
         if extra_bytes:
