@@ -2,6 +2,8 @@ import logging
 from meitrack.error import GPRSParseError
 from meitrack.command.common import Command, meitrack_date_to_datetime, datetime_to_meitrack_date
 from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
+from meitrack.gprs_protocol import GPRS
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,11 +36,25 @@ class SendOtaDataCommand(Command):
             self.payload = self.field_dict["payload"]
 
 
-def stc_send_ota_data(file_bytes):
+def stc_send_ota_data_command(file_bytes):
     command_list = []
     for index, x in enumerate(range(0, len(file_bytes), 1024)):
         command_list.append(SendOtaDataCommand(0, None, index=index, file_contents=file_bytes[x:x+1024]))
     return command_list
+
+
+def stc_send_ota_data(imei, file_bytes):
+    gprs_list = []
+    com_list = stc_send_ota_data_command(file_bytes)
+    for com in com_list:
+        gprs = GPRS()
+        gprs.direction = b'@@'
+        gprs.data_identifier = b'a'
+        gprs.enclosed_data = com
+        gprs.imei = imei
+        gprs_list.append(gprs)
+
+    return gprs_list
 
 
 if __name__ == '__main__':
