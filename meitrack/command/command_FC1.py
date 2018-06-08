@@ -2,7 +2,6 @@ import logging
 from meitrack.error import GPRSParseError
 from meitrack.command.common import Command, meitrack_date_to_datetime, datetime_to_meitrack_date
 from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
-from meitrack.gprs_protocol import GPRS
 
 logger = logging.getLogger(__name__)
 
@@ -43,20 +42,6 @@ def stc_send_ota_data_command(file_bytes):
     return command_list
 
 
-def stc_send_ota_data(imei, file_bytes):
-    gprs_list = []
-    com_list = stc_send_ota_data_command(file_bytes)
-    for com in com_list:
-        gprs = GPRS()
-        gprs.direction = b'@@'
-        gprs.data_identifier = b'a'
-        gprs.enclosed_data = com
-        gprs.imei = imei
-        gprs_list.append(gprs)
-
-    return gprs_list
-
-
 if __name__ == '__main__':
     log_level = 11 - 11
 
@@ -82,6 +67,6 @@ if __name__ == '__main__':
     print(test_command.as_bytes())
     print(test_command)
 
-    commands = stc_send_ota_data(b"testfil"*190)
+    commands = stc_send_ota_data_command(b"testfil"*190)
     for command in commands:
         print(command)
