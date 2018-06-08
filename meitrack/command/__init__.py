@@ -9,6 +9,14 @@ from meitrack.command.command_AAA import TrackerCommand
 from meitrack.command.command_D00 import FileDownloadCommand
 from meitrack.command.command_D01 import FileListCommand
 from meitrack.command.command_E91 import RequestDeviceInfoCommand
+from meitrack.command.command_FC0 import AuthOtaUpdateCommand
+from meitrack.command.command_FC1 import SendOtaDataCommand
+from meitrack.command.command_FC2 import ObtainOtaChecksumCommand
+from meitrack.command.command_FC3 import StartOtaUpdateCommand
+from meitrack.command.command_FC4 import CancelOtaUpdateCommand
+from meitrack.command.command_FC5 import CheckDeviceCodeCommand
+from meitrack.command.command_FC6 import CheckFirmwareVersionCommand
+from meitrack.command.command_FC7 import SetOtaServerCommand
 from meitrack.command.common import Command
 from meitrack.common import DIRECTION_CLIENT_TO_SERVER
 from meitrack.error import GPRSParameterError
@@ -65,6 +73,14 @@ COMMAND_LIST = {
     b"D72": {"name": "Setting Output Triggering", "class": None},
     b"D73": {"name": "Allocating GPRS Cache and GPS LOG Storage Space", "class": None},
     b"E91": {"name": "Reading Device's Firmware Version and SN", "class": RequestDeviceInfoCommand},
+    b"FC0": {"name": "Auth ota update", "class": AuthOtaUpdateCommand},
+    b"FC1": {"name": "Auth ota update", "class": SendOtaDataCommand},
+    b"FC2": {"name": "Auth ota update", "class": ObtainOtaChecksumCommand},
+    b"FC3": {"name": "Auth ota update", "class": StartOtaUpdateCommand},
+    b"FC4": {"name": "Auth ota update", "class": CancelOtaUpdateCommand},
+    b"FC5": {"name": "Auth ota update", "class": CheckDeviceCodeCommand},
+    b"FC6": {"name": "Auth ota update", "class": CheckFirmwareVersionCommand},
+    b"FC7": {"name": "Auth ota update", "class": SetOtaServerCommand},
     b"F01": {"name": "Restarting the GSM Module", "class": None},
     b"F02": {"name": "Restarting the GPS Module", "class": None},
     b"F08": {"name": "Setting the Mileage and Run Time", "class": None},
