@@ -1,0 +1,10 @@
+1.7 (unreleased)
+----------------
+
+- Nothing changed yet.
+
+
+1.6 (2018-06-04)
+----------------
+
+- Add support for setting the counter in the outbound message when converting to bytes and signing.
