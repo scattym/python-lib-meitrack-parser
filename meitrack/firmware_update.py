@@ -32,6 +32,15 @@ class FirmwareUpdate(object):
         if self.imei and self.ip_address and self.port and self.file_name and self.file_bytes:
             self.build_messages()
 
+    def __str__(self):
+        firmware_string = "imei: {}, file_name: {}, is_finished: {}, is_error {}\n".format(
+            self.imei, self.file_name, self.is_finished, self.is_error
+        )
+        for index, message in enumerate(self.messages):
+            if message["response"] is not None:
+                firmware_string += "message {} is not complete\n".format(index)
+        return firmware_string
+
     def build_messages(self):
         self.messages = [
             {"request": self.fc5(), "response": None, "sent": False},
@@ -50,9 +59,24 @@ class FirmwareUpdate(object):
     def parse_response(self, response_gprs):
         for message in self.messages:
             if message["sent"] is True and message["response"] is None:
+                logger.debug(
+                    "Comparing request command %s to response command %s",
+                    message["request"].enclosed_data.command,
+                    response_gprs.enclosed_data.command
+                )
                 if message["request"].enclosed_data.command == response_gprs.enclosed_data.command:
-                    if message["request"].enclosed_data.is_response_error():
+
+                    message["response"] = response_gprs
+                    self.current_message = None
+
+                    if message["response"].enclosed_data.is_response_error():
+                        logger.error(
+                            "An error was returned during firmware update. Request %s, Response %s",
+                            message["request"],
+                            message["response"]
+                        )
                         self.is_error = True
+
                     if response_gprs.enclosed_data.command == b'FC5':
                         if response_gprs.enclosed_data["device_code"] != self.device_code:
                             logger.error(
@@ -61,14 +85,16 @@ class FirmwareUpdate(object):
                                 self.device_code
                             )
                             self.is_error = True
-                    self.current_message = None
-                    message["response"] = response_gprs
         self.check_is_complete()
 
     def check_is_complete(self):
+        if self.is_error:
+            self.is_finished = True
+            return True
         for message in self.messages:
             if message["response"] is None:
                 return False
+        self.is_finished = True
         return True
 
     def return_next_payload(self):

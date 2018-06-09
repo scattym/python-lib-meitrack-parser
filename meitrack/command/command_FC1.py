@@ -22,10 +22,13 @@ class SendOtaDataCommand(Command):
             self.field_name_selector = self.response_field_names
 
         if payload:
-            self.index = payload[0:4]
-            self.length = payload[4:8]
-            self.file_contents = payload[8:]
-            self.field_dict['payload'] = payload
+            if direction == DIRECTION_CLIENT_TO_SERVER:
+                self.parse_payload(payload)
+            else:
+                self.index = payload[0:8]
+                self.length = payload[8:12]
+                self.file_contents = payload[12:]
+                self.field_dict['payload'] = payload
 
         if index is not None and file_contents is not None:
             self.field_dict['command'] = b'FC1'
