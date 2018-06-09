@@ -78,24 +78,28 @@ class FirmwareUpdate(object):
                         self.is_error = True
 
                     if response_gprs.enclosed_data.command == b'FC5':
-                        if response_gprs.enclosed_data["device_code"] != self.device_code:
+                        if response_gprs.enclosed_data.ota_response_device_code() != self.device_code:
                             logger.error(
                                 "Response device id %s does not match firmware device code: %s",
-                                response_gprs.enclosed_data["device_code"],
+                                response_gprs.enclosed_data.ota_response_device_code(),
                                 self.device_code
                             )
                             self.is_error = True
-        self.check_is_complete()
-
-    def check_is_complete(self):
-        if self.is_error:
-            self.is_finished = True
-            return True
         for message in self.messages:
             if message["response"] is None:
-                return False
+                return
         self.is_finished = True
-        return True
+        # self.check_is_complete()
+
+    # def check_is_complete(self):
+    #     if self.is_error:
+    #         self.is_finished = True
+    #         return True
+    #     for message in self.messages:
+    #         if message["response"] is None:
+    #             return False
+    #     self.is_finished = True
+    #     return True
 
     def return_next_payload(self):
         if self.is_finished:

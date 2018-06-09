@@ -11,7 +11,7 @@ class SetOtaServerCommand(Command):
         "command", "ip_address", "port",
     ]
     response_field_names = [
-        "command", "response",
+        "command", "response", "device_code", "unknown", "unknown2"
     ]
 
     def __init__(self, direction, payload=None):
