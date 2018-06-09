@@ -65,7 +65,7 @@ class Command(object):
             raise GPRSParseError(
                 "Incorrect number of fields for data. Data field length is ", len(fields),
                 " but should be ", len(self.field_name_selector), ". Fields should be ",
-                str(self.field_name_selector)
+                str(self.field_name_selector), ", Data was: ", str(payload)
             )
         for i in range(0, len(fields)):
             field_name = self.field_name_selector[i]
@@ -141,6 +141,9 @@ class Command(object):
 
     def get_serial_number(self):
         return self.field_dict.get("serial_number")
+
+    def is_response_error(self):
+        return False
 
 
 def meitrack_date_to_datetime(date_time):

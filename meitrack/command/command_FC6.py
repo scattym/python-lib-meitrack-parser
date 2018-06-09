@@ -24,6 +24,12 @@ class CheckFirmwareVersionCommand(Command):
         if payload:
             self.parse_payload(payload)
 
+    def is_response_error(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            if self.field_dict.get("response", b"") == b'2':
+                return True
+        return False
+
 
 def stc_check_firmware_version_command(file_name):
     return CheckFirmwareVersionCommand(0, b'FC6,%b' % (file_name,))
