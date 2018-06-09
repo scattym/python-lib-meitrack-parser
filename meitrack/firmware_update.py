@@ -117,6 +117,7 @@ class FirmwareUpdate(object):
             for message in self.messages:
                 if message["response"] is None and message["sent"] is False:
                     message["sent"] = True
+                    self.current_message = message["request"]
                     return message["request"]
         return None
 
