@@ -2,6 +2,7 @@ import logging
 from meitrack.error import GPRSParseError
 from meitrack.command.common import Command, meitrack_date_to_datetime, datetime_to_meitrack_date
 from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
+import binascii
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,13 @@ class CheckDeviceCodeCommand(Command):
             self.field_name_selector = self.response_field_names
 
         if payload:
-            self.parse_payload(payload)
+            self.parse_payload(payload, 2)
+
+    def ota_response_device_code(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER and self.field_dict.get("device_code") is not None:
+            return binascii.hexlify(self.field_dict["device_code"])
+        return None
+
 
 
 def stc_check_device_code_command():
