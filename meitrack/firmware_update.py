@@ -13,9 +13,12 @@ from meitrack.gprs_protocol import GPRS
 
 logger = logging.getLogger(__name__)
 
+STAGE_FIRST = "stage1"
+STAGE_SECOND = "stage2"
+
 
 class FirmwareUpdate(object):
-    def __init__(self, imei, device_code, ip_address, port, file_name, file_bytes):
+    def __init__(self, imei, device_code, ip_address, port, file_name, file_bytes, stage):
         self.imei = imei
         self.device_code = device_code
         self.file_name = file_name
@@ -29,8 +32,8 @@ class FirmwareUpdate(object):
         self.is_error = False
 
         self.last_message = datetime.datetime.now()
-        if self.imei and self.ip_address and self.port and self.file_name and self.file_bytes:
-            self.build_messages()
+        if self.imei and self.ip_address and self.port and self.file_name and self.device_code:
+            self.build_messages(stage)
 
     def __str__(self):
         firmware_string = "imei: {}, file_name: {}, is_finished: {}, is_error {}\n".format(
@@ -41,19 +44,22 @@ class FirmwareUpdate(object):
                 firmware_string += "message {} is not complete\n".format(index)
         return firmware_string
 
-    def build_messages(self):
-        self.messages = [
-            {"request": self.fc5(), "response": None, "sent": False},
-            {"request": self.fc6(), "response": None, "sent": False},
-            {"request": self.fc7(), "response": None, "sent": False},
-            {"request": self.fc0(), "response": None, "sent": False},
-        ]
-        self.gprs_file_list = stc_send_ota_data(self.imei, self.file_bytes)
-        for gprs in self.gprs_file_list:
-            self.messages.append({"request": gprs, "response": None, "sent": False})
+    def build_messages(self, stage):
+        if stage == STAGE_FIRST:
+            self.messages = [
+                {"request": self.fc5(), "response": None, "sent": False},
+                {"request": self.fc6(), "response": None, "sent": False},
+                {"request": self.fc7(), "response": None, "sent": False},
+                {"request": self.fc0(), "response": None, "sent": False},
+            ]
+        else:
+            self.messages = []
+            self.gprs_file_list = stc_send_ota_data(self.imei, self.file_bytes)
+            for gprs in self.gprs_file_list:
+                self.messages.append({"request": gprs, "response": None, "sent": False})
 
-        self.messages.append({"request": self.fc2(), "response": None, "sent": False})
-        self.messages.append({"request": self.fc3(), "response": None, "sent": False})
+            self.messages.append({"request": self.fc2(), "response": None, "sent": False})
+            # self.messages.append({"request": self.fc3(), "response": None, "sent": False})
         # self.messages.append({"request": self.fc4(), "response": None}, )
 
     def parse_response(self, response_gprs):
