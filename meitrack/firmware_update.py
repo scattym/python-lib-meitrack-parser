@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class FirmwareUpdate(object):
-    def __init__(self, imei, ip_address, port, file_name, file_bytes):
+    def __init__(self, imei, device_code, ip_address, port, file_name, file_bytes):
         self.imei = imei
-        self.device_code = None
+        self.device_code = device_code
         self.file_name = file_name
         self.ip_address = ip_address
         self.port = port
@@ -25,6 +25,8 @@ class FirmwareUpdate(object):
         self.current_message = None
         self.messages = []
         self.gprs_file_list = []
+        self.is_finished = False
+        self.is_error = False
 
         self.last_message = datetime.datetime.now()
         if self.imei and self.ip_address and self.port and self.file_name and self.file_bytes:
@@ -47,12 +49,34 @@ class FirmwareUpdate(object):
 
     def parse_response(self, response_gprs):
         for message in self.messages:
-            if message["sent"] == True and message["response"] is None:
+            if message["sent"] is True and message["response"] is None:
                 if message["request"].enclosed_data.command == response_gprs.enclosed_data.command:
+                    if message["request"].enclosed_data.is_response_error():
+                        self.is_error = True
+                    if response_gprs.enclosed_data.command == b'FC5':
+                        if response_gprs.enclosed_data["device_code"] != self.device_code:
+                            logger.error(
+                                "Response device id %s does not match firmware device code: %s",
+                                response_gprs.enclosed_data["device_code"],
+                                self.device_code
+                            )
+                            self.is_error = True
                     self.current_message = None
                     message["response"] = response_gprs
+        self.check_is_complete()
+
+    def check_is_complete(self):
+        for message in self.messages:
+            if message["response"] is None:
+                return False
+        return True
 
     def return_next_payload(self):
+        if self.is_finished:
+            return None
+        if self.is_error:
+            self.is_finished = True
+            return self.fc4()
         if self.current_message is None:
             for message in self.messages:
                 if message["response"] is None and message["sent"] is False:

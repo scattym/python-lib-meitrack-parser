@@ -24,9 +24,15 @@ class SetOtaServerCommand(Command):
         if payload:
             self.parse_payload(payload)
 
+    def is_response_error(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            if self.field_dict.get("response", b'') in [b'Err', b'FFFF']:
+                return True
+        return False
+
 
 def stc_set_ota_server_command(ip_address, port):
-    return SetOtaServerCommand(0, b'FC6,%b,%b' % (ip_address, port))
+    return SetOtaServerCommand(0, b'FC7,%b,%b' % (ip_address, port))
 
 
 if __name__ == '__main__':

@@ -31,8 +31,25 @@ class SendOtaDataCommand(Command):
             self.field_dict['command'] = b'FC1'
             self.index = index
             self.file_contents = file_contents
-            self.field_dict["payload"] = b"%08x%04x%b" % (self.index, len(file_contents), file_contents)
+            self.field_dict["payload"] = b"%08x%04x%s" % (self.index, len(file_contents), file_contents)
             self.payload = self.field_dict["payload"]
+
+    def is_response_error(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            response = self.field_dict.get("response", b'')
+            if response in [b'NOT']:
+                return True
+            else:
+                if len(response) == 14 and response[14:16] == b'00':
+                    return True
+        return False
+
+    def ota_response_data(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            response = self.field_dict.get("response", b'')
+            if len(response) == 14 and response[14:16] == b'01':
+                return int(response[0:8], 16), int(response[8:12], 16)
+        return None, None
 
 
 def stc_send_ota_data_command(file_bytes):

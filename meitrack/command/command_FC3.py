@@ -24,10 +24,16 @@ class StartOtaUpdateCommand(Command):
         if payload:
             self.parse_payload(payload)
 
+    def is_response_error(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            response = self.field_dict.get("response", b'')
+            if response in [b'NOT', b'3']:
+                return True
+        return False
+
 
 def stc_start_ota_update_command():
     return StartOtaUpdateCommand(0, b'FC3')
-
 
 
 if __name__ == '__main__':

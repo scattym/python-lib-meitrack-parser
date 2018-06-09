@@ -150,14 +150,15 @@ class GPRS(object):
         return return_str
 
 
-def parse_data_payload(payload):
+def parse_data_payload(payload, direction):
     leftover = b''
     before = b''
     gprs_list = []
     while len(payload) > 0:
 
-        direction_start = payload.find(CLIENT_TO_SERVER_PREFIX)
-        if direction_start < 0:
+        if direction == DIRECTION_CLIENT_TO_SERVER:
+            direction_start = payload.find(CLIENT_TO_SERVER_PREFIX)
+        else:
             direction_start = payload.find(SERVER_TO_CLIENT_PREFIX)
         if direction_start < 0:
             logger.error("Unable to find start payload")
@@ -182,7 +183,7 @@ def parse_data_payload(payload):
                 try:
                     data_length = int(payload[3:first_comma])
                 except ValueError as err:
-                    logger.error("Unable to calculate length field.")
+                    logger.error("Unable to calculate length field from payload %s", payload)
                     # raise GPRSParseError("Unable to calculate length from data: {}".format(payload[3:first_comma]))
                     data_length = 0
 
@@ -391,7 +392,10 @@ if __name__ == '__main__':
     ]
 
     for gprs_item in test_data:
-        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item)
+        direction = DIRECTION_CLIENT_TO_SERVER
+        if gprs_item[0:2] == SERVER_TO_CLIENT_PREFIX:
+            direction = DIRECTION_SERVER_TO_CLIENT
+        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item, direction)
         for gprs in test_gprs_list:
             print(gprs)
             print("============================================================================================")

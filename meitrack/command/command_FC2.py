@@ -24,6 +24,20 @@ class ObtainOtaChecksumCommand(Command):
         if payload:
             self.parse_payload(payload)
 
+    def is_response_error(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            response = self.field_dict.get("response", b'')
+            if response in [b'NOT']:
+                return True
+        return False
+
+    def ota_data_checksum(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            response = self.field_dict.get("response", b'')
+            if len(response) == 20:
+                return int(response[18:20], 16)
+        return None
+
 
 def stc_obtain_ota_checksum_command():
     return ObtainOtaChecksumCommand(0, b'FC2')

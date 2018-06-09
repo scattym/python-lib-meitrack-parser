@@ -24,6 +24,12 @@ class AuthOtaUpdateCommand(Command):
         if payload:
             self.parse_payload(payload)
 
+    def is_response_error(self):
+        if self.direction == DIRECTION_CLIENT_TO_SERVER:
+            if self.field_dict.get("response", b'') in [b'Err']:
+                return True
+        return False
+
 
 def stc_auth_ota_update_command():
     return AuthOtaUpdateCommand(0, b"FC0,AUTH")

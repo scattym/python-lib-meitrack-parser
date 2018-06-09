@@ -1,5 +1,7 @@
 import logging
 import copy
+
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER
 from meitrack.error import GPRSError
 
 logger = logging.getLogger(__name__)
@@ -183,12 +185,12 @@ if __name__ == '__main__':
 
     file_part_list = []
     for gprs_item in file_listing:
-        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item)
+        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item, DIRECTION_CLIENT_TO_SERVER)
         file_part_list.append(test_gprs_list[0])
     print(gprs_file_list_as_list(file_part_list))
 
     file_list_object = FileListing()
     for gprs_item in file_listing:
-        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item)
+        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item, DIRECTION_CLIENT_TO_SERVER)
         file_list_object.add_packet(test_gprs_list[0])
         print(file_list_object.return_file_listing_list())
