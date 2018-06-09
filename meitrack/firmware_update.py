@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from meitrack.command.command_FC0 import stc_auth_ota_update_command
@@ -12,14 +13,52 @@ from meitrack.gprs_protocol import GPRS
 
 logger = logging.getLogger(__name__)
 
+
 class FirmwareUpdate(object):
-    def __init__(self, imei, file_name):
+    def __init__(self, imei, ip_address, port, file_name, file_bytes):
         self.imei = imei
         self.device_code = None
         self.file_name = file_name
-        self.ip_address = None
-        self.port = None
-        self.file_bytes = None
+        self.ip_address = ip_address
+        self.port = port
+        self.file_bytes = file_bytes
+        self.current_message = None
+        self.messages = []
+        self.gprs_file_list = []
+
+        self.last_message = datetime.datetime.now()
+        if self.imei and self.ip_address and self.port and self.file_name and self.file_bytes:
+            self.build_messages()
+
+    def build_messages(self):
+        self.messages = [
+            {"request": self.fc5(), "response": None, "sent": False},
+            {"request": self.fc6(), "response": None, "sent": False},
+            {"request": self.fc7(), "response": None, "sent": False},
+            {"request": self.fc0(), "response": None, "sent": False},
+        ]
+        self.gprs_file_list = stc_send_ota_data(self.imei, self.file_bytes)
+        for gprs in self.gprs_file_list:
+            self.messages.append({"request": gprs, "response": None, "sent": False})
+
+        self.messages.append({"request": self.fc2(), "response": None, "sent": False})
+        self.messages.append({"request": self.fc3(), "response": None, "sent": False})
+        # self.messages.append({"request": self.fc4(), "response": None}, )
+
+    def parse_response(self, response_gprs):
+        for message in self.messages:
+            if message["sent"] == True and message["response"] is None:
+                if message["request"].enclosed_data.command == response_gprs.enclosed_data.command:
+                    self.current_message = None
+                    message["response"] = response_gprs
+
+    def return_next_payload(self):
+        if self.current_message is None:
+            for message in self.messages:
+                if message["response"] is None and message["sent"] is False:
+                    message["sent"] = True
+                    return message["request"]
+        return None
 
     def fc4(self):
         """
@@ -77,7 +116,8 @@ class FirmwareUpdate(object):
         Or FC1,NOT
         :return: gprs
         """
-        return stc_send_ota_data(self.imei, self.file_bytes)
+        if self.gprs_file_list:
+            return self.gprs_file_list[0]
 
     def fc2(self):
         """
@@ -210,9 +250,9 @@ if __name__ == '__main__':
     print(stc_auth_ota_update(b'0407').as_bytes())
 
     gprss = stc_send_ota_data(b'0407', b"testfil"*190)
-    for gprs in gprss:
-        print(gprs)
-        print(gprs.as_bytes())
+    for test_gprs in gprss:
+        print(test_gprs)
+        print(test_gprs.as_bytes())
 
     print(stc_obtain_ota_checksum(b'0407'))
     print(stc_obtain_ota_checksum(b'0407').as_bytes())
@@ -226,3 +266,31 @@ if __name__ == '__main__':
     print(stc_check_firmware_version(b'0407', b'testfile.ota').as_bytes())
     print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100'))
     print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100').as_bytes())
+    fu = FirmwareUpdate(b'0407', b'home.scattym.com', b'65533', b'testfile.ota', b'testfilecontents')
+    print(fu.return_next_payload())
+    print(fu.return_next_payload())
+    fu.fc5_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.fc6_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.fc7_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.fc0_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.fc1_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.fc2_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.fc3_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.fc4_response = 'done'
+    fu.current_message = None
+    print(fu.return_next_payload())
+    fu.current_message = None
