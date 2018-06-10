@@ -55,10 +55,17 @@ class SendOtaDataCommand(Command):
         return None, None
 
 
-def stc_send_ota_data_command(file_bytes):
+def stc_send_ota_data_command(file_bytes, chunk_size):
+    if not chunk_size:
+        logger.error("Chunk size was not set")
+        return []
+    try:
+        chunk_size_int = int(chunk_size.decode())
+    except AttributeError as _:
+        chunk_size_int = int(chunk_size)
     command_list = []
-    for index, x in enumerate(range(0, len(file_bytes), 1024)):
-        command_list.append(SendOtaDataCommand(0, None, index=index, file_contents=file_bytes[x:x+1024]))
+    for index, x in enumerate(range(0, len(file_bytes), chunk_size_int)):
+        command_list.append(SendOtaDataCommand(0, None, index=index, file_contents=file_bytes[x:x+chunk_size_int]))
     return command_list
 
 

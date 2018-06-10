@@ -30,6 +30,7 @@ class FirmwareUpdate(object):
         self.gprs_file_list = []
         self.is_finished = False
         self.is_error = False
+        self.chunk_size = None
 
         self.last_message = datetime.datetime.now()
         if self.imei and self.ip_address and self.port and self.file_name and self.device_code:
@@ -53,14 +54,40 @@ class FirmwareUpdate(object):
                 {"request": self.fc0(), "response": None, "sent": False},
             ]
         else:
-            self.messages = []
-            self.gprs_file_list = stc_send_ota_data(self.imei, self.file_bytes)
-            for gprs in self.gprs_file_list:
-                self.messages.append({"request": gprs, "response": None, "sent": False})
+            # At stage 2 of the firmware update process, we are expecting a new
+            # connection with the fc0 message so that we know the chunk size
+            self.messages = [
+                {"request": self.fc0(), "response": None, "sent": True},
+            ]
+            self.current_message = self.messages[0]["request"]
 
-            self.messages.append({"request": self.fc2(), "response": None, "sent": False})
-            # self.messages.append({"request": self.fc3(), "response": None, "sent": False})
         # self.messages.append({"request": self.fc4(), "response": None}, )
+
+    def parse_fc0(self, gprs_message):
+        self.chunk_size = gprs_message.enclosed_data.get("packet_size")
+        if self.chunk_size:
+            if self.file_bytes:
+                if self.file_name != gprs_message.enclosed_data.get("ota_file_name"):
+                    logger.error(
+                        "File name from FC0: %s, does not match update object: %s",
+                        self.file_name,
+                        gprs_message.enclosed_data.get("ota_file_name"),
+                    )
+                else:
+                    self.gprs_file_list = stc_send_ota_data(self.imei, self.file_bytes, self.chunk_size)
+                    if not self.gprs_file_list:
+                        logger.error("Error in creating file list. Preparing to cancel download")
+                        self.is_error = True
+                    for gprs in self.gprs_file_list:
+                        self.messages.append({"request": gprs, "response": None, "sent": False})
+
+                    self.messages.append({"request": self.fc2(), "response": None, "sent": False})
+                    # self.messages.append({"request": self.fc3(), "response": None, "sent": False})
+
+            else:
+                logger.log(13, "No file bytes. Not adding FC1 commands")
+        else:
+            self.is_error = True
 
     def parse_response(self, response_gprs):
         for message in self.messages:
@@ -71,6 +98,11 @@ class FirmwareUpdate(object):
                     response_gprs.enclosed_data.command
                 )
                 if message["request"].enclosed_data.command == response_gprs.enclosed_data.command:
+
+                    # fc0 command has the chunk size, so we can now populate the fc1 commands
+                    # with the specific chunks.
+                    if message["response"].enclosed_date.command == b'FC0':
+                        self.parse_fc0(response_gprs)
 
                     message["response"] = response_gprs
                     self.current_message = None
@@ -215,9 +247,12 @@ def stc_auth_ota_update(imei):
     return gprs
 
 
-def stc_send_ota_data(imei, file_bytes):
+def stc_send_ota_data(imei, file_bytes, chunk_size):
     gprs_list = []
-    com_list = stc_send_ota_data_command(file_bytes)
+    com_list = stc_send_ota_data_command(file_bytes, chunk_size)
+    if not com_list:
+        logger.error("No command list returned.")
+        return []
     for com in com_list:
         gprs = GPRS()
         gprs.direction = b'@@'
