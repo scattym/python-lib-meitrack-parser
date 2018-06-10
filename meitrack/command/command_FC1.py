@@ -34,7 +34,12 @@ class SendOtaDataCommand(Command):
             self.field_dict['command'] = b'FC1'
             self.index = index
             self.file_contents = file_contents
-            self.field_dict["payload"] = b"%08x%04x%s" % (self.index, len(file_contents), file_contents)
+            self.field_dict["payload"] = b"%s%s%s" % (
+                self.index.to_bytes(4, byteorder='big'),
+                len(file_contents).to_bytes(2, byteorder='big'),
+                file_contents
+            )
+            # self.field_dict["payload"] = b"%08x%04x%s" % (self.index, len(file_contents), file_contents)
             self.payload = self.field_dict["payload"]
 
     def is_response_error(self):

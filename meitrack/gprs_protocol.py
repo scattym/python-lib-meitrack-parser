@@ -110,12 +110,13 @@ class GPRS(object):
             return_str += str(self.enclosed_data)
         return return_str
 
-    def as_bytes(self, counter=0):
+    def as_bytes(self, counter=None):
         # print(chr(self.data_identifier).encode())
         # print(type(chr(self.data_identifier).encode()))
         # print(self.data_length)
-        subset = (counter % 58) + 65
-        self.data_identifier = bytes([subset])
+        if counter is not None:
+            subset = (counter % 58) + 65
+            self.data_identifier = bytes([subset])
         string_to_sign = (
             b"".join(
                 [

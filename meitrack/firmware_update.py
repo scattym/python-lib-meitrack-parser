@@ -12,9 +12,11 @@ from meitrack.command.command_FC7 import stc_set_ota_server_command
 from meitrack.gprs_protocol import GPRS
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 STAGE_FIRST = "stage1"
 STAGE_SECOND = "stage2"
+EPOCH = datetime.datetime(1970, 1, 1)
 
 
 class FirmwareUpdate(object):
@@ -48,19 +50,21 @@ class FirmwareUpdate(object):
     def build_messages(self, stage):
         if stage == STAGE_FIRST:
             self.messages = [
-                {"request": self.fc5(), "response": None, "sent": False},
-                {"request": self.fc6(), "response": None, "sent": False},
-                {"request": self.fc7(), "response": None, "sent": False},
-                {"request": self.fc0(), "response": None, "sent": False},
+                {"request": self.fc5(), "response": None, "sent": 0},
+                {"request": self.fc6(), "response": None, "sent": 0},
+                {"request": self.fc7(), "response": None, "sent": 0},
+                {"request": self.fc0(), "response": None, "sent": 0},
             ]
+
         else:
             # At stage 2 of the firmware update process, we are expecting a new
             # connection with the fc0 message so that we know the chunk size
             self.messages = [
-                {"request": self.fc0(), "response": None, "sent": True},
+                {"request": self.fc0(), "response": None, "sent": (datetime.datetime.now()-EPOCH).total_seconds()},
             ]
             self.current_message = self.messages[0]["request"]
 
+        logger.info("Message list is %s", self.messages)
         # self.messages.append({"request": self.fc4(), "response": None}, )
 
     def parse_fc0(self, gprs_message):
@@ -79,10 +83,10 @@ class FirmwareUpdate(object):
                         logger.error("Error in creating file list. Preparing to cancel download")
                         self.is_error = True
                     for gprs in self.gprs_file_list:
-                        self.messages.append({"request": gprs, "response": None, "sent": False})
+                        self.messages.append({"request": gprs, "response": None, "sent": 0})
 
-                    self.messages.append({"request": self.fc2(), "response": None, "sent": False})
-                    # self.messages.append({"request": self.fc3(), "response": None, "sent": False})
+                    self.messages.append({"request": self.fc2(), "response": None, "sent": 0})
+                    # self.messages.append({"request": self.fc3(), "response": None, "sent": 0})
 
             else:
                 logger.log(13, "No file bytes. Not adding FC1 commands")
@@ -91,13 +95,15 @@ class FirmwareUpdate(object):
 
     def parse_response(self, response_gprs):
         for message in self.messages:
-            if message["sent"] is True and message["response"] is None:
-                logger.debug(
+            logger.info("Checking message %s", message)
+            if message["sent"] != 0 and message["response"] is None:
+                logger.info(
                     "Comparing request command %s to response command %s",
                     message["request"].enclosed_data.command,
                     response_gprs.enclosed_data.command
                 )
                 if message["request"].enclosed_data.command == response_gprs.enclosed_data.command:
+                    logger.info("Found match for command %s", message["request"].enclosed_data.command)
 
                     # fc0 command has the chunk size, so we can now populate the fc1 commands
                     # with the specific chunks.
@@ -139,17 +145,37 @@ class FirmwareUpdate(object):
     #     self.is_finished = True
     #     return True
 
+    def timeout_old(self):
+        now = (datetime.datetime.now() - EPOCH).total_seconds()
+        for message in self.messages:
+            if message["sent"] != 0 and message["response"] is None and (now - message["sent"]) >= 30:
+                logger.info("Timing out firmware message %s", message)
+                message["response"] = "timeout"
+                if self.current_message == message["request"]:
+                    self.current_message = None
+
     def return_next_payload(self):
+        self.timeout_old()
         if self.is_finished:
             return None
         if self.is_error:
             self.is_finished = True
             return self.fc4()
-        if self.current_message is None:
+        if self.current_message is not None:
+            logger.info(
+                "Current message already sent. Not returning a new one yet. Current message: %s",
+                self.current_message
+            )
+        else:
+            logger.info("We have a new message to sent.")
             for message in self.messages:
-                if message["response"] is None and message["sent"] is False:
-                    message["sent"] = True
-                    self.current_message = message["request"]
+                if message["response"] is None and message["sent"] == 0:
+                    message["sent"] = (datetime.datetime.now() - EPOCH).total_seconds()
+                    if message["request"].enclosed_data.command == b'FC1':
+                        message["response"] = "ignore"
+                    else:
+                        self.current_message = message["request"]
+                    logger.info("Returning message %s", message)
                     return message["request"]
         return None
 
@@ -221,7 +247,6 @@ class FirmwareUpdate(object):
         :return: gprs
         """
         return stc_obtain_ota_checksum(self.imei)
-
 
     def fc3(self):
         """
