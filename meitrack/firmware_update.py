@@ -64,14 +64,14 @@ class FirmwareUpdate(object):
         # self.messages.append({"request": self.fc4(), "response": None}, )
 
     def parse_fc0(self, gprs_message):
-        self.chunk_size = gprs_message.enclosed_data.get("packet_size")
+        self.chunk_size = gprs_message.enclosed_data["packet_size"]
         if self.chunk_size:
             if self.file_bytes:
-                if self.file_name != gprs_message.enclosed_data.get("ota_file_name"):
+                if self.file_name != gprs_message.enclosed_data["ota_file_name"]:
                     logger.error(
                         "File name from FC0: %s, does not match update object: %s",
                         self.file_name,
-                        gprs_message.enclosed_data.get("ota_file_name"),
+                        gprs_message.enclosed_data["ota_file_name"],
                     )
                 else:
                     self.gprs_file_list = stc_send_ota_data(self.imei, self.file_bytes, self.chunk_size)
@@ -101,7 +101,7 @@ class FirmwareUpdate(object):
 
                     # fc0 command has the chunk size, so we can now populate the fc1 commands
                     # with the specific chunks.
-                    if message["response"].enclosed_date.command == b'FC0':
+                    if response_gprs.enclosed_data.command == b'FC0':
                         self.parse_fc0(response_gprs)
 
                     message["response"] = response_gprs
@@ -328,6 +328,7 @@ def stc_set_ota_server(imei, ip_address, port):
     gprs.imei = imei
 
     return gprs
+
 
 if __name__ == '__main__':
     log_level = 11 - 11
