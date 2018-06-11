@@ -23,7 +23,7 @@ class SendOtaDataCommand(Command):
 
         if payload:
             if direction == DIRECTION_CLIENT_TO_SERVER:
-                self.parse_payload(payload)
+                self.parse_payload(payload, 1)
             else:
                 self.index = payload[0:8]
                 self.length = payload[8:12]
@@ -48,7 +48,7 @@ class SendOtaDataCommand(Command):
             if response in [b'NOT']:
                 return True
             else:
-                if len(response) == 14 and response[14:16] == b'00':
+                if len(response) == 14 and response[14:16] in [b'00', b'02']:
                     return True
         return False
 
@@ -70,7 +70,9 @@ def stc_send_ota_data_command(file_bytes, chunk_size):
         chunk_size_int = int(chunk_size)
     command_list = []
     for index, x in enumerate(range(0, len(file_bytes), chunk_size_int)):
-        command_list.append(SendOtaDataCommand(0, None, index=index, file_contents=file_bytes[x:x+chunk_size_int]))
+        command_list.append(
+            SendOtaDataCommand(0, None, index=index*chunk_size_int, file_contents=file_bytes[x:x+chunk_size_int])
+        )
     return command_list
 
 
