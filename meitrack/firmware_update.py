@@ -167,14 +167,11 @@ class FirmwareUpdate(object):
                 self.current_message
             )
         else:
-            logger.info("We have a new message to sent.")
+            logger.info("We have a new message to send.")
             for message in self.messages:
                 if message["response"] is None and message["sent"] == 0:
                     message["sent"] = (datetime.datetime.now() - EPOCH).total_seconds()
-                    if message["request"].enclosed_data.command == b'FC1':
-                        message["response"] = "ignore"
-                    else:
-                        self.current_message = message["request"]
+                    self.current_message = message["request"]
                     logger.info("Returning message %s", message)
                     return message["request"]
         return None
@@ -363,7 +360,7 @@ if __name__ == '__main__':
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        '%(asctime)s - %(name)s - %(lineno)s - %(levelname)s - %(message)s'
     )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
@@ -371,7 +368,7 @@ if __name__ == '__main__':
     print(stc_auth_ota_update(b'0407'))
     print(stc_auth_ota_update(b'0407').as_bytes())
 
-    gprss = stc_send_ota_data(b'0407', b"testfil"*190)
+    gprss = stc_send_ota_data(b'0407', b"testfil"*190, 1408)
     for test_gprs in gprss:
         print(test_gprs)
         print(test_gprs.as_bytes())
@@ -388,31 +385,11 @@ if __name__ == '__main__':
     print(stc_check_firmware_version(b'0407', b'testfile.ota').as_bytes())
     print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100'))
     print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100').as_bytes())
-    fu = FirmwareUpdate(b'0407', b'home.scattym.com', b'65533', b'testfile.ota', b'testfilecontents')
-    print(fu.return_next_payload())
-    print(fu.return_next_payload())
-    fu.fc5_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.fc6_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.fc7_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.fc0_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.fc1_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.fc2_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.fc3_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.fc4_response = 'done'
-    fu.current_message = None
-    print(fu.return_next_payload())
-    fu.current_message = None
+    fu = FirmwareUpdate(b'0407', b'\x00\x00\x04\x01', b'home.scattym.com', b'65533', b'testfile.ota', b'testfilecontents'*200, b'stage2')
+    gprs_message = GPRS(b"""$$K67,864507032323403,FC0,\x00A,OK,1408,T333_Y10H1412V046,testfile.ota*AA\r\n""")
+    fu.parse_fc0(gprs_message)
+    for i in range(0,4):
+        fu.current_message = None
+        msg = fu.return_next_payload()
+        if msg:
+            print(msg.as_bytes())
