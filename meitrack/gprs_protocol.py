@@ -400,6 +400,7 @@ if __name__ == '__main__':
         b'$$V33,864507032323403,FC1,\x00\x00\x00\x00\x05\x80\x02*F5\r\n',
         b'$$B33,864507032323403,FC1,\x00\x00\x00\x00\x05\x80\x01*E0\r\n',
         b'@@Y34,864507032323403,FC2,\x00\x00\x00\x00\x00\x02\xd3!*A1\r\n',
+        b'$$B45,864507032323403,FC3,2,T333_Y36H1412V046*CB\r\n',  # connect string when firmware updated
     ]
 
     for gprs_item in test_data:
