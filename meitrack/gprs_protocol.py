@@ -81,6 +81,8 @@ class GPRS(object):
     @enclosed_data.setter
     def enclosed_data(self, enclosed_commmand_object):
         if enclosed_commmand_object is not None:
+            # print("Enclosed leftover as bytes is ")
+            # print("%s" % (enclosed_commmand_object.as_bytes()))
             self.leftover = enclosed_commmand_object.as_bytes()
             self.__enclosed_data = enclosed_commmand_object
 
@@ -125,6 +127,9 @@ class GPRS(object):
                 ]
             )
         )
+
+        # print("LEFTOVER IS ++++++++++++++++++++++++++++++++++++++++")
+        # print("%s" % (self.leftover,))
         checksum_hex = "{:02X}".format(calc_signature(string_to_sign))
         self.checksum = checksum_hex.encode()
         # self.checksum = "{:02X}".format(calc_signature(string_to_sign))
@@ -214,7 +219,7 @@ def calc_signature(payload):
     # print(type(payload))
     # print(payload)
     checksum = 0
-    lastchar = payload.find(b'*')
+    lastchar = payload.rfind(b'*')
     for char in payload[0:lastchar+1]:
         checksum = checksum + char
     checksum = checksum & 0xFF
@@ -413,3 +418,6 @@ if __name__ == '__main__':
             print(gprs.enclosed_data.longitude)
 
         print(hex(calc_signature(gprs_item)))
+
+    print(hex(calc_signature(b'''@@a1429,0407,FC1,\x00\x00\x00\x00\x05\x80testfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontentstestfilecontents*39\r\n''')))
+    print(hex(calc_signature(b"""$$D160,864507032228727,AAA,35,24.819116,121.026091,180323023615,A,7,16,0,176,1.3,83,7,1174,466|97|527B|01035DB4,0000,0001|0000|0000|019A|0981,00000001,,3,,,36,23*DC\r\n""")))
