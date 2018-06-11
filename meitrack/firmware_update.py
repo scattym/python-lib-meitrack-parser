@@ -86,7 +86,7 @@ class FirmwareUpdate(object):
                         self.messages.append({"request": gprs, "response": None, "sent": 0})
 
                     self.messages.append({"request": self.fc2(), "response": None, "sent": 0})
-                    # self.messages.append({"request": self.fc3(), "response": None, "sent": 0})
+                    self.messages.append({"request": self.fc3(), "response": None, "sent": 0})
 
             else:
                 logger.log(13, "No file bytes. Not adding FC1 commands")
