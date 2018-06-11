@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class ObtainOtaChecksumCommand(Command):
     request_field_names = [
-        "command",
+        "command", "index_length"
     ]
     response_field_names = [
         "command", "ota_checksum",
@@ -22,7 +22,7 @@ class ObtainOtaChecksumCommand(Command):
             self.field_name_selector = self.response_field_names
 
         if payload:
-            self.parse_payload(payload)
+            self.parse_payload(payload, 1)
 
     def is_response_error(self):
         if self.direction == DIRECTION_CLIENT_TO_SERVER:
@@ -39,9 +39,11 @@ class ObtainOtaChecksumCommand(Command):
         return None
 
 
-def stc_obtain_ota_checksum_command():
-    return ObtainOtaChecksumCommand(0, b'FC2')
-
+def stc_obtain_ota_checksum_command(start_index, length):
+    return ObtainOtaChecksumCommand(
+        0,
+        b''.join([b'FC2,', start_index.to_bytes(4, byteorder='big'), length.to_bytes(4, byteorder='big')])
+    )
 
 
 if __name__ == '__main__':
@@ -57,4 +59,4 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    print(stc_obtain_ota_checksum_command())
+    print(stc_obtain_ota_checksum_command(0, 185121))
