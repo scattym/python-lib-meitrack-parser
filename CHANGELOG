@@ -1,7 +1,11 @@
 1.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fix bug when finding the eom '*' character when this can be present in binary payloads.
+- Fix up parsing of FC1 responses when binary payload contains a comma in response fields.
+- Implement FC2 parameters. The final field was missing causing a failure to move to the final stage of firmware download.
+- Add FC3 back into workflow now all commands are running as expected.
+- Firmware download is essentially working, the only missing step is verification of the checksum. At this time the checksum is ignored and the firmware is always marked as valid, resulting in always trying to update the firmware.
 
 
 1.7 (2018-06-10)
