@@ -1,4 +1,4 @@
-1.8 (unreleased)
+1.8 (2018-06-12)
 ----------------
 
 - Fix bug when finding the eom '*' character when this can be present in binary payloads.
