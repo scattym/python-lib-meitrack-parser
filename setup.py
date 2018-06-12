@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='meitrackparser',
-    version='1.8.dev0',
+    version='1.8',
     description='A library for parsing meitrack gprs data',
     url='https://bitbucket.org/poslive/python-lib-meitrack-parser.git',
     author='Matt Clark',
