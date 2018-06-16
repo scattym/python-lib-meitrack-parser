@@ -63,6 +63,7 @@ EVENT_MAP_T333 = {
     79: "Fall",
     80: "Install",
     81: "Drop Off",
+    109: "Taxi Meter Data",
     129: "Harsh Braking",
     130: "Harsh Acceleration",
     133: "Idle Overtime",

@@ -17,8 +17,8 @@ class TrackerCommand(Command):
         "customized_data", "protocol_version", "fuel_percentage",
         "temp_sensors", "max_acceleration_value", "max_deceleration_value",
         "unknown_1", "unknown_2",
-
     ]
+
     field_names_50_51 = [
         "command", "event_code", "latitude", "longitude", "date_time", "pos_status", "num_sats",
         "gsm_signal_strength",  "speed", "direction", "horizontal_accuracy", "altitude", "mileage",
@@ -34,6 +34,15 @@ class TrackerCommand(Command):
         "file_name",
         "temperature_sensor_number", "customized_data", "protocol_version", "fuel_percentage",
         "temp_sensors", "max_acceleration_value", "max_deceleration_value", "unknown_1"
+    ]
+
+    field_names_109 = [
+        "command", "event_code", "latitude", "longitude", "date_time", "pos_status", "num_sats",
+        "gsm_signal_strength", "speed", "direction", "horizontal_accuracy", "altitude", "mileage",
+        "run_time", "base_station_info", "io_port_status", "analog_input_value", "assisted_event_info",
+        "customized_data", "protocol_version", "fuel_percentage",
+        "temp_sensors", "max_acceleration_value", "max_deceleration_value",
+        "unknown_1", "unknown_2", "unknown_3", "unknown_4", "unknown_5"
     ]
 
     def __init__(self, direction, payload=None):
@@ -54,6 +63,9 @@ class TrackerCommand(Command):
         elif fields[1] in [b"39"]:
             logger.log(13, "Setting AAA fields for file event")
             self.field_name_selector = copy.deepcopy(self.field_names_39)
+        elif fields[1] in [B"109"]:
+            logger.log(13, "Setting AAA fields for file event")
+            self.field_name_selector = copy.deepcopy(self.field_names_109)
         else:
             logger.log(13, "Setting AAA to default fields")
             self.field_name_selector = copy.deepcopy(self.field_names)
