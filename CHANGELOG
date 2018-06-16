@@ -1,7 +1,8 @@
 1.9 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Implement parser for taxi meter event (109).
+- Update FC3 parsing as sometimes we get an extra field.
 
 
 1.8 (2018-06-12)
