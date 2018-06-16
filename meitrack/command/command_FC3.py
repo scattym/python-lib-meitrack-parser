@@ -11,7 +11,7 @@ class StartOtaUpdateCommand(Command):
         "command",
     ]
     response_field_names = [
-        "command", "response",
+        "command", "response", "firmware_version"
     ]
 
     def __init__(self, direction, payload=None):
