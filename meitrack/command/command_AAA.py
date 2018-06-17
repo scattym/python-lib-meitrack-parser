@@ -16,7 +16,7 @@ class TrackerCommand(Command):
         "run_time", "base_station_info", "io_port_status", "analog_input_value", "assisted_event_info",
         "customized_data", "protocol_version", "fuel_percentage",
         "temp_sensors", "max_acceleration_value", "max_deceleration_value",
-        "unknown_1", "unknown_2",
+        "unknown_1", "unknown_2", "unknown_3", "unknown_4", "unknown_5",
     ]
 
     field_names_50_51 = [
@@ -25,6 +25,7 @@ class TrackerCommand(Command):
         "run_time", "base_station_info", "io_port_status", "analog_input_value", "assisted_event_info",
         "temperature_sensor_number", "customized_data", "protocol_version", "fuel_percentage",
         "temp_sensors", "max_acceleration_value", "max_deceleration_value",
+        "unknown_1", "unknown_2", "unknown_3", "unknown_4", "unknown_5",
     ]
 
     field_names_39 = [
@@ -33,7 +34,8 @@ class TrackerCommand(Command):
         "run_time", "base_station_info", "io_port_status", "analog_input_value",
         "file_name",
         "temperature_sensor_number", "customized_data", "protocol_version", "fuel_percentage",
-        "temp_sensors", "max_acceleration_value", "max_deceleration_value", "unknown_1"
+        "temp_sensors", "max_acceleration_value", "max_deceleration_value", "unknown_1",
+        "unknown_2", "unknown_3", "unknown_4", "unknown_5",
     ]
 
     field_names_109 = [
@@ -42,7 +44,7 @@ class TrackerCommand(Command):
         "run_time", "base_station_info", "io_port_status", "analog_input_value", "assisted_event_info",
         "customized_data", "protocol_version", "fuel_percentage",
         "temp_sensors", "max_acceleration_value", "max_deceleration_value",
-        "unknown_1", "unknown_2", "unknown_3", "unknown_4", "unknown_5"
+        "unknown_1", "unknown_2", "unknown_3", "unknown_4", "unknown_5",
     ]
 
     def __init__(self, direction, payload=None):
