@@ -4,7 +4,7 @@ import logging
 import binascii
 
 from meitrack.error import GPRSParseError
-from meitrack.command.common import Command, meitrack_date_to_datetime, datetime_to_meitrack_date
+from meitrack.command.common import Command
 
 logger = logging.getLogger(__name__)
 
