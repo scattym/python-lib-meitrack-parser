@@ -10,6 +10,7 @@ setup(
     license='Copyright (C) Matt Clark - All Rights Reserved',
     packages=find_packages(),
     install_requires=[
+        'licenseparser',
     ],
     dependency_links=[
     ],
