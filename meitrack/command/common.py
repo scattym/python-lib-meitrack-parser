@@ -3,8 +3,32 @@ import logging
 
 from meitrack.command.event import event_to_name, event_to_id
 from meitrack.error import GPRSParseError
+from license.cardreader import License
 
 logger = logging.getLogger(__name__)
+
+
+class TaxiMeterData(object):
+    def __init__(self, payload=None):
+        self.assisted_info = None
+        self.start_time = None
+        self.end_time = None
+        self.fare = None
+        self.trip_time = None
+        self.wait_time = None
+        if payload is not None:
+            self.parse(payload)
+
+    def parse(self, payload):
+        fields = payload.split('|')
+        if len(fields) >= 2:
+            self.assisted_info = fields[0]
+            self.start_time = fields[1]
+        if len(fields) >= 7:
+            self.end_time = fields[3]
+            self.fare = fields[4]
+            self.trip_time = fields[5]
+            self.wait_time = fields[6]
 
 
 class Command(object):
@@ -141,6 +165,14 @@ class Command(object):
 
     def get_serial_number(self):
         return self.field_dict.get("serial_number")
+
+    def get_taxi_meter_data(self):
+        if self.field_dict.get("taxi_meter_data"):
+            return TaxiMeterData(self.field_dict.get("taxi_meter_data"))
+
+    def get_license_data(self):
+        if self.field_dict.get("rfid"):
+            return License(self.field_dict.get("rfid"))
 
     def is_response_error(self):
         return False
