@@ -141,6 +141,18 @@ def stc_set_driver_license_validity_time(imei, validity_time):
     return gprs
 
 
+# C91
+def stc_set_io_device_params(imei, model, config):
+    com = command.stc_set_io_device_params(model, config)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'k'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
 def stc_set_heartbeat_interval(imei, minutes=0):
     com = command.stc_set_heartbeat(minutes)
     gprs = GPRS()
