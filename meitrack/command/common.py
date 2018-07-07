@@ -13,22 +13,57 @@ class TaxiMeterData(object):
         self.assisted_info = None
         self.start_time = None
         self.end_time = None
-        self.fare = None
-        self.trip_time = None
-        self.wait_time = None
+        self.fare_distance = None
+        self.fare_price = None
+        self.fare_trip_time = None
+        self.fare_waiting_time = None
         if payload is not None:
             self.parse(payload)
 
     def parse(self, payload):
-        fields = payload.split('|')
+        fields = payload.split(b'|')
         if len(fields) >= 2:
             self.assisted_info = fields[0]
             self.start_time = fields[1]
         if len(fields) >= 7:
-            self.end_time = fields[3]
-            self.fare = fields[4]
-            self.trip_time = fields[5]
-            self.wait_time = fields[6]
+            self.end_time = fields[2]
+            self.fare_distance = fields[3]
+            self.fare_price = fields[4]
+            self.fare_trip_time = fields[5]
+            self.fare_waiting_time = fields[6]
+
+    def get_start_time(self):
+        return meitrack_date_to_datetime(self.start_time)
+
+    def get_end_time(self):
+        if self.end_time:
+            return meitrack_date_to_datetime(self.end_time)
+
+    def get_fare_distance(self):
+        if self.fare_distance:
+            return self.fare_distance.decode()
+
+    def get_fare_price(self):
+        if self.fare_price:
+            return self.fare_price.decode()
+
+    def get_fare_trip_time(self):
+        if self.fare_trip_time:
+            if len(self.fare_trip_time) == 6:
+                return ":".join([
+                    self.fare_trip_time[0:2].decode(),
+                    self.fare_trip_time[2:4].decode(),
+                    self.fare_trip_time[4:].decode()
+                ])
+
+    def get_fare_waiting_time(self):
+        if self.fare_waiting_time:
+            if len(self.fare_waiting_time) == 6:
+                return ":".join([
+                    self.fare_waiting_time[0:2].decode(),
+                    self.fare_waiting_time[2:4].decode(),
+                    self.fare_waiting_time[4:].decode()
+                ])
 
 
 class Command(object):
@@ -49,7 +84,7 @@ class Command(object):
         fields = []
         if self.field_name_selector:
             for field in self.field_name_selector:
-                if self.field_dict.get(field):
+                if self.field_dict.get(field) is not None:
                     if field == "date_time":
                         logger.log(13, "Date field is %s", self.field_dict.get(field))
                         fields.append(datetime_to_meitrack_date(self.field_dict.get(field)))
