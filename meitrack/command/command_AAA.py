@@ -73,13 +73,13 @@ class TrackerCommand(Command):
         if fields[1] in [b"50", b"51"]:
             self.field_name_selector = copy.deepcopy(self.field_names_50_51)
         elif fields[1] in [b"37"]:
-            logger.log(13, "Setting AAA fields for file event")
+            logger.log(13, "Setting AAA fields for license data payload")
             self.field_name_selector = copy.deepcopy(self.field_names_37)
         elif fields[1] in [b"39"]:
-            logger.log(13, "Setting AAA fields for file event")
+            logger.log(13, "Setting AAA fields for file event payload")
             self.field_name_selector = copy.deepcopy(self.field_names_39)
         elif fields[1] in [B"109"]:
-            logger.log(13, "Setting AAA fields for file event")
+            logger.log(13, "Setting AAA fields for taxi data event payload")
             self.field_name_selector = copy.deepcopy(self.field_names_109)
         else:
             logger.log(13, "Setting AAA to default fields")
