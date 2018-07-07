@@ -1,4 +1,4 @@
-1.11 (unreleased)
+1.11 (2018-07-07)
 -----------------
 
 - Update TaxiData object to return strings rather than bytes.
