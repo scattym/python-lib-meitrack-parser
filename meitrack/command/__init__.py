@@ -63,6 +63,17 @@ def stc_set_heartbeat(minutes=0):
     return Command(0, b"A11,%b" % (str(minutes).encode(),))
 
 
+# device1=0, device2=20, device3=11, device4=13, device5=13
+def stc_set_io_device_params(model=b"A78", config=((1, 0), (2, 20), (3, 11), (4, 13), (5, 13))):
+    command_bytes = b"C91,%b" % (model,)
+    for item in config:
+        command_bytes = b",".join([command_bytes, b"%b:%b" % (str(item[0]).encode(), str(item[1]).encode())])
+    return Command(
+        0,
+        command_bytes
+    )
+
+
 def stc_set_tracking_by_time_interval(deci_seconds=0):
     if deci_seconds < 0 or deci_seconds > 65535:
         raise GPRSParameterError("Time interval must be between 0 and 65535. Was %s" % (deci_seconds,))
@@ -179,6 +190,8 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-
     print(stc_request_file_download(b"test_file", b"0"))
     print(stc_request_file_download(b"test_file", 0))
+    print(stc_set_io_device_params(b"A78", ((1, 0), (2, 20), (3, 11), (4, 13), (5, 13))))
+    print(stc_set_io_device_params(b"A78", [[1, 0], [2, 20], [3, 11], [4, 13], [5, 13]]))
+
