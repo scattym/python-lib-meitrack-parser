@@ -1,4 +1,4 @@
-1.10 (unreleased)
+1.10 (2018-07-07)
 -----------------
 
 - Implement C91 command to set device peripheral configuarion parameters.
