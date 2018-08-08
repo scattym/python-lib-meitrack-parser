@@ -64,6 +64,9 @@ class GPRS(object):
             self.leftover
         )
 
+    def recalc_leftover(self):
+        self.leftover = self.enclosed_data.as_bytes()
+
     @property
     def checksum(self):
         if self.__checksum:
