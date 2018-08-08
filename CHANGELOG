@@ -1,4 +1,4 @@
-1.12 (unreleased)
+1.12 (2018-08-08)
 -----------------
 
 - Add ability to recalculate leftover data, for use when changing parameters.
