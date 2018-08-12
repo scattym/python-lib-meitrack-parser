@@ -57,6 +57,14 @@ def stc_request_location():
     return Command(0, b"A10")
 
 
+def stc_restart_gsm():
+    return Command(0, b"F01")
+
+
+def stc_restart_gps():
+    return Command(0, b"F02")
+
+
 def stc_set_heartbeat(minutes=0):
     if minutes < 0 or minutes > 65535:
         raise GPRSParameterError("Heartbeat must be between 0 and 65535. Was %s" % (minutes,))
