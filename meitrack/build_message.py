@@ -199,7 +199,31 @@ def stc_set_tracking_by_time_interval(imei, deci_seconds=0):
     return gprs
 
 
+def stc_restart_gsm(imei):
+    com = command.stc_restart_gsm()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'p'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
+def stc_restart_gps(imei):
+    com = command.stc_restart_gps()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'q'
+    gprs.enclosed_data = com
+    gprs.imei = imei
+
+    return gprs
+
+
 if __name__ == '__main__':
     test_gprs = stc_request_location_message(b"testimei")
     print(test_gprs.as_bytes())
     print(stc_request_device_info(b"0407").as_bytes())
+    print(stc_restart_gsm(b"0407").as_bytes())
+    print(stc_restart_gps(b"0407").as_bytes())
