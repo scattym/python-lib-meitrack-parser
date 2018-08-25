@@ -170,7 +170,7 @@ def parse_data_payload(payload, direction):
         else:
             direction_start = payload.find(SERVER_TO_CLIENT_PREFIX)
         if direction_start < 0:
-            logger.error("Unable to find start payload")
+            logger.error("Unable to find start payload, %s", str(payload))
             leftover = payload
             payload = b''
         else:
