@@ -10,26 +10,43 @@ from meitrack.error import GPRSParameterError
 logger = logging.getLogger(__name__)
 
 
+def s2b(value):
+    """
+    convert string or integer to byte array representation
+
+    original value returned if conversion fails so should be safe to pass all
+    values into this function
+    :param value: (str|int|bytes) The input value
+    :return: The byte array converted value
+    """
+    try:
+        if isinstance(value, int):
+            return str(value).encode()
+        return value.encode()
+    except AttributeError as _:
+        return value
+
+
 def cts_file_download(file_name, num_packets, packet_number, file_bytes):
-    try:
-        file_name = file_name.encode()
-    except AttributeError:
-        pass
-    try:
-        num_packets = str(num_packets).encode()
-    except AttributeError:
-        pass
-    try:
-        packet_number = str(packet_number).encode()
-    except AttributeError:
-        pass
-    try:
-        file_bytes = file_bytes.encode()
-    except AttributeError:
-        pass
+    file_name = s2b(file_name)
+    num_packets = s2b(num_packets)
+    packet_number = s2b(packet_number)
+    file_bytes = s2b(file_bytes)
     file_download = FileDownloadCommand(DIRECTION_CLIENT_TO_SERVER)
     file_download.build(file_name, num_packets, packet_number, file_bytes)
     return file_download
+
+
+def stc_set_output_pin(speed, output_a, output_b, output_c, output_d, output_e):
+
+    command_set = b'%b%b%b%b%b' % (
+        s2b(output_a),
+        s2b(output_b),
+        s2b(output_c),
+        s2b(output_d),
+        s2b(output_e)
+    )
+    return Command(0, b','.join([b"C01", s2b(speed), command_set]))
 
 
 def stc_request_file_download(file_name, payload_start_index):

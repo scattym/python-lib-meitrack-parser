@@ -1,6 +1,7 @@
 from meitrack import command
 from meitrack.gprs_protocol import GPRS
 from meitrack.error import GPRSParameterError
+from meitrack.command import s2b
 
 
 def cts_build_file_list(imei, file_name, file_bytes):
@@ -12,6 +13,17 @@ def cts_build_file_list(imei, file_name, file_bytes):
     gprs.imei = imei
 
     return [gprs]
+
+
+def stc_set_output_pin(imei, speed=1, output_a=2, output_b=2, output_c=2, output_d=2, output_e=2):
+    com = command.stc_set_output_pin(speed, output_a, output_b, output_c, output_d, output_e)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'b'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
+
+    return gprs
 
 
 def stc_request_device_info(imei):
@@ -227,3 +239,5 @@ if __name__ == '__main__':
     print(stc_request_device_info(b"0407").as_bytes())
     print(stc_restart_gsm(b"0407").as_bytes())
     print(stc_restart_gps(b"0407").as_bytes())
+    print(stc_set_output_pin("0407", 1, 2, 2, 2, 2, 2).as_bytes())
+    print(stc_set_output_pin("0407", output_c=0).as_bytes())
