@@ -1,4 +1,4 @@
-1.14 (unreleased)
+1.14 (2018-09-01)
 -----------------
 
 - Add ability to set the status of all pins through the C01 command.
