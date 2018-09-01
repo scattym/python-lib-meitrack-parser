@@ -1,7 +1,10 @@
 1.14 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Add ability to set the status of all pins through the C01 command.
+- Add ability to set a single pin.
+- Add pin range checking.
+- Update stub processor to return the correct device model for firmware update testing.
 
 
 1.13 (2018-08-12)
