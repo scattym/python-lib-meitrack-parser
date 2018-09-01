@@ -1,7 +1,7 @@
 1.15 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Add helper functions to get analogue and digital pin states.
 
 
 1.14 (2018-09-01)

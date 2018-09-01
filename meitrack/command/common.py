@@ -1,3 +1,5 @@
+import binascii
+
 import datetime
 import logging
 
@@ -212,6 +214,45 @@ class Command(object):
     def is_response_error(self):
         return False
 
+    # "io_port_status", "analog_input_value"
+    def get_digital_pin_states(self):
+        if self.field_dict.get("io_port_status"):
+            return meitrack_digital_pins_to_dict(self.field_dict.get("io_port_status"))
+
+    def get_analogue_pin_states(self):
+        if self.field_dict.get("analog_input_value"):
+            return meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579")
+
+
+# Example: 0400
+def meitrack_digital_pins_to_dict(io_string):
+    mapping = {}
+    try:
+        bytes = binascii.unhexlify(io_string)
+    except binascii.Error:
+        return {}
+
+    for i, byte in enumerate(bytes):
+        print("byte is", byte)
+        for j in range(0, 8):
+            if (byte >> 7-j & 1) == 1:
+                print("bit on", i, j)
+                mapping[i*8+j] = True
+            else:
+                mapping[i*8+j] = False
+
+    return mapping
+
+
+# Example: 0400
+def meitrack_analogue_pins_to_dict(io_string):
+    mapping = {}
+    fields = io_string.split(b'|')
+    for i, field in enumerate(fields):
+        mapping[i] = int(field, 16) / 100
+
+    return mapping
+
 
 def meitrack_date_to_datetime(date_time):
     # yymmddHHMMSS
@@ -228,3 +269,9 @@ def meitrack_date_to_datetime(date_time):
 
 def datetime_to_meitrack_date(date_time):
     return date_time.strftime("%y%m%d%H%M%S").encode()
+
+
+if __name__ == "__main__":
+    print(meitrack_digital_pins_to_dict(b"0401"))
+    print(meitrack_digital_pins_to_dict(b"04011"))
+    print(meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579"))
