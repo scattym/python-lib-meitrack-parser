@@ -15,7 +15,23 @@ def cts_build_file_list(imei, file_name, file_bytes):
     return [gprs]
 
 
-def stc_set_output_pin(imei, speed=1, output_a=2, output_b=2, output_c=2, output_d=2, output_e=2):
+def stc_set_output_pin(imei, speed=1, pin=0, state=2):
+    pins = [2, 2, 2, 2, 2]
+    try:
+        pins[pin] = state
+    except IndexError as _:
+        return None
+    com = command.stc_set_output_pin(speed, pins[0], pins[1], pins[2], pins[3], pins[4])
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'b'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
+
+    return gprs
+
+
+def stc_set_output_pins(imei, speed=1, output_a=2, output_b=2, output_c=2, output_d=2, output_e=2):
     com = command.stc_set_output_pin(speed, output_a, output_b, output_c, output_d, output_e)
     gprs = GPRS()
     gprs.direction = b'@@'
