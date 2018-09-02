@@ -232,10 +232,10 @@ def meitrack_digital_pins_to_dict(io_string):
     except binascii.Error:
         return {}
 
-    for i, byte in enumerate(bytes):
+    for i, byte in enumerate(bytes[::-1]):
         print("byte is", byte)
         for j in range(0, 8):
-            if (byte >> 7-j & 1) == 1:
+            if (byte >> j & 1) == 1:
                 print("bit on", i, j)
                 mapping[i*8+j] = True
             else:
@@ -274,4 +274,5 @@ def datetime_to_meitrack_date(date_time):
 if __name__ == "__main__":
     print(meitrack_digital_pins_to_dict(b"0401"))
     print(meitrack_digital_pins_to_dict(b"04011"))
+    print(meitrack_digital_pins_to_dict(b"0003"))
     print(meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579"))
