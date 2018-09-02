@@ -1,5 +1,5 @@
-1.16 (unreleased)
------------------
+2.0 (2018-09-02)
+----------------
 
 - Change the ordering of the bits processed in the AAA command. Bit ordering is reversed compared to the C01 command.
 
