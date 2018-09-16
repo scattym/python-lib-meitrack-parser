@@ -1,4 +1,4 @@
-2.1 (unreleased)
+2.1 (2018-09-16)
 ----------------
 
 - Convert print statements to debug logs.
