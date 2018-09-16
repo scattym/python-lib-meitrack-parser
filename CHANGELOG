@@ -1,7 +1,7 @@
 2.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Convert print statements to debug logs.
 
 
 2.0 (2018-09-02)
