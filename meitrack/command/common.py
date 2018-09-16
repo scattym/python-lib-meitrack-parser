@@ -233,10 +233,10 @@ def meitrack_digital_pins_to_dict(io_string):
         return {}
 
     for i, byte in enumerate(bytes[::-1]):
-        print("byte is", byte)
+        logger.debug("byte is %s", byte)
         for j in range(0, 8):
             if (byte >> j & 1) == 1:
-                print("bit on", i, j)
+                logger.debug("bit on %s %s", i, j)
                 mapping[i*8+j] = True
             else:
                 mapping[i*8+j] = False
