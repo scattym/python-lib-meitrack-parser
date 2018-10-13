@@ -10,7 +10,7 @@ def cts_build_file_list(imei, file_name, file_bytes):
     gprs.direction = b'$$'
     gprs.data_identifier = b'A'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return [gprs]
 
@@ -48,7 +48,7 @@ def stc_request_device_info(imei):
     gprs.direction = b'@@'
     gprs.data_identifier = b'a'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -59,7 +59,7 @@ def stc_request_get_file(imei, file_name, payload_start_index=0):
     gprs.direction = b'@@'
     gprs.data_identifier = b'b'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -70,7 +70,7 @@ def stc_request_location_message(imei):
     gprs.direction = b'@@'
     gprs.data_identifier = b'c'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -81,7 +81,7 @@ def stc_request_photo_list(imei, start=0):
     gprs.direction = b'@@'
     gprs.data_identifier = b'd'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -92,7 +92,7 @@ def stc_request_take_photo(imei, camera_number, file_name):
     gprs.direction = b'@@'
     gprs.data_identifier = b'e'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -104,7 +104,7 @@ def stc_set_cornering_angle(imei, angle=30):
     gprs.direction = b'@@'
     gprs.data_identifier = b'f'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -116,7 +116,7 @@ def stc_set_speeding_alert(imei, speed_kmh=0, disabled=True):
     gprs.direction = b'@@'
     gprs.data_identifier = b'g'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -128,7 +128,7 @@ def stc_set_idle_alert_time(imei, consecutive_speed_time_secs=0, speed_kmh=0, al
     gprs.direction = b'@@'
     gprs.data_identifier = b'h'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -140,7 +140,7 @@ def stc_set_fatigue_driving_alert_time(imei, consecutive_driving_time_mins=0, al
     gprs.direction = b'@@'
     gprs.data_identifier = b'i'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -152,7 +152,7 @@ def stc_set_driver_license_type(imei, license_type_str=None):
     gprs.direction = b'@@'
     gprs.data_identifier = b'j'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -164,7 +164,7 @@ def stc_set_driver_license_validity_time(imei, validity_time):
     gprs.direction = b'@@'
     gprs.data_identifier = b'k'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -176,7 +176,7 @@ def stc_set_io_device_params(imei, model, config):
     gprs.direction = b'@@'
     gprs.data_identifier = b'k'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -187,7 +187,7 @@ def stc_set_heartbeat_interval(imei, minutes=0):
     gprs.direction = b'@@'
     gprs.data_identifier = b'l'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -199,7 +199,7 @@ def stc_set_tracking_by_distance(imei, meters=0):
     gprs.direction = b'@@'
     gprs.data_identifier = b'm'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -211,7 +211,25 @@ def stc_set_time_zone(imei, minutes=0):
     gprs.direction = b'@@'
     gprs.data_identifier = b'n'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
+
+    return gprs
+
+
+# B46
+# B46,E,T,S,U,D
+# E: Event Code, the event code of SOS is 1
+# T: The snapshot interval
+# S: The number of photos
+# U: Decide whether upload the image or not. 0 means don't upload, 1 means to upload
+# D: Decide whether delete the image after being uploaded or not, 0 means no deleting, 1 means to delete
+def stc_set_snapshot_parameters(imei, event_code=1, interval=60, number=1, upload=1, delete=1):
+    com = command.stc_set_snapshot_parameters(event_code, interval, number, upload, delete)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'o'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -220,9 +238,9 @@ def stc_set_tracking_by_time_interval(imei, deci_seconds=0):
     com = command.stc_set_tracking_by_time_interval(deci_seconds)
     gprs = GPRS()
     gprs.direction = b'@@'
-    gprs.data_identifier = b'o'
+    gprs.data_identifier = b'p'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -231,9 +249,9 @@ def stc_restart_gsm(imei):
     com = command.stc_restart_gsm()
     gprs = GPRS()
     gprs.direction = b'@@'
-    gprs.data_identifier = b'p'
+    gprs.data_identifier = b'q'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -242,9 +260,9 @@ def stc_restart_gps(imei):
     com = command.stc_restart_gps()
     gprs = GPRS()
     gprs.direction = b'@@'
-    gprs.data_identifier = b'q'
+    gprs.data_identifier = b'r'
     gprs.enclosed_data = com
-    gprs.imei = imei
+    gprs.imei = s2b(imei)
 
     return gprs
 
@@ -255,5 +273,6 @@ if __name__ == '__main__':
     print(stc_request_device_info(b"0407").as_bytes())
     print(stc_restart_gsm(b"0407").as_bytes())
     print(stc_restart_gps(b"0407").as_bytes())
-    print(stc_set_output_pin("0407", 1, 2, 2, 2, 2, 2).as_bytes())
-    print(stc_set_output_pin("0407", output_c=0).as_bytes())
+    print(stc_set_output_pin("0407", 1, 2, 2).as_bytes())
+    print(stc_set_output_pin("0407", 2, 3, 4).as_bytes())
+    print(stc_set_snapshot_parameters("0407", 2, 30, 2, 1, 1).as_bytes())

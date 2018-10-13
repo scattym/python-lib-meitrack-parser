@@ -35,7 +35,7 @@ class GPRS(object):
         self.command_type = None
         self.checksum = None
         self.enclosed_data = None
-        self.leftover = ""
+        self.leftover = b""
         if payload:
             self.parse_data_payload(payload)
 
