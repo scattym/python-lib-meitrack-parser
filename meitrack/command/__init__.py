@@ -126,13 +126,13 @@ def stc_set_time_zone(minutes=0):
 # S: The number of photos
 # U: Decide whether upload the image or not. 0 means don't upload, 1 means to upload
 # D: Decide whether delete the image after being uploaded or not, 0 means no deleting, 1 means to delete
-def stc_set_snapshot_parameters(event_code=1, interval=60, number=1, upload=1, delete=1):
+def stc_set_snapshot_parameters(event_code=1, interval=60, count=1, upload=1, delete=1):
     return Command(
         0,
         b"B46,%s,%s,%s,%s,%s" % (
             str(event_code).encode(),
             str(interval).encode(),
-            str(number).encode(),
+            str(count).encode(),
             str(upload).encode(),
             str(delete).encode(),
         )

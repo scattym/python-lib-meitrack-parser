@@ -223,8 +223,8 @@ def stc_set_time_zone(imei, minutes=0):
 # S: The number of photos
 # U: Decide whether upload the image or not. 0 means don't upload, 1 means to upload
 # D: Decide whether delete the image after being uploaded or not, 0 means no deleting, 1 means to delete
-def stc_set_snapshot_parameters(imei, event_code=1, interval=60, number=1, upload=1, delete=1):
-    com = command.stc_set_snapshot_parameters(event_code, interval, number, upload, delete)
+def stc_set_snapshot_parameters(imei, event_code=1, interval=60, count=1, upload=1, delete=1):
+    com = command.stc_set_snapshot_parameters(event_code, interval, count, upload, delete)
     gprs = GPRS()
     gprs.direction = b'@@'
     gprs.data_identifier = b'o'
