@@ -119,6 +119,26 @@ def stc_set_time_zone(minutes=0):
     return Command(0, b"B36,%s" % (str(minutes).encode(),))
 
 
+# TODO: Should the following be %b or %s for the byte string replacement
+# B46,E,T,S,U,D
+# E: Event Code, the event code of SOS is 1
+# T: The snapshot interval
+# S: The number of photos
+# U: Decide whether upload the image or not. 0 means don't upload, 1 means to upload
+# D: Decide whether delete the image after being uploaded or not, 0 means no deleting, 1 means to delete
+def stc_set_snapshot_parameters(event_code=1, interval=60, number=1, upload=1, delete=1):
+    return Command(
+        0,
+        b"B46,%s,%s,%s,%s,%s" % (
+            str(event_code).encode(),
+            str(interval).encode(),
+            str(number).encode(),
+            str(upload).encode(),
+            str(delete).encode(),
+        )
+    )
+
+
 def stc_set_fatigue_driving_alert(consecutive_driving_time_mins=0, alert_time_secs=0, acc_off_time_mins=0):
     if consecutive_driving_time_mins is None or consecutive_driving_time_mins < 0 or consecutive_driving_time_mins > 1000:
         raise GPRSParameterError("Consecutive alert time must be between 0 and 1000. Was %s" % (consecutive_driving_time_mins,))
@@ -219,4 +239,5 @@ if __name__ == '__main__':
     print(stc_request_file_download(b"test_file", 0))
     print(stc_set_io_device_params(b"A78", ((1, 0), (2, 20), (3, 11), (4, 13), (5, 13))))
     print(stc_set_io_device_params(b"A78", [[1, 0], [2, 20], [3, 11], [4, 13], [5, 13]]))
+    print(stc_set_snapshot_parameters())
 
