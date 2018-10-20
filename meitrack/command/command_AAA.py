@@ -1,3 +1,6 @@
+"""
+Module for working with the meitrack AAA command
+"""
 import copy
 import logging
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Module for working with the meitrack commands
+"""
 import logging
 import time
 
