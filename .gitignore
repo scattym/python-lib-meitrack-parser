@@ -4,6 +4,7 @@ build
 *.pyc
 .cache
 nose2-junit.xml
+junit.xml
 coverage.xml
 .coverage
 .idea

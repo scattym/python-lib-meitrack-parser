@@ -2,6 +2,12 @@
 ----------------
 
 - Rename field in B46 message. Field was called "number", now called "count" to be more descriptive as to its' purpose.
+- Add doctests for all command building functions.
+- Add documentation for all command building functions.
+- Add configuration for pytest to run the doctests.
+- Add pytest to the test-requirements.txt file.
+- Add junit.xml as the output of the pytest run.
+- Add coverage reporting via pytest-cov
 
 
 2.2 (2018-10-13)
