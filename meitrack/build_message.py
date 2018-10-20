@@ -5,6 +5,13 @@ from meitrack.command import s2b
 
 
 def cts_build_file_list(imei, file_name, file_bytes):
+    """
+    Build message for requesting client file list
+    :param imei: The imei of the device
+    :param file_name:
+    :param file_bytes:
+    :return:
+    """
     com = command.cts_file_download(file_name, 1, 0, file_bytes)
     gprs = GPRS()
     gprs.direction = b'$$'
