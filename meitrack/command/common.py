@@ -1,3 +1,6 @@
+"""
+Common command functions
+"""
 import binascii
 
 import datetime
@@ -12,7 +15,17 @@ logger = logging.getLogger(__name__)
 
 
 class TaxiMeterData(object):
+    """
+    Class for working with taxi meter data from meitrack devices.
+    """
     def __init__(self, payload=None):
+        """
+        Constructor for the taxi meter data class.
+
+        Can take an optional payload that will parse into the
+        discrete fields.
+        :param payload: The meitrack formatted taxi parameters.
+        """
         self.assisted_info = None
         self.start_time = None
         self.end_time = None
@@ -24,6 +37,11 @@ class TaxiMeterData(object):
             self.parse(payload)
 
     def parse(self, payload):
+        """
+        Function to parse a the taxi data payload
+        :param payload: The meitrack formatted taxi parameters.
+        :return: None
+        """
         fields = payload.split(b'|')
         if len(fields) >= 2:
             self.assisted_info = fields[0]
@@ -36,21 +54,46 @@ class TaxiMeterData(object):
             self.fare_waiting_time = fields[6]
 
     def get_start_time(self):
+        """
+        Helper function to get the start time as a datetime object.
+
+        :return: datetime.datetime representation of the meter start time
+        """
         return meitrack_date_to_datetime(self.start_time)
 
     def get_end_time(self):
+        """
+        Helper function to get the end time as a datetime object.
+
+        :return: datetime.datetime representation of the meter end time
+        """
         if self.end_time:
             return meitrack_date_to_datetime(self.end_time)
 
     def get_fare_distance(self):
+        """
+        Helper function to get the distance travelled during the fare.
+
+        :return: The distance travelled
+        """
         if self.fare_distance:
             return self.fare_distance.decode()
 
     def get_fare_price(self):
+        """
+        Helper function to get the fare price.
+
+        :return: The fare price.
+        """
         if self.fare_price:
             return self.fare_price.decode()
 
     def get_fare_trip_time(self):
+        """
+         Helper function to get the fare trip time.
+
+         :return: The fare trip time.
+         """
         if self.fare_trip_time:
             if len(self.fare_trip_time) == 6:
                 return ":".join([
@@ -60,6 +103,11 @@ class TaxiMeterData(object):
                 ])
 
     def get_fare_waiting_time(self):
+        """
+         Helper function to get the fare waiting time.
+
+         :return: The fare waiting time.
+         """
         if self.fare_waiting_time:
             if len(self.fare_waiting_time) == 6:
                 return ":".join([
@@ -70,19 +118,39 @@ class TaxiMeterData(object):
 
 
 class Command(object):
+    """
+    Base class for all meitrack command objects.
+    """
     def __init__(self, direction, payload=None):
+        """
+        Constructor for the command object
+        :param direction: The direction of the command. Client to server or
+            server to client.
+        :param payload: Optional payload to store as the source.
+        """
         self.payload = payload
         self.direction = direction
         self.field_name_selector = []
         self.field_dict = {}
 
     def __str__(self):
+        """
+        String representation of the command
+        :return: String representation of the command
+        """
         result_str = "%s\n" % (self.payload,)
         for field in self.field_name_selector:
             result_str += "\tField %s has value %s\n" % (field, self.field_dict.get(field))
         return result_str
 
     def as_bytes(self):
+        """
+        Calculate all length and signatures to a byte array.
+
+        If no fields are set then fall back to using the input payload.
+
+        :return: Byte array representation of the command.
+        """
         fields = []
         if self.field_name_selector:
             for field in self.field_name_selector:
@@ -98,18 +166,39 @@ class Command(object):
             return self.payload
 
     def __getitem__(self, item):
+        """
+        Helper function to return a particular field from the field dictionary.
+
+        :param item: The item to return
+        :return: the raw parameter or None if not present
+        """
         if item in self.field_dict:
             return self.field_dict[item]
         return None
         # raise AttributeError("Field %s not set" % (item,))
 
     def __getattr__(self, item):
+        """
+        Helper function to return a particular field from the field dictionary.
+
+        :param item: The item to return
+        :return: the raw parameter or None if not present
+        """
         if item in self.field_dict:
             return self.field_dict[item]
         return None
         # raise AttributeError("Field %s not set" % (item,))
 
     def parse_payload(self, payload, max_split=None):
+        """
+        Function to parse a payload building the parameters.
+
+        Build the field dictionary from the incoming payload
+        :param payload: The meitrack protocol payload
+        :param max_split: The maximum number of times to split. Used when
+            field separators may be in the payload
+        :return: None
+        """
         if max_split:
             fields = payload.split(b',', max_split)
         else:
@@ -136,6 +225,11 @@ class Command(object):
                 self.field_dict[field_name] = fields[i]
 
     def get_analog_input_value(self, input_number):
+        """
+        Helper function to retrieve an analogue input value from a meitrack command.
+        :param input_number: The input pin to lookup.
+        :return: The analogue value of reported by the device.
+        """
         if self.field_dict.get("analog_input_value"):
             analog_list = self.field_dict.get("analog_input_value").split(b"|")
             if input_number <= len(analog_list):
@@ -144,14 +238,30 @@ class Command(object):
                 return int(analog_list[input_number-1], 16) / 100
 
     def get_battery_voltage(self):
+        """
+        Helper function to retrieve the battery voltage value from a meitrack command.
+        :return: The battery voltage value of reported by the device.
+        """
         return self.get_analog_input_value(4)
 
     def get_battery_level(self):
+        """
+        Helper function to retrieve the battery voltage value from a meitrack command.
+
+        Assumes the device has a lipo battery with a maximum value of 4.2V and uses this
+        to calculate a percentage.
+        :return: The battery voltage percentage of reported by the device.
+        """
         battery_voltage = self.get_battery_voltage()
         if battery_voltage:
             return int(self.get_battery_voltage() / 4.2 * 100)
 
     def get_base_station_info(self):
+        """
+        Helper function to retrieve the gsm info from a meitrack command.
+
+        :return: The gsm info as a dictionary
+        """
         if self.field_dict.get("base_station_info"):
             fields = self.field_dict.get("base_station_info").split(b"|")
             if len(fields) == 4:
@@ -165,10 +275,20 @@ class Command(object):
                 return return_dict
 
     def get_gsm_signal_strength(self):
+        """
+        Helper function to retrieve the gsm signal strength from a meitrack command.
+
+        :return: The gsm signal strength
+        """
         if self.field_dict.get("gsm_signal_strength"):
             return self.field_dict.get("gsm_signal_strength")
 
     def get_file_data(self):
+        """
+        Helper function to retrieve the file data from a meitrack command.
+
+        :return: A tuple representation of the file data.
+        """
         if self.field_dict.get("file_bytes"):
             return (
                 self.field_dict.get("file_name"),
@@ -180,6 +300,11 @@ class Command(object):
             return None, None, None, None
 
     def get_file_list(self):
+        """
+        Helper function to retrieve the file list from a meitrack command.
+
+        :return: A tuple representation of the file list data.
+        """
         if self.field_dict.get("file_list"):
             return (
                 self.field_dict.get("number_of_data_packets"),
@@ -190,36 +315,81 @@ class Command(object):
             return None, None, None
 
     def get_event_id(self):
+        """
+        Helper function to retrieve the event id from a meitrack command.
+
+        :return: The event id
+        """
         if self.field_dict.get("event_code"):
             return event_to_id(self.field_dict.get("event_code"))
 
     def get_event_name(self):
+        """
+        Helper function to retrieve the event name from a meitrack command.
+
+        :return: The event name
+        """
         if self.field_dict.get("event_code"):
             return event_to_name(self.field_dict.get("event_code"))
 
     def get_firmware_version(self):
+        """
+        Helper function to retrieve the firmware version from a meitrack command.
+
+        :return: The firmware version
+        """
         return self.field_dict.get("firmware_version")
 
     def get_serial_number(self):
+        """
+        Helper function to retrieve the serial number from a meitrack command.
+
+        :return: The serial number
+        """
         return self.field_dict.get("serial_number")
 
     def get_taxi_meter_data(self):
+        """
+        Helper function to retrieve the taxi meter data from a meitrack command.
+
+        :return: The taxi meter data as a TaxiMeterData object
+        """
         if self.field_dict.get("taxi_meter_data"):
             return TaxiMeterData(self.field_dict.get("taxi_meter_data"))
 
     def get_license_data(self):
+        """
+        Helper function to retrieve the license data from a meitrack command.
+
+        :return: The gsm signal strength
+        """
         if self.field_dict.get("rfid"):
             return License(self.field_dict.get("rfid"))
 
     def is_response_error(self):
+        """
+        Helper function to retrieve the error state from a meitrack command.
+
+        :return: Not currently implemented in this level
+        """
         return False
 
     # "io_port_status", "analog_input_value"
     def get_digital_pin_states(self):
+        """
+        Helper function to retrieve the digital pin states from a meitrack command.
+
+        :return: The digital pin states as a dictionary
+        """
         if self.field_dict.get("io_port_status"):
             return meitrack_digital_pins_to_dict(self.field_dict.get("io_port_status"))
 
     def get_analogue_pin_states(self):
+        """
+        Helper function to retrieve the analogue pin values from a meitrack command.
+
+        :return: The analogue pin values as a dictionary.
+        """
         if self.field_dict.get("analog_input_value"):
             return meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579")
 
