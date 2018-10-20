@@ -385,7 +385,14 @@ if __name__ == '__main__':
     print(stc_check_firmware_version(b'0407', b'testfile.ota').as_bytes())
     print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100'))
     print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100').as_bytes())
-    fu = FirmwareUpdate(b'0407', b'\x00\x00\x04\x01', b'home.scattym.com', b'65533', b'testfile.ota', b'testfilecontents'*200, b'stage2')
+    fu = FirmwareUpdate(
+        b'0407', b'\x00\x00\x04\x01',
+        b'home.scattym.com',
+        b'65533',
+        b'testfile.ota',
+        b'testfilecontents'*200,
+        b'stage2'
+    )
     gprs_message = GPRS(b"""$$K67,864507032323403,FC0,\x00A,OK,1408,T333_Y10H1412V046,testfile.ota*AA\r\n""")
     fu.parse_fc0(gprs_message)
     for i in range(0,4):

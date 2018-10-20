@@ -348,8 +348,11 @@ def stc_set_fatigue_driving_alert(consecutive_driving_time_mins=0, alert_time_se
     ...
     meitrack.error.GPRSParameterError: Acc off time must be between 0 and 1000. Was 1001
     """
-    if consecutive_driving_time_mins is None or consecutive_driving_time_mins < 0 or consecutive_driving_time_mins > 1000:
-        raise GPRSParameterError("Consecutive alert time must be between 0 and 1000. Was %s" % (consecutive_driving_time_mins,))
+    if consecutive_driving_time_mins is None or consecutive_driving_time_mins < 0 \
+            or consecutive_driving_time_mins > 1000:
+        raise GPRSParameterError(
+            "Consecutive alert time must be between 0 and 1000. Was %s" % (consecutive_driving_time_mins,)
+        )
     if alert_time_secs is None or alert_time_secs < 0 or alert_time_secs > 60000:
         raise GPRSParameterError("Alert time must be between 0 and 60000. Was %s" % (alert_time_secs,))
     if acc_off_time_mins is None or acc_off_time_mins < 0 or acc_off_time_mins > 1000:
@@ -403,7 +406,9 @@ def stc_set_idle_alert_time(consecutive_speed_time_secs=0, speed_kmh=0, alert_ti
     meitrack.error.GPRSParameterError: Alert time must be between 0 and 60000. Was 60001
     """
     if consecutive_speed_time_secs is None or consecutive_speed_time_secs < 0 or consecutive_speed_time_secs > 60000:
-        raise GPRSParameterError("Consecutive speed time must be between 0 and 60000. Was %s" % (consecutive_speed_time_secs,))
+        raise GPRSParameterError(
+            "Consecutive speed time must be between 0 and 60000. Was %s" % (consecutive_speed_time_secs,)
+        )
     if speed_kmh is None or speed_kmh < 0 or speed_kmh > 200:
         raise GPRSParameterError("Speed must be between 0 and 200. Was %s" % (speed_kmh,))
     if alert_time_secs is None or alert_time_secs < 0 or alert_time_secs > 60000:
