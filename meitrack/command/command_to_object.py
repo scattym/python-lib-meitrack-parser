@@ -1,3 +1,6 @@
+"""
+Module for converting meitrack gprs commands to Command objects
+"""
 import logging
 
 from meitrack.command.command_AAA import TrackerCommand

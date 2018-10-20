@@ -1,5 +1,5 @@
 """
-Common command functions
+Common meitrack command functions
 """
 import binascii
 import datetime

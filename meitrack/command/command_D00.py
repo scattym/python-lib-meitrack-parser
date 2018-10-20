@@ -1,3 +1,6 @@
+"""
+Module for working with the meitrack D00 command
+"""
 import datetime
 import logging
 

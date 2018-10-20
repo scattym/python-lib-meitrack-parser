@@ -1,3 +1,6 @@
+"""
+Module for working with the meitrack FC5 command
+"""
 import binascii
 import logging
 

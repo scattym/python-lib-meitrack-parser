@@ -1,3 +1,6 @@
+"""
+Module for working with the meitrack E91 command
+"""
 import logging
 
 from meitrack.command.common import Command

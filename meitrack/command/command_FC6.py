@@ -1,3 +1,6 @@
+"""
+Module for working with the meitrack FC6 command
+"""
 import logging
 
 from meitrack.command.common import Command
