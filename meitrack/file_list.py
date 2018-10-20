@@ -1,5 +1,4 @@
 import logging
-import copy
 
 from meitrack.common import DIRECTION_CLIENT_TO_SERVER
 from meitrack.error import GPRSError
