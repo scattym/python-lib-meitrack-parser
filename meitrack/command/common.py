@@ -421,18 +421,18 @@ def meitrack_digital_pins_to_dict(io_string):
     """
     mapping = {}
     try:
-        bytes = binascii.unhexlify(io_string)
+        data_bytes = binascii.unhexlify(io_string)
     except binascii.Error:
         return {}
 
-    for i, byte in enumerate(bytes[::-1]):
+    for counter, byte in enumerate(data_bytes[::-1]):
         logger.debug("byte is %s", byte)
         for j in range(0, 8):
             if (byte >> j & 1) == 1:
-                logger.debug("bit on %s %s", i, j)
-                mapping[i*8+j] = True
+                logger.debug("bit on %s %s", counter, j)
+                mapping[counter*8+j] = True
             else:
-                mapping[i*8+j] = False
+                mapping[counter*8+j] = False
 
     return mapping
 
@@ -473,9 +473,9 @@ def meitrack_date_to_datetime(date_time):
         d = datetime.datetime.strptime(date_time_str_utc, "%y%m%d%H%M%SZ")
         return d
     except UnicodeDecodeError as err:
-        logger.error("Unable to convert datetime field to a string %s", date_time)
+        logger.error("Unable to convert datetime field to a string %s with error: %s", date_time, err)
     except ValueError as err:
-        logger.error("Unable to calculate date from string %s", date_time)
+        logger.error("Unable to calculate date from string %s with error: %s", date_time, err)
     return None
 
 
