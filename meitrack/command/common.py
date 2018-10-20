@@ -69,6 +69,7 @@ class TaxiMeterData(object):
         """
         if self.end_time:
             return meitrack_date_to_datetime(self.end_time)
+        return None
 
     def get_fare_distance(self):
         """
@@ -78,6 +79,7 @@ class TaxiMeterData(object):
         """
         if self.fare_distance:
             return self.fare_distance.decode()
+        return None
 
     def get_fare_price(self):
         """
@@ -87,6 +89,7 @@ class TaxiMeterData(object):
         """
         if self.fare_price:
             return self.fare_price.decode()
+        return None
 
     def get_fare_trip_time(self):
         """
@@ -101,6 +104,7 @@ class TaxiMeterData(object):
                     self.fare_trip_time[2:4].decode(),
                     self.fare_trip_time[4:].decode()
                 ])
+        return None
 
     def get_fare_waiting_time(self):
         """
@@ -115,6 +119,7 @@ class TaxiMeterData(object):
                     self.fare_waiting_time[2:4].decode(),
                     self.fare_waiting_time[4:].decode()
                 ])
+        return None
 
 
 class Command(object):
