@@ -9,7 +9,9 @@ def cts_build_file_list(imei, file_name, file_bytes):
     :param imei: The imei of the device
     :param file_name:
     :param file_bytes:
-    :return:
+    :return: List of file download commands
+    >>> for u in cts_build_file_list(b'0407', b'filename', 1024): u.as_bytes()
+    b'$$A32,0407,D00,filename,1,0,1024*F8\\r\\n'
     """
     com = command.cts_file_download(file_name, 1, 0, file_bytes)
     gprs = GPRS()
