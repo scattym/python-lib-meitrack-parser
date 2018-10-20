@@ -302,7 +302,7 @@ def datetime_to_meitrack_date(date_time):
     :param date_time: The input date time object
     :return: Byte representation of the date.
 
-    >>> datetime_to_meitrack_date(datetime.datetime.fromisoformat("1977-07-04"))
+    >>> datetime_to_meitrack_date(datetime.datetime(1977, 7, 4, 0, 0))
     b'770704000000'
     """
     return date_time.strftime("%y%m%d%H%M%S").encode()
