@@ -4,27 +4,10 @@ import time
 
 from meitrack.command.command_D00 import FileDownloadCommand
 from meitrack.command.common import Command
-from meitrack.common import DIRECTION_CLIENT_TO_SERVER
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER, s2b
 from meitrack.error import GPRSParameterError
 
 logger = logging.getLogger(__name__)
-
-
-def s2b(value):
-    """
-    convert string or integer to byte array representation
-
-    original value returned if conversion fails so should be safe to pass all
-    values into this function
-    :param value: (str|int|bytes) The input value
-    :return: The byte array converted value
-    """
-    try:
-        if isinstance(value, int):
-            return str(value).encode()
-        return value.encode()
-    except AttributeError as _:
-        return value
 
 
 def cts_file_download(file_name, num_packets, packet_number, file_bytes):

@@ -1,7 +1,6 @@
 from meitrack import command
 from meitrack.gprs_protocol import GPRS
-from meitrack.error import GPRSParameterError
-from meitrack.command import s2b
+from meitrack.common import s2b
 
 
 def cts_build_file_list(imei, file_name, file_bytes):

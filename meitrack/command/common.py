@@ -3,6 +3,7 @@ import binascii
 import datetime
 import logging
 
+from meitrack.common import b2s
 from meitrack.command.event import event_to_name, event_to_id
 from meitrack.error import GPRSParseError
 from license.cardreader import License
@@ -76,7 +77,6 @@ class Command(object):
         self.field_dict = {}
 
     def __str__(self):
-        result_str = ""
         result_str = "%s\n" % (self.payload,)
         for field in self.field_name_selector:
             result_str += "\tField %s has value %s\n" % (field, self.field_dict.get(field))
@@ -226,6 +226,15 @@ class Command(object):
 
 # Example: 0400
 def meitrack_digital_pins_to_dict(io_string):
+    """
+    Function to convert meitrack digital pin report to a dictionary of pin states
+
+    :param io_string: The hexadecimal representation of the pin states
+    :return: a dictionary of pin states
+
+    >>> meitrack_digital_pins_to_dict(b'0400')
+    {0: False, 1: False, 2: False, 3: False, 4: False, 5: False, 6: False, 7: False, 8: False, 9: False, 10: True, 11: False, 12: False, 13: False, 14: False, 15: False}
+    """
     mapping = {}
     try:
         bytes = binascii.unhexlify(io_string)
@@ -246,6 +255,15 @@ def meitrack_digital_pins_to_dict(io_string):
 
 # Example: 0400
 def meitrack_analogue_pins_to_dict(io_string):
+    """
+    Function to convert meitrack analogue pin report to a dictionary of pin states
+
+    :param io_string: The hexadecimal representation of the pin states
+    :return: a dictionary of pin states
+
+    >>> meitrack_analogue_pins_to_dict(b'0400')
+    {0: 10.24}
+    """
     mapping = {}
     fields = io_string.split(b'|')
     for i, field in enumerate(fields):
@@ -255,10 +273,20 @@ def meitrack_analogue_pins_to_dict(io_string):
 
 
 def meitrack_date_to_datetime(date_time):
+    """
+    Function to convert a meitrack datetime to a python datetime object
+    :param date_time: Byte representation of a meitrack datetime
+    :return: python datetime object.
+    >>> meitrack_date_to_datetime(b'770704000000')
+    datetime.datetime(1977, 7, 4, 0, 0)
+    >>> meitrack_date_to_datetime('770704000000')
+    datetime.datetime(1977, 7, 4, 0, 0)
+    """
     # yymmddHHMMSS
     try:
-        date_time = "%s%s" % (date_time.decode(), "Z")
-        d = datetime.datetime.strptime(date_time, "%y%m%d%H%M%SZ")
+        date_time_str = b2s(date_time)
+        date_time_str_utc = "%s%s" % (date_time_str, "Z")
+        d = datetime.datetime.strptime(date_time_str_utc, "%y%m%d%H%M%SZ")
         return d
     except UnicodeDecodeError as err:
         logger.error("Unable to convert datetime field to a string %s", date_time)
@@ -268,6 +296,15 @@ def meitrack_date_to_datetime(date_time):
 
 
 def datetime_to_meitrack_date(date_time):
+    """
+    Function to convert a datetime object to the meitrack date format
+
+    :param date_time: The input date time object
+    :return: Byte representation of the date.
+
+    >>> datetime_to_meitrack_date(datetime.datetime.fromisoformat("1977-07-04"))
+    b'770704000000'
+    """
     return date_time.strftime("%y%m%d%H%M%S").encode()
 
 
