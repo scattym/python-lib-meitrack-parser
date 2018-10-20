@@ -8,6 +8,7 @@ DIRECTION_CLIENT_TO_SERVER = 1
 
 MAX_DATA_LENGTH = 2048
 
+
 def s2b(value):
     """
     convert string or integer to byte array representation

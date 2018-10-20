@@ -2,14 +2,13 @@
 Common command functions
 """
 import binascii
-
 import datetime
 import logging
 
-from meitrack.common import b2s
-from meitrack.command.event import event_to_name, event_to_id
-from meitrack.error import GPRSParseError
 from license.cardreader import License
+from meitrack.command.event import event_to_name, event_to_id
+from meitrack.common import b2s
+from meitrack.error import GPRSParseError
 
 logger = logging.getLogger(__name__)
 

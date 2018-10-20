@@ -1,10 +1,8 @@
 import copy
 import logging
 
-import binascii
-
-from meitrack.error import GPRSParseError
 from meitrack.command.common import Command
+from meitrack.error import GPRSParseError
 
 logger = logging.getLogger(__name__)
 
