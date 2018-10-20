@@ -6,10 +6,12 @@ from meitrack.common import s2b
 def cts_build_file_list(imei, file_name, file_bytes):
     """
     Build message for requesting client file list
+
     :param imei: The imei of the device
     :param file_name:
     :param file_bytes:
     :return: List of file download commands
+
     >>> for u in cts_build_file_list(b'0407', b'filename', 1024): u.as_bytes()
     b'$$A32,0407,D00,filename,1,0,1024*F8\\r\\n'
     >>> for u in cts_build_file_list(b'0407', b'filename', 32768): u.as_bytes()
@@ -26,6 +28,26 @@ def cts_build_file_list(imei, file_name, file_bytes):
 
 
 def stc_set_output_pin(imei, speed=1, pin=0, state=2):
+    """
+    Build message for setting output pin state
+
+    :param imei: The imei of the device
+    :param speed: The maximum speed to apply the change
+    :param pin: The pin number to set
+    :param state: The state to set the pin to.
+    :return: Set pin states gprs command
+
+    >>> stc_set_output_pin(b'0407').as_bytes()
+    b'@@b22,0407,C01,1,22222*BA\\r\\n'
+    >>> stc_set_output_pin(b'0407', 2).as_bytes()
+    b'@@b22,0407,C01,2,22222*BB\\r\\n'
+    >>> stc_set_output_pin(b'0407', 2, 3).as_bytes()
+    b'@@b22,0407,C01,2,22222*BB\\r\\n'
+    >>> stc_set_output_pin(b'0407', 2, 3, 1).as_bytes()
+    b'@@b22,0407,C01,2,22212*BA\\r\\n'
+    >>> print(stc_set_output_pin(b'0407', 2, 255, 1))
+    None
+    """
     pins = [2, 2, 2, 2, 2]
     try:
         pins[pin] = state
@@ -42,6 +64,25 @@ def stc_set_output_pin(imei, speed=1, pin=0, state=2):
 
 
 def stc_set_output_pins(imei, speed=1, output_a=2, output_b=2, output_c=2, output_d=2, output_e=2):
+    """
+    Build message for setting all output pin states
+
+    :param imei: The imei of the device
+    :param speed: The maximum speed to apply the change
+    :param output_a: The state of pin 1.
+    :param output_b: The state of pin 2.
+    :param output_c: The state of pin 3.
+    :param output_d: The state of pin 4.
+    :param output_e: The state of pin 5.
+    :return: Set pin states gprs command
+
+    >>> stc_set_output_pins(b'0407').as_bytes()
+    b'@@b22,0407,C01,1,22222*BA\\r\\n'
+    >>> stc_set_output_pins(b'0407', 2).as_bytes()
+    b'@@b22,0407,C01,2,22222*BB\\r\\n'
+    >>> stc_set_output_pins(b'0407', 2, 1, 1, 1, 1, 1).as_bytes()
+    b'@@b22,0407,C01,2,11111*B6\\r\\n'
+    """
     com = command.stc_set_output_pin(speed, output_a, output_b, output_c, output_d, output_e)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -53,6 +94,15 @@ def stc_set_output_pins(imei, speed=1, output_a=2, output_b=2, output_c=2, outpu
 
 
 def stc_request_device_info(imei):
+    """
+    Build request device info gprs message
+
+    :param imei: The imei of the device
+    :return: Set gprs message to request device information.
+
+    >>> stc_request_device_info(b'0407').as_bytes()
+    b'@@a14,0407,E91*42\\r\\n'
+    """
     com = command.stc_request_info()
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -64,6 +114,19 @@ def stc_request_device_info(imei):
 
 
 def stc_request_get_file(imei, file_name, payload_start_index=0):
+    """
+    Build request file gprs message
+
+    :param imei: The imei of the device
+    :param file_name: The name of the file to request
+    :param payload_start_index: The index of the file to download from
+    :return: Set gprs message to request file transfer
+
+    >>> stc_request_get_file(b'0407', b'testfile').as_bytes()
+    b'@@b25,0407,D00,testfile,0*22\\r\\n'
+    >>> stc_request_get_file(b'0407', b'testfile', 72).as_bytes()
+    b'@@b26,0407,D00,testfile,72*5C\\r\\n'
+    """
     com = command.stc_request_file_download(file_name, payload_start_index)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -75,6 +138,15 @@ def stc_request_get_file(imei, file_name, payload_start_index=0):
 
 
 def stc_request_location_message(imei):
+    """
+    Build request device location gprs message
+
+    :param imei: The imei of the device
+    :return: Set gprs message to request device location
+
+    >>> stc_request_location_message(b'0407').as_bytes()
+    b'@@c14,0407,A10*37\\r\\n'
+    """
     com = command.stc_request_location()
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -86,6 +158,18 @@ def stc_request_location_message(imei):
 
 
 def stc_request_photo_list(imei, start=0):
+    """
+    Build request photo list gprs message
+
+    :param imei: The imei of the device
+    :param start: The file list start index
+    :return: gprs message to request device file list
+
+    >>> stc_request_photo_list(b'0407').as_bytes()
+    b'@@d16,0407,D01,0*99\\r\\n'
+    >>> stc_request_photo_list(b'0407', 7).as_bytes()
+    b'@@d16,0407,D01,7*A0\\r\\n'
+    """
     com = command.stc_request_photo_list(start)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -97,6 +181,17 @@ def stc_request_photo_list(imei, start=0):
 
 
 def stc_request_take_photo(imei, camera_number, file_name):
+    """
+    Build request take photo gprs message
+
+    :param imei: The imei of the device
+    :param camera_number: The camera index to take the photo
+    :param file_name: The file name to store the image as
+    :return: gprs message to request device to take a photo
+
+    >>> stc_request_take_photo(b'0407', 1, 'testfile').as_bytes()
+    b'@@e25,0407,D03,1,testfile*29\\r\\n'
+    """
     com = command.stc_request_take_photo(camera_number, file_name=file_name)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -109,6 +204,18 @@ def stc_request_take_photo(imei, camera_number, file_name):
 
 # A13
 def stc_set_cornering_angle(imei, angle=30):
+    """
+    Build set cornering angle gprs message
+
+    :param imei: The imei of the device
+    :param angle: The angle required to trigger an event
+    :return: gprs message to set the cornering angle on a device.
+
+    >>> stc_set_cornering_angle(b'0407').as_bytes()
+    b'@@f17,0407,A13,30*CF\\r\\n'
+    >>> stc_set_cornering_angle(b'0407', 45).as_bytes()
+    b'@@f17,0407,A13,45*D5\\r\\n'
+    """
     com = command.stc_set_cornering_angle(angle)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -121,6 +228,21 @@ def stc_set_cornering_angle(imei, angle=30):
 
 # B07
 def stc_set_speeding_alert(imei, speed_kmh=0, disabled=True):
+    """
+    Build set speeding alert gprs message
+
+    :param imei: The imei of the device
+    :param speed_kmh: The speed at which to trigger the alert
+    :param disabled: Whether or not speeding is disabled.
+    :return: gprs message to set the speeding alert speed on a device.
+
+    >>> stc_set_speeding_alert(b'0407').as_bytes()
+    b'@@g18,0407,B07,0,1*FF\\r\\n'
+    >>> stc_set_speeding_alert(b'0407', 12).as_bytes()
+    b'@@g19,0407,B07,12,1*33\\r\\n'
+    >>> stc_set_speeding_alert(b'0407', 12, False).as_bytes()
+    b'@@g19,0407,B07,12,0*32\\r\\n'
+    """
     com = command.stc_set_speeding_alert(speed_kmh, disabled)
     gprs = GPRS()
     gprs.direction = b'@@'
