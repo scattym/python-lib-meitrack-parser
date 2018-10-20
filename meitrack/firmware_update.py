@@ -373,8 +373,8 @@ if __name__ == '__main__':
         print(test_gprs)
         print(test_gprs.as_bytes())
 
-    print(stc_obtain_ota_checksum(b'0407'))
-    print(stc_obtain_ota_checksum(b'0407').as_bytes())
+    print(stc_obtain_ota_checksum(b'0407', 1, 1024))
+    print(stc_obtain_ota_checksum(b'0407', 1, 1024).as_bytes())
     print(stc_start_ota_update(b'0407'))
     print(stc_start_ota_update(b'0407').as_bytes())
     print(stc_cancel_ota_update(b'0407'))
