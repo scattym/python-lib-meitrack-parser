@@ -236,6 +236,7 @@ class Command(object):
                 logger.debug(analog_list[input_number-1])
                 logger.debug(int(analog_list[input_number-1], 16))
                 return int(analog_list[input_number-1], 16) / 100
+        return None
 
     def get_battery_voltage(self):
         """
@@ -255,6 +256,7 @@ class Command(object):
         battery_voltage = self.get_battery_voltage()
         if battery_voltage:
             return int(self.get_battery_voltage() / 4.2 * 100)
+        return None
 
     def get_base_station_info(self):
         """
@@ -273,6 +275,7 @@ class Command(object):
                     "gsm_signal_strength": self.get_gsm_signal_strength()
                 }
                 return return_dict
+        return None
 
     def get_gsm_signal_strength(self):
         """
@@ -282,6 +285,7 @@ class Command(object):
         """
         if self.field_dict.get("gsm_signal_strength"):
             return self.field_dict.get("gsm_signal_strength")
+        return None
 
     def get_file_data(self):
         """
@@ -322,6 +326,7 @@ class Command(object):
         """
         if self.field_dict.get("event_code"):
             return event_to_id(self.field_dict.get("event_code"))
+        return None
 
     def get_event_name(self):
         """
@@ -331,6 +336,7 @@ class Command(object):
         """
         if self.field_dict.get("event_code"):
             return event_to_name(self.field_dict.get("event_code"))
+        return None
 
     def get_firmware_version(self):
         """
@@ -356,6 +362,7 @@ class Command(object):
         """
         if self.field_dict.get("taxi_meter_data"):
             return TaxiMeterData(self.field_dict.get("taxi_meter_data"))
+        return None
 
     def get_license_data(self):
         """
@@ -365,6 +372,7 @@ class Command(object):
         """
         if self.field_dict.get("rfid"):
             return License(self.field_dict.get("rfid"))
+        return None
 
     def is_response_error(self):
         """
@@ -383,6 +391,7 @@ class Command(object):
         """
         if self.field_dict.get("io_port_status"):
             return meitrack_digital_pins_to_dict(self.field_dict.get("io_port_status"))
+        return None
 
     def get_analogue_pin_states(self):
         """
@@ -392,6 +401,7 @@ class Command(object):
         """
         if self.field_dict.get("analog_input_value"):
             return meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579")
+        return None
 
 
 # Example: 0400
