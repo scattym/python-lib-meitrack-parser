@@ -101,6 +101,6 @@ if __name__ == '__main__':
     print(test_command.as_bytes())
     print(test_command)
 
-    commands = stc_send_ota_data_command(b"testfil"*190)
+    commands = stc_send_ota_data_command(b"testfile"*190, b'1024')
     for command in commands:
         print(command)
