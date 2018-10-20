@@ -90,8 +90,8 @@ def _(event_code: str) -> str:
     try:
         lookup_value = int(event_code)
         return event_to_name(lookup_value)
-    except ValueError as _:
-        logger.error("Unable to process integer from string {}".format(event_code))
+    except ValueError as err:
+        logger.error("Unable to process integer from string %s with error: %s", event_code, err)
 
 
 @event_to_name.register(bytes)
@@ -99,8 +99,8 @@ def _(event_code: bytes) -> str:
     try:
         lookup_value = int(event_code.decode())
         return event_to_name(lookup_value)
-    except ValueError as _:
-        logger.error("Unable to process integer from bytes {}".format(event_code))
+    except ValueError as err:
+        logger.error("Unable to process integer from bytes %s with error %s", event_code, err)
 
 
 @singledispatch
@@ -113,8 +113,8 @@ def _(event_code: str) -> str:
     try:
         lookup_value = int(event_code)
         return event_to_id(lookup_value)
-    except ValueError as _:
-        logger.error("Unable to process integer from string {}".format(event_code))
+    except ValueError as err:
+        logger.error("Unable to process integer from string %s with error: %s", event_code, err)
 
 
 @event_to_id.register(bytes)
@@ -122,8 +122,8 @@ def _(event_code: bytes) -> str:
     try:
         lookup_value = int(event_code.decode())
         return event_to_id(lookup_value)
-    except ValueError as _:
-        logger.error("Unable to process integer from bytes {}".format(event_code))
+    except ValueError as err:
+        logger.error("Unable to process integer from bytes %s with error: %s", event_code, err)
 
 
 if __name__ == "__main__":
