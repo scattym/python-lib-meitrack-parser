@@ -265,19 +265,32 @@ def stc_set_cornering_angle(angle=0):
     return Command(0, b"A13,%b" % (s2b(angle)))
 
 
-# TODO: Should the following be %b or %s for the byte string replacement
 def stc_set_time_zone(minutes=0):
     """
-    Build a request client location command
+    Build a set time zone command
 
-    :return: request client location command
+    Used to set the time zone offset on the device.
+    :param minutes: The number of minutes offset from GMT.
+    :return: set time zone command
 
-    >>> stc_request_location().as_bytes()
-    b'A10'
+    >>> stc_set_time_zone().as_bytes()
+    b'B36,0'
+    >>> stc_set_time_zone(60).as_bytes()
+    b'B36,60'
+    >>> stc_set_time_zone(-32769).as_bytes()
+    Traceback (most recent call last):
+    ...
+    meitrack.error.GPRSParameterError: Timezone offset must be between -32768 and 32768. Was -32769
+
+    >>> stc_set_time_zone(32769).as_bytes()
+    Traceback (most recent call last):
+    ...
+    meitrack.error.GPRSParameterError: Timezone offset must be between -32768 and 32768. Was 32769
+
     """
     if minutes < -32768 or minutes > 32768:
         raise GPRSParameterError("Timezone offset must be between -32768 and 32768. Was %s" % (minutes,))
-    return Command(0, b"B36,%s" % (str(minutes).encode(),))
+    return Command(0, b"B36,%b" % (s2b(minutes),))
 
 
 # B46,E,T,S,U,D
