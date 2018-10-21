@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class FileDownloadCommand(Command):
+    """
+    Class for setting the field names for the file download command
+    """
     request_field_names = [
         "command", "file_name", "data_packet_start_number"
     ]
@@ -20,6 +23,11 @@ class FileDownloadCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting the file download command parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
         super(FileDownloadCommand, self).__init__(direction, payload=payload)
         logger.log(13, payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
@@ -52,6 +60,10 @@ class FileDownloadCommand(Command):
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

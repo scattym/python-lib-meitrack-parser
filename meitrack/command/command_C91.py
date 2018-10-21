@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class SetIOParamsCommand(Command):
+    """
+    Class for setting the field names for the set io parameters command
+    """
     request_field_names = [
         "command", "model", "device1", "device2", "device3", "device4", "device5",
     ]
@@ -18,6 +21,11 @@ class SetIOParamsCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting setioparams command parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
         super(SetIOParamsCommand, self).__init__(direction, payload=payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
@@ -29,6 +37,10 @@ class SetIOParamsCommand(Command):
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

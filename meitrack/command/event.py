@@ -78,6 +78,17 @@ EVENT_MAP_T333 = {
 
 @singledispatch
 def event_to_name(event_code: int) -> str:
+    """
+    Function to convert event code as an integer to a event name string
+    :param event_code: The event code
+    :return: The name of the event as a string.
+    >>> event_to_name(145)
+    'Ignition Off'
+    >>> event_to_name("145")
+    'Ignition Off'
+    >>> event_to_name(b"145")
+    'Ignition Off'
+    """
     return_str = EVENT_MAP_T333.get(event_code)
     if not return_str:
         logger.error("Unable to lookup event code %s", event_code)
@@ -87,6 +98,11 @@ def event_to_name(event_code: int) -> str:
 
 @event_to_name.register(str)
 def _(event_code: str) -> str:
+    """
+    Function to convert event code as an string to a event name string
+    :param event_code: The event code
+    :return: The name of the event as a string.
+    """
     try:
         lookup_value = int(event_code)
         return event_to_name(lookup_value)
@@ -96,6 +112,11 @@ def _(event_code: str) -> str:
 
 @event_to_name.register(bytes)
 def _(event_code: bytes) -> str:
+    """
+    Function to convert event code as an byte string to a event name string
+    :param event_code: The event code
+    :return: The name of the event as a string.
+    """
     try:
         lookup_value = int(event_code.decode())
         return event_to_name(lookup_value)
@@ -105,11 +126,27 @@ def _(event_code: bytes) -> str:
 
 @singledispatch
 def event_to_id(event_code: int) -> int:
+    """
+    Function to convert event code as an integer to a event code integer
+    :param event_code: The event code
+    :return: The event code as an integer.
+    >>> event_to_id(145)
+    145
+    >>> event_to_id("145")
+    145
+    >>> event_to_id(b"145")
+    145
+    """
     return event_code
 
 
 @event_to_id.register(str)
 def _(event_code: str) -> str:
+    """
+    Function to convert event code as a string to a event code string
+    :param event_code: The event code
+    :return: The name of the event as a string.
+    """
     try:
         lookup_value = int(event_code)
         return event_to_id(lookup_value)
@@ -119,6 +156,11 @@ def _(event_code: str) -> str:
 
 @event_to_id.register(bytes)
 def _(event_code: bytes) -> str:
+    """
+    Function to convert event code as a byte string to a event code string
+    :param event_code: The event code
+    :return: The name of the event as a string.
+    """
     try:
         lookup_value = int(event_code.decode())
         return event_to_id(lookup_value)
@@ -127,6 +169,10 @@ def _(event_code: bytes) -> str:
 
 
 if __name__ == "__main__":
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

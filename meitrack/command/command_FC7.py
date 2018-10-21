@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class SetOtaServerCommand(Command):
+    """
+    Class for setting the field names for the set ota server command
+    """
     request_field_names = [
         "command", "ip_address", "port",
     ]
@@ -18,6 +21,12 @@ class SetOtaServerCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting the set ota server command parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
+
         super(SetOtaServerCommand, self).__init__(direction, payload=payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
@@ -28,6 +37,10 @@ class SetOtaServerCommand(Command):
             self.parse_payload(payload)
 
     def is_response_error(self):
+        """
+        Function to help determine if the parsed message is an error
+        :return: True or False depending on whether the message is identifying an error
+        """
         if self.direction == DIRECTION_CLIENT_TO_SERVER:
             if self.field_dict.get("response", b'') in [b'Err', b'FFFF']:
                 return True
@@ -35,10 +48,24 @@ class SetOtaServerCommand(Command):
 
 
 def stc_set_ota_server_command(ip_address, port):
+    """
+    Function to generate set ota server command
+    :param ip_address: The ip address of the ota host
+    :param port: The port of the ota host
+    :return: FC7 gprs Command
+    >>> stc_set_ota_server_command(b"1.1.1.1", b"1234").as_bytes()
+    b'FC7,1.1.1.1,1234'
+    >>> stc_set_ota_server_command(b"1.1.1.1", b"1234")
+    <meitrack.command.command_FC7.SetOtaServerCommand object at ...>
+    """
     return SetOtaServerCommand(0, b'FC7,%b,%b' % (ip_address, port))
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

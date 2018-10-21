@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class CheckDeviceCodeCommand(Command):
+    """
+    Class for setting the field names for the check device code command
+    """
     request_field_names = [
         "command"
     ]
@@ -19,6 +22,12 @@ class CheckDeviceCodeCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting the check device code command parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
+
         super(CheckDeviceCodeCommand, self).__init__(direction, payload=payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
@@ -29,17 +38,32 @@ class CheckDeviceCodeCommand(Command):
             self.parse_payload(payload, 2)
 
     def ota_response_device_code(self):
+        """
+        Function to return the device code from a check device code response message
+        :return: The device code or None
+        """
         if self.direction == DIRECTION_CLIENT_TO_SERVER and self.field_dict.get("device_code") is not None:
             return binascii.hexlify(self.field_dict["device_code"])
         return None
 
 
-
 def stc_check_device_code_command():
+    """
+    Function to generate check device code command
+    :return: FC5 gprs Command
+    >>> stc_check_device_code_command().as_bytes()
+    b'FC5'
+    >>> stc_check_device_code_command()
+    <meitrack.command.command_FC5.CheckDeviceCodeCommand object at ...>
+    """
     return CheckDeviceCodeCommand(0, b'FC5')
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

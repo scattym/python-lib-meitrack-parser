@@ -23,6 +23,9 @@ $$p1054,864507032323403,D01,8,0,180520032140_C1E1_N4U1D1.jpg|180520041216_C1E35_
 
 
 class FileListCommand(Command):
+    """
+    Class for setting the field names for the file listing command
+    """
     request_field_names = [
         "command", "data_packet_start_number"
     ]
@@ -31,6 +34,12 @@ class FileListCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting the file list command parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
+
         super(FileListCommand, self).__init__(direction, payload=payload)
         logger.log(13, payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
