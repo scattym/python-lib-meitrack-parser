@@ -1,4 +1,4 @@
-2.3 (unreleased)
+2.3 (2018-10-21)
 ----------------
 
 - Rename field in B46 message. Field was called "number", now called "count" to be more descriptive as to its' purpose.
