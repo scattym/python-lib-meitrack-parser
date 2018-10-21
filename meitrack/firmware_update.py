@@ -259,6 +259,13 @@ class FirmwareUpdate(object):
 
 
 def stc_auth_ota_update(imei):
+    """
+    Helper function to build a auth ota update gprs command
+    :param imei: The target device imei
+    :return: Auth ota update gprs command
+    >>> stc_auth_ota_update(b"0407").as_bytes()
+    b'@@a19,0407,FC0,AUTH*AF\\r\\n'
+    """
     com = stc_auth_ota_update_command()
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -270,6 +277,19 @@ def stc_auth_ota_update(imei):
 
 
 def stc_send_ota_data(imei, file_bytes, chunk_size):
+    """
+    Helper function to build a send ota data gprs command list
+    :param imei: The target device imei
+    :param file_bytes: The IP address of the firmware host
+    :param chunk_size: The port of the firmware host
+    :return: Set send ota data gprs command list
+    >>> for gprs in stc_send_ota_data(b"0407", b"testdatatosend", b"1234"): gprs.as_bytes()
+    b'@@a35,0407,FC1,\\x00\\x00\\x00\\x00\\x00\\x0etestdatatosend*71\\r\\n'
+    >>> for gprs in stc_send_ota_data(b"0407", b"testdatatosend", 5): gprs.as_bytes()
+    b'@@a26,0407,FC1,\\x00\\x00\\x00\\x00\\x00\\x05testd*A5\\r\\n'
+    b'@@a26,0407,FC1,\\x00\\x00\\x00\\x05\\x00\\x05atato*9F\\r\\n'
+    b'@@a25,0407,FC1,\\x00\\x00\\x00\\n\\x00\\x04send*33\\r\\n'
+    """
     gprs_list = []
     com_list = stc_send_ota_data_command(file_bytes, chunk_size)
     if not com_list:
@@ -287,6 +307,15 @@ def stc_send_ota_data(imei, file_bytes, chunk_size):
 
 
 def stc_obtain_ota_checksum(imei, start, file_length):
+    """
+    Helper function to build a obtain ota checksum gprs command
+    :param imei: The target device imei
+    :param start: The start byte for the checksum
+    :param file_length: The length of the checksum bytes
+    :return: obtain ota checksum gprs command
+    >>> stc_obtain_ota_checksum(b"0407", 0, 5).as_bytes()
+    b'@@a23,0407,FC2,\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x05*7F\\r\\n'
+    """
     com = stc_obtain_ota_checksum_command(start, file_length)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -298,6 +327,13 @@ def stc_obtain_ota_checksum(imei, start, file_length):
 
 
 def stc_start_ota_update(imei):
+    """
+    Helper function to build a start ota update gprs command
+    :param imei: The target device imei
+    :return: start ota update gprs command
+    >>> stc_start_ota_update(b"0407").as_bytes()
+    b'@@a14,0407,FC3*4F\\r\\n'
+    """
     com = stc_start_ota_update_command()
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -309,6 +345,13 @@ def stc_start_ota_update(imei):
 
 
 def stc_cancel_ota_update(imei):
+    """
+    Helper function to build a cancel ota update gprs command
+    :param imei: The target device imei
+    :return: cancel ota update gprs command
+    >>> stc_cancel_ota_update(b"0407").as_bytes()
+    b'@@a14,0407,FC4*50\\r\\n'
+    """
     com = stc_cancel_ota_update_command()
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -320,6 +363,13 @@ def stc_cancel_ota_update(imei):
 
 
 def stc_check_device_code(imei):
+    """
+    Helper function to build a check device code gprs command
+    :param imei: The target device imei
+    :return: check device code gprs command
+    >>> stc_check_device_code(b"0407").as_bytes()
+    b'@@a14,0407,FC5*51\\r\\n'
+    """
     com = stc_check_device_code_command()
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -331,6 +381,14 @@ def stc_check_device_code(imei):
 
 
 def stc_check_firmware_version(imei, file_name):
+    """
+    Helper function to build a check firmware version gprs command
+    :param imei: The target device imei
+    :param file_name: The name of the firmware file.
+    :return: check firmware version gprs command
+    >>> stc_check_firmware_version(b"0407", b"test.file").as_bytes()
+    b'@@a24,0407,FC6,test.file*0D\\r\\n'
+    """
     com = stc_check_firmware_version_command(file_name)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -342,6 +400,15 @@ def stc_check_firmware_version(imei, file_name):
 
 
 def stc_set_ota_server(imei, ip_address, port):
+    """
+    Helper function to build a set ota server gprs command
+    :param imei: The target device imei
+    :param ip_address: The IP address of the firmware host
+    :param port: The port of the firmware host
+    :return: Set ota server gprs command
+    >>> stc_set_ota_server(b"0407", b"1.1.1.1", b"1234").as_bytes()
+    b'@@a27,0407,FC7,1.1.1.1,1234*C7\\r\\n'
+    """
     com = stc_set_ota_server_command(ip_address, port)
     gprs = GPRS()
     gprs.direction = b'@@'
