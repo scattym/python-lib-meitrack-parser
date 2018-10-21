@@ -16,7 +16,7 @@ class FileListingError(GPRSError):
     pass
 
 
-class FileListing(object):
+class FileListing:
     """
     Class to track file listing messages and combined them
     """

@@ -20,7 +20,7 @@ def _(data):
     return data
 
 
-class FileDownloadAggregator(object):
+class FileDownloadAggregator:
     """
     Object for aggregating file download commands. Across different files and devices.
     """
@@ -101,7 +101,7 @@ class FileDownloadAggregator(object):
         return return_str
 
 
-class FileDownload(object):
+class FileDownload:
     """
     Class to track a single file download
     """

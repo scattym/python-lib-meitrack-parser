@@ -23,7 +23,7 @@ STAGE_SECOND = "stage2"
 EPOCH = datetime.datetime(1970, 1, 1)
 
 
-class FirmwareUpdate(object):
+class FirmwareUpdate:
     """
     Class to track firmware update state
     """

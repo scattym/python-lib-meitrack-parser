@@ -13,7 +13,7 @@ from meitrack.error import GPRSParseError
 logger = logging.getLogger(__name__)
 
 
-class TaxiMeterData(object):
+class TaxiMeterData:
     """
     Class for working with taxi meter data from meitrack devices.
     """
@@ -121,7 +121,7 @@ class TaxiMeterData(object):
         return None
 
 
-class Command(object):
+class Command:
     """
     Base class for all meitrack command objects.
     """
