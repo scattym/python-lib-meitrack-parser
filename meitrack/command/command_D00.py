@@ -53,6 +53,14 @@ class FileDownloadCommand(Command):
         logger.log(13, self.field_dict)
 
     def build(self, file_name, number_of_data_packets, data_packet_number, file_bytes):
+        """
+        Function to build the FileDownloadCommand based on parameters.
+        :param file_name: The name of the file
+        :param number_of_data_packets: The number of data packets
+        :param data_packet_number: The data packet number
+        :param file_bytes: The number of bytes in the file
+        :return: None
+        """
         self.field_dict["file_name"] = file_name
         self.field_dict["number_of_data_packets"] = number_of_data_packets
         self.field_dict["data_packet_number"] = data_packet_number
