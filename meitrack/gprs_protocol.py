@@ -14,6 +14,15 @@ payload $$<Data identifier><Data length>,<IMEI>,<Command type>,<Command><*Checks
 
 
 def prefix_to_direction(prefix):
+    """
+    Functinon to convert a prefix to a direction
+    :param prefix: The prefix as a byte array
+    :return: The enum definition of message directions
+    >>> prefix_to_direction(SERVER_TO_CLIENT_PREFIX)
+    0
+    >>> prefix_to_direction(CLIENT_TO_SERVER_PREFIX)
+    1
+    """
     if prefix == SERVER_TO_CLIENT_PREFIX:
         return DIRECTION_SERVER_TO_CLIENT
     elif prefix == CLIENT_TO_SERVER_PREFIX:
@@ -22,7 +31,14 @@ def prefix_to_direction(prefix):
 
 
 class GPRS(object):
+    """
+    Top level gprs object
+    """
     def __init__(self, payload=None):
+        """
+        Constructor the gprs object with an optional payload
+        :param payload: The gprs message payload to parse.
+        """
         self.payload = b""
         self.direction = None
         self.data_identifier = None
@@ -37,6 +53,11 @@ class GPRS(object):
             self.parse_data_payload(payload)
 
     def parse_data_payload(self, payload):
+        """
+        Function to handle data payload parsing
+        :param payload: The gprs command payload as a byte string
+        :return: None
+        """
         self.payload = payload
         self.direction = payload[0:2]
         self.data_identifier = chr(payload[2]).encode()
@@ -62,24 +83,53 @@ class GPRS(object):
         )
 
     def recalc_leftover(self):
+        """
+        Helper function to recalculate the leftover
+
+        If the underlying command is changed then we want to be able to
+        set the leftover as that is used when converting the command back
+        into a byte string.
+        :return: None
+        """
         self.leftover = self.enclosed_data.as_bytes()
 
     @property
     def checksum(self):
+        """
+        Return the checksum from the parsed payload
+        :return: Checksum as a byte string or b"XX" if not set
+        """
         if self.__checksum:
             return self.__checksum
         return b"XX"
 
     @checksum.setter
     def checksum(self, checksum):
+        """
+        Setter for the checksum
+        :param checksum: The checksum to apply
+        :return: None
+        """
         self.__checksum = checksum
 
     @property
     def enclosed_data(self):
+        """
+        Getter for the enclosed data property
+        :return: The enclosed data
+        """
         return self.__enclosed_data
 
     @enclosed_data.setter
     def enclosed_data(self, enclosed_commmand_object):
+        """
+        Setter for the enclosed data.
+
+        Used to set both the leftover and the enclosed data if the underlying command
+        is updated.
+        :param enclosed_commmand_object: The new command object
+        :return: None
+        """
         if enclosed_commmand_object is not None:
             # print("Enclosed leftover as bytes is ")
             # print("%s" % (enclosed_commmand_object.as_bytes()))
@@ -88,6 +138,10 @@ class GPRS(object):
 
     @property
     def data_length(self):
+        """
+        Getter for the payload length
+        :return: Length of the payload as a byte string
+        """
         data = (
                 b"," + self.imei + b"," +
                 self.leftover + b"*" + self.checksum + END_OF_MESSAGE_STRING
@@ -96,9 +150,18 @@ class GPRS(object):
 
     @data_length.setter
     def data_length(self, data_length):
+        """
+        Helper function to reset the length to the input value
+        :param data_length: The new data length
+        :return: None
+        """
         self.__data_length = str(data_length).encode()
 
     def __str__(self):
+        """
+        Return a string representation of the gprs object for debug
+        :return: The parameters contained in the gprs message as a string.
+        """
         return_str = "Payload: %s\n" % (self.payload,)
         return_str += "Direction: %s\n" % (self.direction,)
         return_str += "identifier: %s\n" % (self.data_identifier,)
@@ -113,6 +176,11 @@ class GPRS(object):
         return return_str
 
     def as_bytes(self, counter=None):
+        """
+        Function to return the gprs message as a byte string for sending on the socker
+        :param counter: The counter to use in the message header
+        :return: Byte representation of the gprs message
+        """
         # print(chr(self.data_identifier).encode())
         # print(type(chr(self.data_identifier).encode()))
         # print(self.data_length)
@@ -157,6 +225,12 @@ class GPRS(object):
 
 
 def parse_data_payload(payload, direction):
+    """
+    Helper function to parse a payload into a list of gprs messages
+    :param payload: The payload to parse
+    :param direction: The direction of the payload
+    :return: The gprs list as well any part of the payload that was not consumable.
+    """
     leftover = b''
     before = b''
     gprs_list = []
@@ -221,6 +295,13 @@ def parse_data_payload(payload, direction):
 
 
 def calc_signature(payload):
+    """
+    Function used to calculate the checksum of a message
+    :param payload: The command payload
+    :return: The message checksum
+    >>> calc_signature(b'1234ABCD*AA')
+    254
+    """
     # print(type(payload))
     # print(payload)
     checksum = 0
@@ -233,6 +314,9 @@ def calc_signature(payload):
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -434,7 +518,7 @@ if __name__ == '__main__':
         b"""00000001,,3,,,36,23*DC\r\n"""
         b"""$$D161,864507032228727,AAA,50,24.819116,121.026091,180323023615,A,7,16,0,176,1.3,83,7,1174,466|97|527B|"""
         b"""01035DB4,0000,0001|0000|0000|019A|0981,00000001,,,3,,,36,23*DC\r\n""",
-#       b"""$$`164,864507032228727,AAA,35,24.818910,121.025936,180329052345,A,7,13,0,16,1.2,69,2720,86125,466|97|
+        # b"""$$`164,864507032228727,AAA,35,24.818910,121.025936,180329052345,A,7,13,0,16,1.2,69,2720,86125,466|97|
         # 527B|01035DB4,0000,0001|0000|0000|019E|097F,00000001,,3,,,124,96*F2""",
         b"""$$A182,864507032323403,AAA,29,-33.815820,151.200085,180424172103,A,6,9,1,0,1.2,68,2450,7931,0|0|0000|"""
         b"""00000000,0000,0000|0000|0000|0167|0000,,,108,0000,,3,0,,0|0000|0000|0000|0000|0000*C9\r\n""",

@@ -178,10 +178,19 @@ file_listing = [
 
 
 class NotMyIMEIError(Exception):
+    """
+    Class for identifying not my imei scenarions
+    """
     pass
 
 
 def request_to_response(request_command, imei):
+    """
+    Function to convert an incoming gprs message into a fixed response message
+    :param request_command: The incoming message from the headend
+    :param imei: The imei to use in the response
+    :return: gprs message to send back to the headend
+    """
     global file_listing
     if request_command == b'D01,0':
         file_list_arr = []
@@ -221,6 +230,9 @@ def request_to_response(request_command, imei):
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
     log_level = 11 - 11
 
     logger = logging.getLogger('')
