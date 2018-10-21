@@ -109,18 +109,15 @@ def main():
     """
     Main section for running interactive testing.
     """
-
-    log_level = 11 - 11
-
-    logger = logging.getLogger('')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    main_logger = logging.getLogger('')
+    main_logger.setLevel(logging.DEBUG)
+    char_handler = logging.StreamHandler()
+    char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    char_handler.setFormatter(formatter)
+    main_logger.addHandler(char_handler)
 
     tests = [
         b"""AAA,39,-33.815786,151.200165,180427170921,A,9,12,0,15,0.8,71,5146,263808,505|2|7D07|041C15F3,0100,"""
