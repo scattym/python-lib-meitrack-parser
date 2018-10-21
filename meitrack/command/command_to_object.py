@@ -109,7 +109,7 @@ def command_to_object(direction, command_type, payload):
         return Command(direction, payload)
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
@@ -127,3 +127,10 @@ if __name__ == '__main__':
 
     for each_command in COMMAND_LIST:
         print("%s: %s" % (each_command, COMMAND_LIST[each_command]))
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

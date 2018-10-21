@@ -60,11 +60,10 @@ def stc_check_firmware_version_command(file_name):
     return CheckFirmwareVersionCommand(0, b'FC6,%b' % (file_name,))
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -78,3 +77,10 @@ if __name__ == '__main__':
     logger.addHandler(ch)
 
     print(stc_check_firmware_version_command(b'testfile.ota'))
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

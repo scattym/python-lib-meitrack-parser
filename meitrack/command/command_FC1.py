@@ -110,11 +110,10 @@ def stc_send_ota_data_command(file_bytes, chunk_size):
     return command_list
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -142,3 +141,12 @@ if __name__ == '__main__':
     commands = stc_send_ota_data_command(b"testfile"*190, b'1024')
     for command in commands:
         print(command)
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()
+
+

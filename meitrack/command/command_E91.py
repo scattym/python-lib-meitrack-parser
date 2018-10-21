@@ -37,11 +37,10 @@ class RequestDeviceInfoCommand(Command):
             self.parse_payload(payload)
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -65,3 +64,10 @@ if __name__ == '__main__':
     test_command = RequestDeviceInfoCommand(1, b"E91,FWV1.00,12345678")
     print(test_command.as_bytes())
     print(test_command)
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

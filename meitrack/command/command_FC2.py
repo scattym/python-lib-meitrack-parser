@@ -75,11 +75,10 @@ def stc_obtain_ota_checksum_command(start_index, length):
     )
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -93,3 +92,10 @@ if __name__ == '__main__':
     logger.addHandler(ch)
 
     print(stc_obtain_ota_checksum_command(0, 185121))
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

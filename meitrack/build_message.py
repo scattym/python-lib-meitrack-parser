@@ -556,7 +556,10 @@ def stc_restart_gps(imei):
     return gprs
 
 
-if __name__ == '__main__':
+def main():
+    """
+    Main section for running interactive testing.
+    """
     test_gprs = stc_request_location_message(b"testimei")
     print(test_gprs.as_bytes())
     print(stc_request_device_info(b"0407").as_bytes())
@@ -565,3 +568,10 @@ if __name__ == '__main__':
     print(stc_set_output_pin("0407", 1, 2, 2).as_bytes())
     print(stc_set_output_pin("0407", 2, 3, 4).as_bytes())
     print(stc_set_snapshot_parameters("0407", 2, 30, 2, 1, 1).as_bytes())
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

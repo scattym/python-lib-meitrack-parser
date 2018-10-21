@@ -352,7 +352,10 @@ def stc_set_ota_server(imei, ip_address, port):
     return gprs
 
 
-if __name__ == '__main__':
+def main():
+    """
+    Main section for running interactive testing.
+    """
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -400,3 +403,10 @@ if __name__ == '__main__':
         msg = fu.return_next_payload()
         if msg:
             print(msg.as_bytes())
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

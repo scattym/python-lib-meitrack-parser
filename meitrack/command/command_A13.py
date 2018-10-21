@@ -36,11 +36,10 @@ class SetCorneringCommand(Command):
             self.parse_payload(payload)
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -59,3 +58,10 @@ if __name__ == '__main__':
     test_command = SetCorneringCommand(1, b"A13,OK")
     print(test_command.as_bytes())
     print(test_command)
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

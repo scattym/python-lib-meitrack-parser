@@ -229,7 +229,7 @@ def request_to_response(request_command, imei):
     return None
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
@@ -258,3 +258,10 @@ if __name__ == '__main__':
     gprs_list = request_to_response(command, b"IMEI")
     for gprs in gprs_list:
         print(gprs.as_bytes())
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

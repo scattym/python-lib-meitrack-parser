@@ -36,11 +36,10 @@ class SetIOParamsCommand(Command):
             self.parse_payload(payload)
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -64,3 +63,10 @@ if __name__ == '__main__':
     test_command = SetIOParamsCommand(0, b"C91,A78,1:0,2:0,3:0,4:13,5:13")
     print(test_command.as_bytes())
     print(test_command)
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

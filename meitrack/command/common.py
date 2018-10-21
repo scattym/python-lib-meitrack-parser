@@ -492,12 +492,18 @@ def datetime_to_meitrack_date(date_time):
     return date_time.strftime("%y%m%d%H%M%S").encode()
 
 
-if __name__ == "__main__":
+def main():
     """
     Main section for running interactive testing.
     """
-
     print(meitrack_digital_pins_to_dict(b"0401"))
     print(meitrack_digital_pins_to_dict(b"04011"))
     print(meitrack_digital_pins_to_dict(b"0003"))
     print(meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579"))
+
+
+if __name__ == "__main__":
+    """
+    Main section for running interactive testing.
+    """
+    main()

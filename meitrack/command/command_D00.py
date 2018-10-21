@@ -59,11 +59,10 @@ class FileDownloadCommand(Command):
         self.field_dict["file_bytes"] = file_bytes
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -84,3 +83,11 @@ if __name__ == '__main__':
     file_download.field_dict["file_bytes"] = b"somedata"
 
     print(file_download.as_bytes())
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()
+

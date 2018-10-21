@@ -105,7 +105,7 @@ class TrackerCommand(Command):
         super(TrackerCommand, self).parse_payload(payload)
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
@@ -171,3 +171,9 @@ if __name__ == '__main__':
         # print(test_command.as_bytes())
         for field in test_command.field_dict:
             print("{} {}".format(field, test_command.field_dict[field]))
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()
