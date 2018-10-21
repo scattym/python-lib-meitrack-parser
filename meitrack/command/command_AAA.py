@@ -170,7 +170,4 @@ def main():
             print("{} {}".format(field, test_command.field_dict[field]))
 
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

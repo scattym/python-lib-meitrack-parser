@@ -1,3 +1,7 @@
+"""
+Module for building gprs commands
+"""
+
 from meitrack import command
 from meitrack.gprs_protocol import GPRS
 from meitrack.common import s2b
@@ -571,7 +575,4 @@ def main():
 
 
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

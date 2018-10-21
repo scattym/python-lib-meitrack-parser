@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Library for parsing gprs protocol messages into GPRS objects.
+"""
 import logging
 
 from meitrack.command.command_to_object import command_to_object
@@ -695,8 +698,6 @@ def main():
         b"""01035DB4,0000,0001|0000|0000|019A|0981,00000001,,3,,,36,23*DC\r\n"""
     )))
 
+
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

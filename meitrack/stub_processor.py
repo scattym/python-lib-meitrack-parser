@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Library for converting requests to responses in bots and tests.
+"""
 import binascii
 import logging
 
@@ -259,7 +262,4 @@ def main():
 
 
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

@@ -1,3 +1,6 @@
+"""
+Library for working with file listing gprs messages
+"""
 import logging
 
 from meitrack.common import DIRECTION_CLIENT_TO_SERVER
@@ -263,7 +266,4 @@ def main():
 
 
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

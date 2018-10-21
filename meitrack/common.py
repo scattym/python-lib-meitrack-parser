@@ -1,4 +1,6 @@
-
+"""
+Common functions for working with meitrack objects.
+"""
 SERVER_TO_CLIENT_PREFIX = b'@@'
 CLIENT_TO_SERVER_PREFIX = b'$$'
 END_OF_MESSAGE_STRING = b'\r\n'
