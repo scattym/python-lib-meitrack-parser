@@ -544,11 +544,10 @@ def stc_request_info():
     return Command(0, b"E91")
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -569,3 +568,10 @@ if __name__ == '__main__':
 
     import doctest
     doctest.testmod()
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

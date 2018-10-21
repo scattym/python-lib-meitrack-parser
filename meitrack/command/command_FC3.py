@@ -60,11 +60,10 @@ def stc_start_ota_update_command():
     return StartOtaUpdateCommand(0, b'FC3')
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -77,4 +76,12 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     print(stc_start_ota_update_command())
+
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()
 

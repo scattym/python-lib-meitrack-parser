@@ -121,7 +121,10 @@ class FileDownload(object):
         return "{} {} of {}".format(self.file_name, len(self.packets), self.expecting_packets)
 
 
-if __name__ == '__main__':
+def main():
+    """
+    Main section for running interactive testing.
+    """
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -164,3 +167,10 @@ if __name__ == '__main__':
                 print("{} {}".format(test_file_name, test_file_bytes))
 
     print(file_agg)
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

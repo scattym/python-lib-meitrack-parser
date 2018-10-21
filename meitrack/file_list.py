@@ -156,7 +156,7 @@ def gprs_file_list_as_list(list_of_gprs):
     return None
 
 
-if __name__ == '__main__':
+def main():
     from meitrack.gprs_protocol import parse_data_payload
     log_level = 11 - 11
 
@@ -169,7 +169,6 @@ if __name__ == '__main__':
     )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-
 
     file_listing = [
         b"""$$p1054,864507032323403,D01,8,0,180520032140_C1E1_N4U1D1.jpg|180520041216_C1E35_N1U1D1.jpg|180520004140"""
@@ -259,3 +258,10 @@ if __name__ == '__main__':
         test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item, DIRECTION_CLIENT_TO_SERVER)
         file_list_object.add_packet(test_gprs_list[0])
         print(file_list_object.return_file_listing_list())
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

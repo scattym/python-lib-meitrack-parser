@@ -61,11 +61,10 @@ def stc_set_ota_server_command(ip_address, port):
     return SetOtaServerCommand(0, b'FC7,%b,%b' % (ip_address, port))
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -79,3 +78,10 @@ if __name__ == '__main__':
     logger.addHandler(ch)
 
     print(stc_set_ota_server_command(b"1.1.1.1", b"6100"))
+
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()

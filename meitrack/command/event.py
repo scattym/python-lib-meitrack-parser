@@ -168,11 +168,10 @@ def _(event_code: bytes) -> str:
         logger.error("Unable to process integer from bytes %s with error: %s", event_code, err)
 
 
-if __name__ == "__main__":
+def main():
     """
     Main section for running interactive testing.
     """
-
     log_level = 11 - 11
 
     logger = logging.getLogger('')
@@ -190,3 +189,12 @@ if __name__ == "__main__":
         print(event_to_name(str(key).encode()))
         print(event_to_name(str(key)))
     print(event_to_name(None))
+
+
+if __name__ == "__main__":
+    """
+    Main section for running interactive testing.
+    """
+    main()
+
+

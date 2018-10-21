@@ -313,7 +313,7 @@ def calc_signature(payload):
     return checksum
 
 
-if __name__ == '__main__':
+def main():
     """
     Main section for running interactive testing.
     """
@@ -696,3 +696,9 @@ if __name__ == '__main__':
         b"""$$D160,864507032228727,AAA,35,24.819116,121.026091,180323023615,A,7,16,0,176,1.3,83,7,1174,466|97|527B|"""
         b"""01035DB4,0000,0001|0000|0000|019A|0981,00000001,,3,,,36,23*DC\r\n"""
     )))
+
+if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+    main()
