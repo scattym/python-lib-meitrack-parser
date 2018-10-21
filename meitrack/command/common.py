@@ -166,8 +166,8 @@ class Command(object):
                         fields.append(self.field_dict.get(field))
         if fields:
             return b','.join(fields)
-        else:
-            return self.payload
+
+        return self.payload
 
     def __getitem__(self, item):
         """
@@ -304,8 +304,8 @@ class Command(object):
                 self.field_dict.get("data_packet_number"),
                 self.field_dict.get("file_bytes")
             )
-        else:
-            return None, None, None, None
+
+        return None, None, None, None
 
     def get_file_list(self):
         """
@@ -319,8 +319,8 @@ class Command(object):
                 self.field_dict.get("data_packet_number"),
                 self.field_dict.get("file_list")
             )
-        else:
-            return None, None, None
+
+        return None, None, None
 
     def get_event_id(self):
         """

@@ -64,9 +64,8 @@ class SendOtaDataCommand(Command):
             response = self.field_dict.get("response", b'')
             if response in [b'NOT']:
                 return True
-            else:
-                if len(response) == 14 and response[14:16] in [b'00', b'02']:
-                    return True
+            if len(response) == 14 and response[14:16] in [b'00', b'02']:
+                return True
         return False
 
     def ota_response_data(self):

@@ -141,17 +141,15 @@ class FileListing(object):
         if not self.is_complete():
             logger.log(13, "File list is not complete yet. Returning None")
             return None
-        else:
-            full_file_list = ""
-            for i in range(0, self.max_packets):
-                if self.full_file_list_dict.get(i, None) is None:
-                    logger.error("Missing packet number %s", i)
-                    return None
-                else:
-                    full_file_list = full_file_list + self.full_file_list_dict[i]
-            if full_file_list[-1:] == '|':
-                full_file_list = full_file_list[0:-1]
-            return full_file_list
+        full_file_list = ""
+        for i in range(0, self.max_packets):
+            if self.full_file_list_dict.get(i, None) is None:
+                logger.error("Missing packet number %s", i)
+                return None
+            full_file_list = full_file_list + self.full_file_list_dict[i]
+        if full_file_list[-1:] == '|':
+            full_file_list = full_file_list[0:-1]
+        return full_file_list
 
     def return_file_listing_list(self):
         """

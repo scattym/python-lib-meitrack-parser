@@ -187,11 +187,10 @@ class FileDownload(object):
         if not self.is_complete():
             logger.log(13, "File is not complete yet. Returning None")
             return None
-        else:
-            file_bytes = b""
-            for i in range(0, self.expecting_packets):
-                file_bytes = b"".join([file_bytes, self.packets[i]])
-            return file_bytes
+        file_bytes = b""
+        for i in range(0, self.expecting_packets):
+            file_bytes = b"".join([file_bytes, self.packets[i]])
+        return file_bytes
 
     def __str__(self):
         return "{} {} of {}".format(self.file_name, len(self.packets), self.expecting_packets)

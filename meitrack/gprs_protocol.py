@@ -28,8 +28,10 @@ def prefix_to_direction(prefix):
     """
     if prefix == SERVER_TO_CLIENT_PREFIX:
         return DIRECTION_SERVER_TO_CLIENT
-    elif prefix == CLIENT_TO_SERVER_PREFIX:
+
+    if prefix == CLIENT_TO_SERVER_PREFIX:
         return DIRECTION_CLIENT_TO_SERVER
+
     raise GPRSParseError("Invalid prefix %s" % (prefix,))
 
 
