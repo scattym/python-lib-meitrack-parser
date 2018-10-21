@@ -487,8 +487,8 @@ def stc_set_driver_license_type(license_type_str=""):
 
     if license_type_str:
         return Command(0, b"C50,%b" % (s2b(license_type_str),))
-    else:
-        return Command(0, b"C50")
+
+    return Command(0, b"C50")
 
 
 def stc_set_driver_license_validity_time(validity_time=0):
@@ -504,8 +504,8 @@ def stc_set_driver_license_validity_time(validity_time=0):
     """
     if validity_time:
         return Command(0, b"C52,%b" % (s2b(validity_time),))
-    else:
-        return Command(0, b"C52")
+
+    return Command(0, b"C52")
 
 
 def stc_set_tracking_by_distance(meters=0):
