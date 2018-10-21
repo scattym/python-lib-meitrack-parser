@@ -35,7 +35,7 @@ def prefix_to_direction(prefix):
     raise GPRSParseError("Invalid prefix %s" % (prefix,))
 
 
-class GPRS(object):
+class GPRS:
     """
     Top level gprs object
     """

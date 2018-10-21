@@ -87,7 +87,7 @@ def event_id_to_name(event_id):
         return "Unknown event"
 
 
-class Event(object):
+class Event:
     """
     Top level event object. Unsued
     """
