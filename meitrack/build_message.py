@@ -255,6 +255,20 @@ def stc_set_speeding_alert(imei, speed_kmh=0, disabled=True):
 
 # B14
 def stc_set_idle_alert_time(imei, consecutive_speed_time_secs=0, speed_kmh=0, alert_time_secs=0):
+    """
+    Build set engine idle alert parameters message
+
+    :param imei: The imei of the device
+    :param consecutive_speed_time_secs: The time at speed on which to alert.
+    :param speed_kmh: The speed to trigger alerts at
+    :param alert_time_secs: The time to alert for.
+    :return: gprs message to set the engine idle alert parameters e on a device.
+
+    >>> stc_set_idle_alert_time(b'0407').as_bytes()
+    b'@@h20,0407,B14,0,0,0*52\\r\\n'
+    >>> stc_set_idle_alert_time(b'0407', 3, 5, 7).as_bytes()
+    b'@@h20,0407,B14,3,5,7*61\\r\\n'
+    """
     com = command.stc_set_idle_alert_time(consecutive_speed_time_secs, speed_kmh, alert_time_secs)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -267,6 +281,20 @@ def stc_set_idle_alert_time(imei, consecutive_speed_time_secs=0, speed_kmh=0, al
 
 # B15
 def stc_set_fatigue_driving_alert_time(imei, consecutive_driving_time_mins=0, alert_time_secs=0, acc_off_time_mins=0):
+    """
+    Build set fatigure driving alert parameters message
+
+    :param imei: The imei of the device
+    :param consecutive_driving_time_mins: The numeber of driving minutes on which to alert.
+    :param alert_time_secs: The time to alert for.
+    :param acc_off_time_mins: Engine off time
+    :return: gprs message to set the fatigure driving alert parameters e on a device.
+
+    >>> stc_set_fatigue_driving_alert_time(b'0407').as_bytes()
+    b'@@i20,0407,B15,0,0,0*54\\r\\n'
+    >>> stc_set_fatigue_driving_alert_time(b'0407', 3, 5, 7).as_bytes()
+    b'@@i20,0407,B15,3,5,7*63\\r\\n'
+    """
     com = command.stc_set_fatigue_driving_alert(consecutive_driving_time_mins, alert_time_secs, acc_off_time_mins)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -279,6 +307,20 @@ def stc_set_fatigue_driving_alert_time(imei, consecutive_driving_time_mins=0, al
 
 # C50
 def stc_set_driver_license_type(imei, license_type_str=None):
+    """
+    Build set drivers license type parameters message
+
+    :param imei: The imei of the device
+    :param license_type_str: Comma separated list of allowed license types.
+    :return: gprs message to set the drivers license type parameters on a device.
+
+    >>> stc_set_driver_license_type(b'0407').as_bytes()
+    b'@@j14,0407,C50*44\\r\\n'
+    >>> stc_set_driver_license_type(b'0407', b'3100').as_bytes()
+    b'@@j19,0407,C50,3100*39\\r\\n'
+    >>> stc_set_driver_license_type(b'0407', b'3100,25,26').as_bytes()
+    b'@@j25,0407,C50,3100,25,26*5D\\r\\n'
+    """
     com = command.stc_set_driver_license_type(license_type_str)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -291,6 +333,20 @@ def stc_set_driver_license_type(imei, license_type_str=None):
 
 # C52
 def stc_set_driver_license_validity_time(imei, validity_time):
+    """
+    Build set drivers license validity time message
+
+    :param imei: The imei of the device
+    :param validity_time: The time a license swipe is valid for..
+    :return: gprs message to set the drivers license validity time on a device.
+
+    >>> stc_set_driver_license_type(b'0407').as_bytes()
+    b'@@j14,0407,C50*44\\r\\n'
+    >>> stc_set_driver_license_type(b'0407', 0).as_bytes()
+    b'@@j14,0407,C50*44\\r\\n'
+    >>> stc_set_driver_license_type(b'0407', 100).as_bytes()
+    b'@@j18,0407,C50,100*05\\r\\n'
+    """
     com = command.stc_set_driver_license_validity_time(validity_time)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -303,6 +359,17 @@ def stc_set_driver_license_validity_time(imei, validity_time):
 
 # C91
 def stc_set_io_device_params(imei, model, config):
+    """
+    Build set io device parameters message
+
+    :param imei: The imei of the device
+    :param model: The device model for the io parameters to be valid
+    :param config: The configuration for the io pins as a tuple
+    :return: gprs message to set the io device parameters on a device.
+
+    >>> stc_set_io_device_params(b'0407', b"model", ((1,1), (2,2))).as_bytes()
+    b'@@k28,0407,C91,model,1:1,2:2*1E\\r\\n'
+    """
     com = command.stc_set_io_device_params(model, config)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -314,6 +381,18 @@ def stc_set_io_device_params(imei, model, config):
 
 
 def stc_set_heartbeat_interval(imei, minutes=0):
+    """
+    Build set the heartbeat interval message
+
+    :param imei: The imei of the device
+    :param minutes: The heartbeat interval in minutes
+    :return: gprs message to set the hearbeat interval on a device.
+
+    >>> stc_set_heartbeat_interval(b'0407').as_bytes()
+    b'@@l16,0407,A11,0*9F\\r\\n'
+    >>> stc_set_heartbeat_interval(b'0407', 3).as_bytes()
+    b'@@l16,0407,A11,3*A2\\r\\n'
+    """
     com = command.stc_set_heartbeat(minutes)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -326,6 +405,18 @@ def stc_set_heartbeat_interval(imei, minutes=0):
 
 # A14
 def stc_set_tracking_by_distance(imei, meters=0):
+    """
+    Build set the tracking by distance parameters message
+
+    :param imei: The imei of the device
+    :param meters: The maximum distance for reporting a location
+    :return: gprs message to set the tracking by distance parameters on a device.
+
+    >>> stc_set_tracking_by_distance(b'0407').as_bytes()
+    b'@@m16,0407,A14,0*A3\\r\\n'
+    >>> stc_set_tracking_by_distance(b'0407', 3).as_bytes()
+    b'@@m16,0407,A14,3*A6\\r\\n'
+    """
     com = command.stc_set_tracking_by_distance(meters)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -338,6 +429,18 @@ def stc_set_tracking_by_distance(imei, meters=0):
 
 # B36
 def stc_set_time_zone(imei, minutes=0):
+    """
+    Build set time zone offset message
+
+    :param imei: The imei of the device
+    :param minutes: The minutes offset from gmt as a positive or negative value
+    :return: gprs message to set the time zone offset parameters on a device.
+
+    >>> stc_set_time_zone(b'0407').as_bytes()
+    b'@@n16,0407,B36,0*A9\\r\\n'
+    >>> stc_set_time_zone(b'0407', 3).as_bytes()
+    b'@@n16,0407,B36,3*AC\\r\\n'
+    """
     com = command.stc_set_time_zone(minutes)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -356,6 +459,30 @@ def stc_set_time_zone(imei, minutes=0):
 # U: Decide whether upload the image or not. 0 means don't upload, 1 means to upload
 # D: Decide whether delete the image after being uploaded or not, 0 means no deleting, 1 means to delete
 def stc_set_snapshot_parameters(imei, event_code=1, interval=60, count=1, upload=1, delete=1):
+    """
+    Build set the snapshot parameters message
+
+    :param imei: The imei of the device
+    :param event_code: The event code for triggering a snapshot
+    :param interval: The interval at which to take snapshots
+    :param count: The number of snapshots to take
+    :param upload: Whether or not to upload the snapshots
+    :param delete: Whether or not to delete the snapshots on upload
+    :return: gprs message to set the camera snapshot parameters on a device.
+
+    >>> stc_set_snapshot_parameters(b'0407').as_bytes()
+    b'@@o25,0407,B46,1,60,1,1,1*55\\r\\n'
+    >>> stc_set_snapshot_parameters(b'0407', 3).as_bytes()
+    b'@@o25,0407,B46,3,60,1,1,1*57\\r\\n'
+    >>> stc_set_snapshot_parameters(b'0407', 3, 5).as_bytes()
+    b'@@o24,0407,B46,3,5,1,1,1*25\\r\\n'
+    >>> stc_set_snapshot_parameters(b'0407', 3, 5, 7).as_bytes()
+    b'@@o24,0407,B46,3,5,7,1,1*2B\\r\\n'
+    >>> stc_set_snapshot_parameters(b'0407', 3, 5, 7, 0).as_bytes()
+    b'@@o24,0407,B46,3,5,7,0,1*2A\\r\\n'
+    >>> stc_set_snapshot_parameters(b'0407', 3, 5, 7, 1, 0).as_bytes()
+    b'@@o24,0407,B46,3,5,7,1,0*2A\\r\\n'
+    """
     com = command.stc_set_snapshot_parameters(event_code, interval, count, upload, delete)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -367,6 +494,18 @@ def stc_set_snapshot_parameters(imei, event_code=1, interval=60, count=1, upload
 
 
 def stc_set_tracking_by_time_interval(imei, deci_seconds=0):
+    """
+    Build set tracking by time interval message
+
+    :param imei: The imei of the device
+    :param deci_seconds: The time between updates in 10 second increments.
+    :return: gprs message to set tracking by time interval parameters on a device.
+
+    >>> stc_set_tracking_by_time_interval(b'0407').as_bytes()
+    b'@@p16,0407,A12,0*A4\\r\\n'
+    >>> stc_set_tracking_by_time_interval(b'0407', 3).as_bytes()
+    b'@@p16,0407,A12,3*A7\\r\\n'
+    """
     com = command.stc_set_tracking_by_time_interval(deci_seconds)
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -378,6 +517,15 @@ def stc_set_tracking_by_time_interval(imei, deci_seconds=0):
 
 
 def stc_restart_gsm(imei):
+    """
+    Build restart gsm on device message
+
+    :param imei: The imei of the device
+    :return: gprs message to restart the gsm on a device.
+
+    >>> stc_restart_gsm(b'0407').as_bytes()
+    b'@@q14,0407,F01*4A\\r\\n'
+    """
     com = command.stc_restart_gsm()
     gprs = GPRS()
     gprs.direction = b'@@'
@@ -389,6 +537,15 @@ def stc_restart_gsm(imei):
 
 
 def stc_restart_gps(imei):
+    """
+    Build restart gps on device message
+
+    :param imei: The imei of the device
+    :return: gprs message to restart the gps on a device.
+
+    >>> stc_restart_gps(b'0407').as_bytes()
+    b'@@r14,0407,F02*4C\\r\\n'
+    """
     com = command.stc_restart_gps()
     gprs = GPRS()
     gprs.direction = b'@@'
