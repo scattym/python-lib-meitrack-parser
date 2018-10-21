@@ -1,3 +1,6 @@
+"""
+Library for working with file download gprs messages.
+"""
 import logging
 import copy
 import datetime
@@ -168,7 +171,4 @@ def main():
 
 
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

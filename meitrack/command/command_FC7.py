@@ -79,7 +79,4 @@ def main():
 
 
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

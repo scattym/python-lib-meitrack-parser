@@ -1,3 +1,7 @@
+"""
+Library for working with firmware update gprs messages
+"""
+
 import datetime
 import logging
 
@@ -471,7 +475,4 @@ def main():
 
 
 if __name__ == '__main__':
-    """
-    Main section for running interactive testing.
-    """
     main()

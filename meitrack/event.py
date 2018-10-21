@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+Module for handling meitrack event id to event name mappings.
+"""
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -72,6 +76,11 @@ EVENT = {
 
 
 def event_id_to_name(event_id):
+    """
+    Function for converting event id to event name
+    :param event_id: The id of the event
+    :return: The string event name
+    """
     try:
         return EVENT[event_id]
     except ValueError as err:
@@ -79,5 +88,12 @@ def event_id_to_name(event_id):
 
 
 class Event(object):
+    """
+    Top level event object. Unsued
+    """
     def __init__(self, payload=None):
+        """
+        Constructor for unused event class
+        :param payload: The payload of the event
+        """
         pass

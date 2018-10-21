@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Unused library
+"""
 import logging
 
 logger = logging.getLogger(__name__)
