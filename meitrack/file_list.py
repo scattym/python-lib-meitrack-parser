@@ -157,18 +157,20 @@ def gprs_file_list_as_list(list_of_gprs):
 
 
 def main():
+    """
+    Main section for running interactive testing.
+    """
     from meitrack.gprs_protocol import parse_data_payload
-    log_level = 11 - 11
 
-    logger = logging.getLogger('')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    main_logger = logging.getLogger('')
+    main_logger.setLevel(logging.DEBUG)
+    char_handler = logging.StreamHandler()
+    char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    char_handler.setFormatter(formatter)
+    main_logger.addHandler(char_handler)
 
     file_listing = [
         b"""$$p1054,864507032323403,D01,8,0,180520032140_C1E1_N4U1D1.jpg|180520041216_C1E35_N1U1D1.jpg|180520004140"""

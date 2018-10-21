@@ -64,17 +64,15 @@ def main():
     """
     Main section for running interactive testing.
     """
-    log_level = 11 - 11
-
-    logger = logging.getLogger('')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    main_logger = logging.getLogger('')
+    main_logger.setLevel(logging.DEBUG)
+    char_handler = logging.StreamHandler()
+    char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    char_handler.setFormatter(formatter)
+    main_logger.addHandler(char_handler)
 
     print(stc_auth_ota_update_command())
 
