@@ -8,6 +8,7 @@
 - Add pytest to the test-requirements.txt file.
 - Add junit.xml as the output of the pytest run.
 - Add coverage reporting via pytest-cov
+- Document bulk of the library functions and classes.
 
 
 2.2 (2018-10-13)
