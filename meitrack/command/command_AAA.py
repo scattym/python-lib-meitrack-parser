@@ -169,5 +169,6 @@ def main():
         for field in test_command.field_dict:
             print("{} {}".format(field, test_command.field_dict[field]))
 
+
 if __name__ == '__main__':
     main()

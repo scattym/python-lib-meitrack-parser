@@ -24,7 +24,20 @@ EPOCH = datetime.datetime(1970, 1, 1)
 
 
 class FirmwareUpdate(object):
+    """
+    Class to track firmware update state
+    """
     def __init__(self, imei, device_code, ip_address, port, file_name, file_bytes, stage):
+        """
+        Constructor for the firmware update class
+        :param imei: The imei of the device
+        :param device_code: The device code for the firmware update
+        :param ip_address: The ip address for the firmware update server
+        :param port: The port for the firmware update server
+        :param file_name: The name of the file to use in the update
+        :param file_bytes: The file contents as a byte string
+        :param stage: The stage at which we are running at in the two stage process.
+        """
         self.imei = imei
         self.device_code = device_code
         self.file_name = file_name
@@ -43,6 +56,10 @@ class FirmwareUpdate(object):
             self.build_messages(stage)
 
     def __str__(self):
+        """
+        The string representation of a firmware update object
+        :return: The string representation of a firmware update object
+        """
         firmware_string = "imei: {}, file_name: {}, is_finished: {}, is_error {}\n".format(
             self.imei, self.file_name, self.is_finished, self.is_error
         )
@@ -52,6 +69,11 @@ class FirmwareUpdate(object):
         return firmware_string
 
     def build_messages(self, stage):
+        """
+        Function to build the gprs messages based on first or second stage
+        :param stage: The stage which we are up to
+        :return: None
+        """
         if stage == STAGE_FIRST:
             self.messages = [
                 {"request": self.fc5(), "response": None, "sent": 0},
@@ -72,6 +94,11 @@ class FirmwareUpdate(object):
         # self.messages.append({"request": self.fc4(), "response": None}, )
 
     def parse_fc0(self, gprs_message):
+        """
+        Function to parse a fc0 response command
+        :param gprs_message: The gprs message
+        :return: None
+        """
         self.chunk_size = gprs_message.enclosed_data["packet_size"]
         if self.chunk_size:
             if self.file_bytes:
@@ -98,6 +125,11 @@ class FirmwareUpdate(object):
             self.is_error = True
 
     def parse_response(self, response_gprs):
+        """
+        Function to parse a gprs response command
+        :param response_gprs: The gprs message
+        :return: None
+        """
         for message in self.messages:
             # logger.debug("Checking message %s", message)
             if message["sent"] != 0 and message["response"] is None:
@@ -150,6 +182,10 @@ class FirmwareUpdate(object):
     #     return True
 
     def timeout_old(self):
+        """
+        Function to timeout messages sent to the device.
+        :return: None
+        """
         now = (datetime.datetime.now() - EPOCH).total_seconds()
         for message in self.messages:
             if message["sent"] != 0 and message["response"] is None and (now - message["sent"]) >= 30:
@@ -159,6 +195,10 @@ class FirmwareUpdate(object):
                     self.current_message = None
 
     def return_next_payload(self):
+        """
+        Function to return the next gprs message for sending to the device
+        :return: the next gprs message for sending to the device.
+        """
         self.timeout_old()
         if self.is_finished:
             return None

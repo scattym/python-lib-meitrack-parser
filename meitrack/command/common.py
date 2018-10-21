@@ -92,10 +92,10 @@ class TaxiMeterData(object):
 
     def get_fare_trip_time(self):
         """
-         Helper function to get the fare trip time.
+        Helper function to get the fare trip time.
 
-         :return: The fare trip time.
-         """
+        :return: The fare trip time.
+        """
         if self.fare_trip_time:
             if len(self.fare_trip_time) == 6:
                 return ":".join([
