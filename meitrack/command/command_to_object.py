@@ -16,6 +16,7 @@ from meitrack.command.command_FC5 import CheckDeviceCodeCommand
 from meitrack.command.command_FC6 import CheckFirmwareVersionCommand
 from meitrack.command.command_FC7 import SetOtaServerCommand
 from meitrack.command.common import Command
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER, DIRECTION_SERVER_TO_CLIENT
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +87,21 @@ COMMAND_LIST = {
 
 
 def command_to_object(direction, command_type, payload):
+    """
+    Function for converting a command byte strings to a command object.
+    :param direction: Direction of message, client to server or server to client.
+    :param command_type: The type of command to generate
+    :param payload: The command payload to parse.
+    :return: A command object from the incoming payload
+    >>> command_to_object(DIRECTION_SERVER_TO_CLIENT, b"A11", b'A11,0').as_bytes()
+    b'A11,0'
+    >>> command_to_object(DIRECTION_SERVER_TO_CLIENT, b"A11", b'A11,0')
+    <meitrack.command.common.Command object at ...>
+    >>> command_to_object(DIRECTION_CLIENT_TO_SERVER, b"AAA", b'').as_bytes()
+    b''
+    >>> command_to_object(DIRECTION_CLIENT_TO_SERVER, b"AAA", b'')
+    <meitrack.command.command_AAA.TrackerCommand object at ...>
+    """
     logger.log(13, "command type: %s, with payload %s", command_type, payload)
     if command_type in COMMAND_LIST and COMMAND_LIST[command_type]["class"] is not None:
         return COMMAND_LIST[command_type]["class"](direction, payload)
@@ -94,6 +110,9 @@ def command_to_object(direction, command_type, payload):
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
     log_level = 11 - 11
 
     logger = logging.getLogger('')

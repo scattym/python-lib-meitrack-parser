@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class TrackerCommand(Command):
+    """
+    Class for setting the field names for the location update command
+    """
     field_names = [
         "command", "event_code", "latitude", "longitude", "date_time", "pos_status", "num_sats",
         "gsm_signal_strength", "speed", "direction", "horizontal_accuracy", "altitude", "mileage",
@@ -59,6 +62,11 @@ class TrackerCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting tracker command parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
         super(TrackerCommand, self).__init__(direction, payload=payload)
         self.field_name_selector = None
 
@@ -66,6 +74,14 @@ class TrackerCommand(Command):
             self.parse_payload(payload)
 
     def parse_payload(self, payload, max_split=None):
+        """
+        Override the base parse payload for the AAA command.
+
+        The AAA command complexities live in this file to avoid large blocks in the Command class.
+        :param payload: The payload of the message
+        :param max_split: The maximum number of times to split fields. Unused in this function
+        :return: None
+        """
         fields = payload.split(b',')
         if len(fields) < 2:
             raise GPRSParseError("Field length does not include event code", self.payload)
@@ -90,6 +106,10 @@ class TrackerCommand(Command):
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

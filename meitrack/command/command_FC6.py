@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class CheckFirmwareVersionCommand(Command):
+    """
+    Class for setting the field names for the check ota firmware version command
+    """
     request_field_names = [
         "command", "file_name"
     ]
@@ -18,6 +21,12 @@ class CheckFirmwareVersionCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting the check firmware version parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
+
         super(CheckFirmwareVersionCommand, self).__init__(direction, payload=payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
@@ -28,6 +37,10 @@ class CheckFirmwareVersionCommand(Command):
             self.parse_payload(payload)
 
     def is_response_error(self):
+        """
+        Function to help determine if the parsed message is an error
+        :return: True or False depending on whether the message is identifying an error
+        """
         if self.direction == DIRECTION_CLIENT_TO_SERVER:
             if self.field_dict.get("response", b"") == b'2':
                 return True
@@ -35,10 +48,23 @@ class CheckFirmwareVersionCommand(Command):
 
 
 def stc_check_firmware_version_command(file_name):
+    """
+    Function to generate check firmware version command
+    :param file_name: The file name for the firmware
+    :return: FC6 gprs Command
+    >>> stc_check_firmware_version_command(b"test.file").as_bytes()
+    b'FC6,test.file'
+    >>> stc_check_firmware_version_command(b"test.file")
+    <meitrack.command.command_FC6.CheckFirmwareVersionCommand object at ...>
+    """
     return CheckFirmwareVersionCommand(0, b'FC6,%b' % (file_name,))
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

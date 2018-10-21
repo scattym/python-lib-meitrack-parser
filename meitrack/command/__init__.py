@@ -545,6 +545,10 @@ def stc_request_info():
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

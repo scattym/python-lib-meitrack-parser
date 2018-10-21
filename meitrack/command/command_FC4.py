@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class CancelOtaUpdateCommand(Command):
+    """
+    Class for setting the field names for the cancel ota update command
+    """
     request_field_names = [
         "command",
     ]
@@ -18,6 +21,12 @@ class CancelOtaUpdateCommand(Command):
     ]
 
     def __init__(self, direction, payload=None):
+        """
+        Constructor for setting the cancel ota update command parameters
+        :param direction: The payload direction.
+        :param payload: The payload to parse.
+        """
+
         super(CancelOtaUpdateCommand, self).__init__(direction, payload=payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
@@ -29,10 +38,22 @@ class CancelOtaUpdateCommand(Command):
 
 
 def stc_cancel_ota_update_command():
+    """
+    Function to generate cancel ota update command
+    :return: FC4 gprs Command
+    >>> stc_cancel_ota_update_command().as_bytes()
+    b'FC4'
+    >>> stc_cancel_ota_update_command()
+    <meitrack.command.command_FC4.CancelOtaUpdateCommand object at ...>
+    """
     return CancelOtaUpdateCommand(0, b'FC4')
 
 
 if __name__ == '__main__':
+    """
+    Main section for running interactive testing.
+    """
+
     log_level = 11 - 11
 
     logger = logging.getLogger('')

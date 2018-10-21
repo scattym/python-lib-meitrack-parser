@@ -493,6 +493,10 @@ def datetime_to_meitrack_date(date_time):
 
 
 if __name__ == "__main__":
+    """
+    Main section for running interactive testing.
+    """
+
     print(meitrack_digital_pins_to_dict(b"0401"))
     print(meitrack_digital_pins_to_dict(b"04011"))
     print(meitrack_digital_pins_to_dict(b"0003"))
