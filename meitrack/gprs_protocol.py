@@ -306,6 +306,12 @@ def calc_signature(payload):
     :return: The message checksum
     >>> calc_signature(b'1234ABCD*AA')
     254
+    >>> calc_signature(b'$$n1084,864507032323,D00,1804.jpg,16,0,\\xff\\xd8\\xff\\xdb\\x00\\x84\\x00@%\\x14\\xc0J)*AA')
+    120
+    >>> calc_signature(b'$$n1084,864507032323,D00,1804.jpg,16,0,*\\xd8\\xff\\xdb\\x00\\x84\\x00\\x00\\xd3@%\\x14J)*AA')
+    182
+    >>> calc_signature(b'$$n1084,864507032323,D00,1804.jpg,16,0,\\xff\\xd8\\xff\\xdb\\x00\\x84\\x00*AA')
+    204
     """
     # print(type(payload))
     # print(payload)
