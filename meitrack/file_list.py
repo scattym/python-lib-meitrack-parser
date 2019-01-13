@@ -92,7 +92,11 @@ class FileListing:
             else:
                 packet_count = int(packet_count.decode())
                 packet_number = int(packet_number.decode())
-                file_list = str(file_list.decode())
+                try:
+                    file_list = str(file_list.decode())
+                except UnicodeDecodeError as err:
+                    logger.error("Unable to decode file list {} with error".format(file_list, err))
+                    raise FileListingError("Unable to decode file list {} with error".format(file_list, err))
                 if not self.max_packets:
                     self.max_packets = packet_count
                 else:
