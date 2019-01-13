@@ -1,7 +1,7 @@
 2.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add code to handle file listings including files with non-unicode file names.
 
 
 2.3 (2018-10-21)
