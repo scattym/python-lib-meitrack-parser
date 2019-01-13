@@ -1,4 +1,4 @@
-2.4 (unreleased)
+2.4 (2019-01-13)
 ----------------
 
 - Add code to handle file listings including files with non-unicode file names.
