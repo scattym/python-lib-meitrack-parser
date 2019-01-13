@@ -13,6 +13,24 @@ from meitrack.error import GPRSParameterError
 logger = logging.getLogger(__name__)
 
 
+def stc_file_delete(file_name):
+    """
+    Build a file download command based on parameters from device
+
+    :param file_name: The name of the file to delete
+
+    >>> test = stc_file_delete("test.file"); print(test.as_bytes())
+    b'D02,test.file'
+    >>> test = stc_file_delete(b"\\xff\\xff\\xff\\x0f\\xff\\xff\\xff\\x0f."); print(test.as_bytes())
+    b'D02,\\xff\\xff\\xff\\x0f\\xff\\xff\\xff\\x0f.'
+    """
+    try:
+        file_name = file_name.encode()
+    except AttributeError:
+        pass
+    return Command(0, b','.join([b"D02", file_name]))
+
+
 def cts_file_download(file_name, num_packets, packet_number, file_bytes):
     """
     Build a file download command based on parameters from device
