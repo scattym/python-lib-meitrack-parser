@@ -67,6 +67,7 @@ EVENT = {
     79: "Fall",
     80: "Install",
     81: "Drop Off",
+    109: "Taxi data",
     129: "Harsh breaking",
     130: "Harsh Acceleration",
     133: "Idle Overtime",
