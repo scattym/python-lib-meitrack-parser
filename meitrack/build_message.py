@@ -581,6 +581,25 @@ def stc_restart_gps(imei):
     return gprs
 
 
+def stc_read_photo_event_flags(imei):
+    """
+    Build restart gps on device message
+
+    :return: gprs message to request photo event flag settings
+
+    >>> stc_read_photo_event_flags(b'0407').as_bytes()
+    b'@@u14,0407,B97*59\\r\\n'
+    """
+    com = command.stc_read_photo_event_flags()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'u'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
+
+    return gprs
+
+
 def stc_set_photo_event_flags(imei, enabled_events):
     """
     Build restart gps on device message
