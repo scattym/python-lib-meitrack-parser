@@ -544,6 +544,42 @@ def stc_request_info():
     return Command(0, b"E91")
 
 
+# B96,0000000000000001
+def stc_set_photo_event_flags(enabled_events):
+    """
+    Build a request client device information command
+
+    :param enabled_events: List of event numbers that are enabled
+    :return: request client information command
+
+    >>> stc_set_photo_event_flags([1,3,5,7,13,16]).as_bytes()
+    b'B96,0101010100000100'
+    """
+    flag_bytes = b""
+    for i in range(0, 16):
+        if i in enabled_events:
+            flag_bytes = b"%b1" % (flag_bytes,)
+        else:
+            flag_bytes = b"%b0" % (flag_bytes,)
+    return Command(0, b"B96,%b" % (flag_bytes,))
+
+
+# B96,0000000000000001
+def stc_set_photo_event_flags_by_bytes(enabled_event_bytes):
+    """
+    Build a request client device information command
+
+    :param enabled_event_bytes: a bytes representation of the enabled events
+    :return: request client information command
+
+    >>> stc_set_photo_event_flags_by_bytes(b'0101').as_bytes()
+    b'B96,0101'
+    >>> stc_set_photo_event_flags_by_bytes('0102').as_bytes()
+    b'B96,0102'
+    """
+    return Command(0, b"B96,%b" % (s2b(enabled_event_bytes),))
+
+
 def main():
     """
     Main section for running interactive testing.
