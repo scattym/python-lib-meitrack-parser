@@ -560,6 +560,45 @@ def stc_restart_gps(imei):
     return gprs
 
 
+def stc_set_photo_event_flags(imei, enabled_events):
+    """
+    Build restart gps on device message
+
+    :param enabled_events: A zero indexed list of enabled events
+    :return: gprs message to restart the gps on a device.
+
+    >>> stc_set_photo_event_flags(b'0407', [0,1,2,15]).as_bytes()
+    b'@@s31,0407,B96,1110000000000001*85\\r\\n'
+    """
+    com = command.stc_set_photo_event_flags(enabled_events)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b's'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
+
+    return gprs
+
+
+def stc_set_photo_event_flags_by_bytes(imei, enabled_event_bytes):
+    """
+    Build restart gps on device message
+
+    :param enabled_event_bytes: a bytes representation of the enabled events
+    :return: gprs message to restart the gps on a device.
+
+    >>> stc_set_photo_event_flags_by_bytes(b'0407', b'111').as_bytes()
+    b'@@t18,0407,B96,111*1A\\r\\n'
+    """
+    com = command.stc_set_photo_event_flags_by_bytes(enabled_event_bytes)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b't'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
+
+    return gprs
+
 def main():
     """
     Main section for running interactive testing.
