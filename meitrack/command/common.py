@@ -147,6 +147,17 @@ class Command:
             result_str += "\tField %s has value %s\n" % (field, self.field_dict.get(field))
         return result_str
 
+    def recalc_date(self):
+        """
+        Recalculate the date_time field if present.
+
+        :return: None
+        """
+
+        if self.field_dict.get("date_time") is not None:
+            logger.log(13, "Date field is %s", self.field_dict.get("date_time"))
+            self.field_dict["date_time"] = datetime.datetime.utcnow()
+
     def as_bytes(self):
         """
         Calculate all length and signatures to a byte array.

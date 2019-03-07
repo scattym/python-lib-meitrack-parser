@@ -87,6 +87,17 @@ class GPRS:
             self.leftover
         )
 
+    def recalc_date(self):
+        """
+        Helper function to recalculate the leftover
+
+        If the underlying command is changed then we want to be able to
+        set the leftover as that is used when converting the command back
+        into a byte string.
+        :return: None
+        """
+        self.enclosed_data.recalc_date()
+
     def recalc_leftover(self):
         """
         Helper function to recalculate the leftover

@@ -13,3 +13,4 @@ exclude .idea
 exclude setup.cfg
 exclude misc
 recursive-exclude misc *
+exclude pylint.txt
