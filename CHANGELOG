@@ -1,7 +1,25 @@
-2.4 (unreleased)
+2.7 (unreleased)
 ----------------
 
 - Add ability to enable photo functionality by event id.
+
+
+2.6 (2019-02-16)
+----------------
+
+- Add ability to recalculate the date in gprs messages.
+
+
+2.5 (2019-01-13)
+----------------
+
+- Add commands for the deletion of files on a device.
+
+
+2.4 (2019-01-13)
+----------------
+
+- Add code to handle file listings including files with non-unicode file names.
 
 
 2.3 (2018-10-21)

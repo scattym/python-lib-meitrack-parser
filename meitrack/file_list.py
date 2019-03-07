@@ -44,10 +44,8 @@ class FileListing:
         :param file_name: The name of the file to track
         :return: None
         """
-        try:
-            item = file_name.decode()
-        except AttributeError:
-            item = file_name
+        item = file_name
+
         if item:
             if item not in self.file_arr:
                 logger.log(13, "File was not in list. Adding: %s", file_name)
@@ -92,7 +90,7 @@ class FileListing:
             else:
                 packet_count = int(packet_count.decode())
                 packet_number = int(packet_number.decode())
-                file_list = str(file_list.decode())
+                file_list = file_list
                 if not self.max_packets:
                     self.max_packets = packet_count
                 else:
@@ -116,10 +114,12 @@ class FileListing:
         :return: True if complete, False if not
         """
         if self.max_packets == 0:
+            logger.error("Max packets is zero")
             return False
+
         for i in range(0, self.max_packets):
             if self.full_file_list_dict.get(i, None) is None:
-                logger.log(13, "Missing packet number %s", i)
+                logger.error("Missing packet number %s", i)
                 return False
         return True
 
@@ -141,13 +141,13 @@ class FileListing:
         if not self.is_complete():
             logger.log(13, "File list is not complete yet. Returning None")
             return None
-        full_file_list = ""
+        full_file_list = b""
         for i in range(0, self.max_packets):
             if self.full_file_list_dict.get(i, None) is None:
                 logger.error("Missing packet number %s", i)
                 return None
-            full_file_list = full_file_list + self.full_file_list_dict[i]
-        if full_file_list[-1:] == '|':
+            full_file_list = b"%b%b" % (full_file_list, self.full_file_list_dict[i])
+        if full_file_list[-1:] == b'|':
             full_file_list = full_file_list[0:-1]
         return full_file_list
 
@@ -158,7 +158,7 @@ class FileListing:
         """
         file_str = self.return_file_listing()
         if file_str:
-            return file_str.split('|')
+            return file_str.split(b'|')
         return None
 
     def __str__(self):
@@ -319,6 +319,15 @@ def main():
         test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item, DIRECTION_CLIENT_TO_SERVER)
         file_list_object.add_packet(test_gprs_list[0])
         print(file_list_object.return_file_listing_list())
+
+    file_list_object2 = FileListing()
+
+    file_listing2 = [b'''$$l40,868998030001222,D01,1,0,\xff\xff\xff\x0f\xff\xff\xff\x0f.|*F0\r\n''']
+    for gprs_item in file_listing2:
+        test_gprs_list, before_bytes, extra_bytes = parse_data_payload(gprs_item, DIRECTION_CLIENT_TO_SERVER)
+        file_list_object2.add_packet(test_gprs_list[0])
+        print(file_list_object2.return_file_listing_list())
+        print(file_list_object2.file_arr)
 
 
 if __name__ == '__main__':

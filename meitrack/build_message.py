@@ -7,6 +7,27 @@ from meitrack.gprs_protocol import GPRS
 from meitrack.common import s2b
 
 
+def stc_request_delete_file(imei, file_name):
+    """
+    Build request device info gprs message
+
+    :param imei: The imei of the device.
+    :param file_name: The name of the file to delete.
+    :return: Set gprs message to request device information.
+
+    >>> stc_request_delete_file(b'0407', b'test.file').as_bytes()
+    b'@@a24,0407,D02,test.file*F4\\r\\n'
+    """
+    com = command.stc_file_delete(file_name)
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'a'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
+
+    return gprs
+
+
 def cts_build_file_list(imei, file_name, file_bytes):
     """
     Build message for requesting client file list
