@@ -562,6 +562,20 @@ def stc_request_info():
     return Command(0, b"E91")
 
 
+# B97
+def stc_read_photo_event_flags():
+    """
+    Build a request client device information command
+
+    :return: request client photo event flag settings
+
+    >>> stc_read_photo_event_flags().as_bytes()
+    b'B97'
+    """
+
+    return Command(0, b"B97")
+
+
 # B96,0000000000000001
 def stc_set_photo_event_flags(enabled_events):
     """

@@ -2,6 +2,7 @@
 ----------------
 
 - Add ability to enable photo functionality by event id.
+- Add ability to generate command to request current photo event settings.
 
 
 2.6 (2019-02-16)
