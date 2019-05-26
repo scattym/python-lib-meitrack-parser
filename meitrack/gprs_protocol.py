@@ -7,6 +7,7 @@ import logging
 from meitrack.command.command_to_object import command_to_object
 from meitrack.common import CLIENT_TO_SERVER_PREFIX, SERVER_TO_CLIENT_PREFIX, DIRECTION_CLIENT_TO_SERVER
 from meitrack.common import DIRECTION_SERVER_TO_CLIENT, END_OF_MESSAGE_STRING, MAX_DATA_LENGTH
+from meitrack.devices import DEVICE_LIST
 from meitrack.error import GPRSParseError
 
 logger = logging.getLogger(__name__)
@@ -39,10 +40,11 @@ class GPRS:
     """
     Top level gprs object
     """
-    def __init__(self, payload=None):
+    def __init__(self, payload=None, device="T333"):
         """
         Constructor the gprs object with an optional payload
         :param payload: The gprs message payload to parse.
+        :param device: The name of the device.
         """
         self.payload = b""
         self.direction = None
@@ -54,6 +56,7 @@ class GPRS:
         self.checksum = None
         self.enclosed_data = None
         self.leftover = b""
+        self.device = DEVICE_LIST[device]
         if payload:
             self.parse_data_payload(payload)
 
