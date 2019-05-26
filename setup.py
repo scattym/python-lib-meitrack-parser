@@ -9,6 +9,9 @@ setup(
     author_email='mattjclark0407@hotmail.com',
     license='Copyright (C) Matt Clark - All Rights Reserved',
     packages=find_packages(),
+    scripts=[
+        'scripts/mtparse',
+    ],
     install_requires=[
         'licenseparser',
     ],
