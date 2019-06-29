@@ -1,7 +1,9 @@
 2.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add device list and start to fill in logic for multiple devices.
+- Add device type to the parsing functions.
+- Add command to format sdcard.
 
 
 2.7 (2019-03-07)
