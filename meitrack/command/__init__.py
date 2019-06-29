@@ -13,6 +13,18 @@ from meitrack.error import GPRSParameterError
 logger = logging.getLogger(__name__)
 
 
+def stc_format_sdcard():
+    """
+    Build a file download command based on parameters from device
+
+    :param file_name: The name of the file to delete
+
+    >>> test = stc_format_sdcard(); print(test.as_bytes())
+    b'D83'
+    """
+    return Command(0, b'D83')
+
+
 def stc_file_delete(file_name):
     """
     Build a file download command based on parameters from device

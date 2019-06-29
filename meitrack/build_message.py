@@ -639,6 +639,28 @@ def stc_set_photo_event_flags_by_bytes(imei, enabled_event_bytes):
 
     return gprs
 
+
+def stc_request_format_sdcard(imei):
+    """
+    Build request device info gprs message
+
+    :param imei: The imei of the device.
+    :param file_name: The name of the file to delete.
+    :return: Set gprs message to request device information.
+
+    >>> stc_request_format_sdcard(b'0407').as_bytes()
+    b'@@u14,0407,D83*56\\r\\n'
+    """
+    com = command.stc_format_sdcard()
+    gprs = GPRS()
+    gprs.direction = b'@@'
+    gprs.data_identifier = b'u'
+    gprs.enclosed_data = com
+    gprs.imei = s2b(imei)
+
+    return gprs
+
+
 def main():
     """
     Main section for running interactive testing.
