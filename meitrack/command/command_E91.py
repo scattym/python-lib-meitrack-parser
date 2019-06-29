@@ -20,14 +20,14 @@ class RequestDeviceInfoCommand(Command):
         "command", "firmware_version", "serial_number"
     ]
 
-    def __init__(self, direction, payload=None):
+    def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for setting the request device info parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
 
-        super(RequestDeviceInfoCommand, self).__init__(direction, payload=payload)
+        super(RequestDeviceInfoCommand, self).__init__(direction, payload=payload, device_type=device_type)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:
@@ -54,6 +54,10 @@ def main():
     tests = [
         b"""E91""",
         b"""E91,FWV1.00,12345678""",
+        b"""E91,T333_Y10H1412V046_T,46281520253""",
+        b"""E91,T333_Y39H1412V137beta2_T,46281520253""",
+        b"""E91,T366G_H222V200_T,47582920084""",
+
     ]
 
     test_command = RequestDeviceInfoCommand(0, b"E91")

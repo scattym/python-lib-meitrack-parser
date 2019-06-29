@@ -61,13 +61,13 @@ class TrackerCommand(Command):
         "unknown_1", "unknown_2", "unknown_3", "unknown_4", "taxi_meter_data",
     ]
 
-    def __init__(self, direction, payload=None):
+    def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for setting tracker command parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
-        super(TrackerCommand, self).__init__(direction, payload=payload)
+        super(TrackerCommand, self).__init__(direction, payload=payload, device_type=device_type)
         self.field_name_selector = None
 
         if payload:

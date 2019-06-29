@@ -144,6 +144,8 @@ EVENT_MAP_T366 = {
     145: "Ignition Off",
 }
 
+EVENT_MAP_T366G = EVENT_MAP_T366.copy()
+
 
 @singledispatch
 def event_to_name(event_code: int, event_map: dict=EVENT_MAP_T333) -> str:

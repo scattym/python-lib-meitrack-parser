@@ -86,7 +86,7 @@ COMMAND_LIST = {
 }
 
 
-def command_to_object(direction, command_type, payload):
+def command_to_object(direction, command_type, payload, device_type=None):
     """
     Function for converting a command byte strings to a command object.
     :param direction: Direction of message, client to server or server to client.
@@ -104,8 +104,8 @@ def command_to_object(direction, command_type, payload):
     """
     logger.log(13, "command type: %s, with payload %s", command_type, payload)
     if command_type in COMMAND_LIST and COMMAND_LIST[command_type]["class"] is not None:
-        return COMMAND_LIST[command_type]["class"](direction, payload)
-    return Command(direction, payload)
+        return COMMAND_LIST[command_type]["class"](direction, payload, device_type=device_type)
+    return Command(direction, payload, device_type=device_type)
 
 
 def main():

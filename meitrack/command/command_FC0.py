@@ -20,14 +20,14 @@ class AuthOtaUpdateCommand(Command):
         "command", "device_code", "response", "packet_size", "current_firmware", "ota_file_name"
     ]
 
-    def __init__(self, direction, payload=None):
+    def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for setting the auth ota update parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
 
-        super(AuthOtaUpdateCommand, self).__init__(direction, payload=payload)
+        super(AuthOtaUpdateCommand, self).__init__(direction, payload=payload, device_type=device_type)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:

@@ -20,14 +20,14 @@ class SendOtaDataCommand(Command):
         "command", "response",
     ]
 
-    def __init__(self, direction, payload=None, index=None, file_contents=None):
+    def __init__(self, direction, payload=None, index=None, file_contents=None, device_type=None):
         """
         Constructor for setting the send ota data parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
 
-        super(SendOtaDataCommand, self).__init__(direction, payload=payload)
+        super(SendOtaDataCommand, self).__init__(direction, payload=payload, device_type=device_type)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:

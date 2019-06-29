@@ -33,14 +33,14 @@ class FileListCommand(Command):
         "command", "number_of_data_packets", "data_packet_number", "file_list"
     ]
 
-    def __init__(self, direction, payload=None):
+    def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for setting the file list command parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
 
-        super(FileListCommand, self).__init__(direction, payload=payload)
+        super(FileListCommand, self).__init__(direction, payload=payload, device_type=device_type)
         logger.log(13, payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names

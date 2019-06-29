@@ -40,7 +40,7 @@ class GPRS:
     """
     Top level gprs object
     """
-    def __init__(self, payload=None, device="T333"):
+    def __init__(self, payload=None, device_type="T333"):
         """
         Constructor the gprs object with an optional payload
         :param payload: The gprs message payload to parse.
@@ -56,7 +56,10 @@ class GPRS:
         self.checksum = None
         self.enclosed_data = None
         self.leftover = b""
-        self.device = DEVICE_LIST[device]
+        if device_type is not None:
+            self.device_type = device_type
+        else:
+            self.device_type = "T333"
         if payload:
             self.parse_data_payload(payload)
 
@@ -87,7 +90,8 @@ class GPRS:
         self.enclosed_data = command_to_object(
             prefix_to_direction(self.direction),
             self.command_type,
-            self.leftover
+            self.leftover,
+            device_type=self.device_type
         )
 
     def recalc_date(self):
@@ -243,11 +247,12 @@ class GPRS:
         return return_str
 
 
-def parse_data_payload(payload, direction):
+def parse_data_payload(payload, direction, device_type=None):
     """
     Helper function to parse a payload into a list of gprs messages
     :param payload: The payload to parse
     :param direction: The direction of the payload
+    :param device_type: The string representation of the device type.
     :return: The gprs list as well any part of the payload that was not consumable.
     """
     leftover = b''
@@ -302,7 +307,7 @@ def parse_data_payload(payload, direction):
                             payload
                         )
 
-                    current_gprs = GPRS(message)
+                    current_gprs = GPRS(message, device_type=device_type)
                     logger.debug("gprs fields: %s", current_gprs)
 
                     gprs_list.append(current_gprs)
