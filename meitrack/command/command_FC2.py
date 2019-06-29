@@ -20,14 +20,14 @@ class ObtainOtaChecksumCommand(Command):
         "command", "ota_checksum",
     ]
 
-    def __init__(self, direction, payload=None):
+    def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for setting the obtain ota checksum parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
 
-        super(ObtainOtaChecksumCommand, self).__init__(direction, payload=payload)
+        super(ObtainOtaChecksumCommand, self).__init__(direction, payload=payload, device_type=device_type)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:

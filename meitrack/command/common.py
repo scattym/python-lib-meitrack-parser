@@ -6,7 +6,7 @@ import datetime
 import logging
 
 from license.cardreader import License
-from meitrack.command.event import event_to_name, event_to_id
+from meitrack.command.event import event_to_name, event_to_id, EVENT_MAP_T333, EVENT_MAP_T366G
 from meitrack.common import b2s
 from meitrack.error import GPRSParseError
 
@@ -125,7 +125,7 @@ class Command:
     """
     Base class for all meitrack command objects.
     """
-    def __init__(self, direction, payload=None):
+    def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for the command object
         :param direction: The direction of the command. Client to server or
@@ -136,6 +136,7 @@ class Command:
         self.direction = direction
         self.field_name_selector = []
         self.field_dict = {}
+        self.device_type = device_type
 
     def __str__(self):
         """
@@ -349,8 +350,11 @@ class Command:
 
         :return: The event name
         """
+        event_map = EVENT_MAP_T333
+        if self.device_type and self.device_type == "T366G":
+            event_map = EVENT_MAP_T366G
         if self.field_dict.get("event_code"):
-            return event_to_name(self.field_dict.get("event_code"))
+            return event_to_name(self.field_dict.get("event_code"), event_map=event_map)
         return None
 
     def get_firmware_version(self):
@@ -416,6 +420,16 @@ class Command:
         """
         if self.field_dict.get("analog_input_value"):
             return meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579")
+        return None
+
+    def get_device_type(self):
+        """
+        Helper function to get the distance travelled during the fare.
+
+        :return: The distance travelled
+        """
+        if self.firmware_version:
+            return self.firmware_version.split(b'_')[0].decode()
         return None
 
 

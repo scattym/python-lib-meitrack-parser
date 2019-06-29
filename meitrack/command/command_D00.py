@@ -22,13 +22,13 @@ class FileDownloadCommand(Command):
         "command", "file_name", "number_of_data_packets", "data_packet_number", "file_bytes"
     ]
 
-    def __init__(self, direction, payload=None):
+    def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for setting the file download command parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
-        super(FileDownloadCommand, self).__init__(direction, payload=payload)
+        super(FileDownloadCommand, self).__init__(direction, payload=payload, device_type=device_type)
         logger.log(13, payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
