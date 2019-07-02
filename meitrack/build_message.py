@@ -645,11 +645,10 @@ def stc_request_format_sdcard(imei):
     Build request device info gprs message
 
     :param imei: The imei of the device.
-    :param file_name: The name of the file to delete.
     :return: Set gprs message to request device information.
 
     >>> stc_request_format_sdcard(b'0407').as_bytes()
-    b'@@u14,0407,D83*56\\r\\n'
+    b'@@u14,0407,DB3*60\\r\\n'
     """
     com = command.stc_format_sdcard()
     gprs = GPRS()

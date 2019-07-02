@@ -20,7 +20,7 @@ def stc_format_sdcard():
     :param file_name: The name of the file to delete
 
     >>> test = stc_format_sdcard(); print(test.as_bytes())
-    b'D83'
+    b'DB3'
     """
     return Command(0, b'DB3')
 
