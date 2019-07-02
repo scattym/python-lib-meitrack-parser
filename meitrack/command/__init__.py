@@ -22,7 +22,7 @@ def stc_format_sdcard():
     >>> test = stc_format_sdcard(); print(test.as_bytes())
     b'D83'
     """
-    return Command(0, b'D83')
+    return Command(0, b'DB3')
 
 
 def stc_file_delete(file_name):
