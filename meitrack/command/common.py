@@ -5,10 +5,19 @@ import binascii
 import datetime
 import logging
 
-from license.cardreader import License
-from meitrack.command.event import event_to_name, event_to_id, EVENT_MAP_T333, EVENT_MAP_T366G
+from meitrack.command.event import (
+    EVENT_MAP_T333,
+    EVENT_MAP_T366G,
+    event_to_id,
+    event_to_name,
+)
 from meitrack.common import b2s
 from meitrack.error import GPRSParseError
+
+try:
+    from license.cardreader import License  # type: ignore[import-untyped]
+except ImportError:
+    License = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -387,10 +396,14 @@ class Command:
         """
         Helper function to retrieve the license data from a meitrack command.
 
-        :return: The gsm signal strength
+        :return: License object if license library available, else raw RFID string or None
         """
-        if self.field_dict.get("rfid"):
-            return License(self.field_dict.get("rfid"))
+        rfid = self.field_dict.get("rfid")
+        if rfid:
+            if License is not None:
+                return License(rfid)
+            logger.warning("license.cardreader not available; returning raw rfid string")
+            return b2s(rfid) if isinstance(rfid, (bytes, bytearray)) else str(rfid)
         return None
 
     def is_response_error(self):
@@ -419,7 +432,7 @@ class Command:
         :return: The analogue pin values as a dictionary.
         """
         if self.field_dict.get("analog_input_value"):
-            return meitrack_analogue_pins_to_dict(b"0000|0000|0000|018D|0579")
+            return meitrack_analogue_pins_to_dict(self.field_dict.get("analog_input_value"))
         return None
 
     def get_device_type(self):

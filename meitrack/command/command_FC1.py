@@ -64,7 +64,7 @@ class SendOtaDataCommand(Command):
             response = self.field_dict.get("response", b'')
             if response in [b'NOT']:
                 return True
-            if len(response) == 14 and response[14:16] in [b'00', b'02']:
+            if (len(response) == 14 and response[12:14] in [b'00', b'02']) or (len(response) == 16 and response[14:16] in [b'00', b'02']):
                 return True
         return False
 
@@ -75,7 +75,7 @@ class SendOtaDataCommand(Command):
         """
         if self.direction == DIRECTION_CLIENT_TO_SERVER:
             response = self.field_dict.get("response", b'')
-            if len(response) == 14 and response[14:16] == b'01':
+            if (len(response) == 14 and response[12:14] == b'01') or (len(response) == 16 and response[14:16] == b'01'):
                 return int(response[0:8], 16), int(response[8:12], 16)
         return None, None
 

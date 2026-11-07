@@ -4,6 +4,7 @@ Library for working with firmware update gprs messages
 
 import datetime
 import logging
+from typing import Literal
 
 from meitrack.command.command_FC0 import stc_auth_ota_update_command
 from meitrack.command.command_FC1 import stc_send_ota_data_command
@@ -350,7 +351,7 @@ def stc_send_ota_data(imei, file_bytes, chunk_size):
     return gprs_list
 
 
-def stc_obtain_ota_checksum(imei, start, file_length):
+def stc_obtain_ota_checksum(imei, start, file_length, byteorder: Literal["little", "big"] = "little"):
     """
     Helper function to build a obtain ota checksum gprs command
     :param imei: The target device imei
@@ -358,9 +359,9 @@ def stc_obtain_ota_checksum(imei, start, file_length):
     :param file_length: The length of the checksum bytes
     :return: obtain ota checksum gprs command
     >>> stc_obtain_ota_checksum(b"0407", 0, 5).as_bytes()
-    b'@@a23,0407,FC2,\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x05*7F\\r\\n'
+    b'@@a23,0407,FC2,\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00*7F\\r\\n'
     """
-    com = stc_obtain_ota_checksum_command(start, file_length)
+    com = stc_obtain_ota_checksum_command(start, file_length, byteorder=byteorder)
     gprs = GPRS()
     gprs.direction = b'@@'
     gprs.data_identifier = b'a'

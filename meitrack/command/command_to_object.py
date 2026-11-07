@@ -3,6 +3,7 @@ Module for converting meitrack gprs commands to Command objects
 """
 import logging
 
+from meitrack.command.command_A10 import LocationQueryCommand
 from meitrack.command.command_AAA import TrackerCommand
 from meitrack.command.command_D00 import FileDownloadCommand
 from meitrack.command.command_D01 import FileListCommand
@@ -21,7 +22,7 @@ from meitrack.common import DIRECTION_CLIENT_TO_SERVER, DIRECTION_SERVER_TO_CLIE
 logger = logging.getLogger(__name__)
 
 COMMAND_LIST = {
-    b"A10": {"name": "Real-Time Location Query", "class": None},
+    b"A10": {"name": "Real-Time Location Query", "class": LocationQueryCommand},
     b"A11": {"name": "Setting a Heartbeat Packet Reporting Interval", "class": None},
     b"A12": {"name": "Tracking by Time Interval", "class": None},
     b"A13": {"name": "Setting the Cornering Report Function", "class": None},

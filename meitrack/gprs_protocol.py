@@ -158,6 +158,8 @@ class GPRS:
             # print("%s" % (enclosed_commmand_object.as_bytes()))
             self.leftover = enclosed_commmand_object.as_bytes()
             self.__enclosed_data = enclosed_commmand_object
+        else:
+            self.__enclosed_data = None
 
     @property
     def data_length(self):

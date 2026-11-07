@@ -5,6 +5,7 @@ Module for working with the meitrack commands
 import logging
 import time
 
+from meitrack.command.command_A10 import LocationQueryCommand
 from meitrack.command.command_D00 import FileDownloadCommand
 from meitrack.command.common import Command
 from meitrack.common import DIRECTION_CLIENT_TO_SERVER, s2b
@@ -153,7 +154,7 @@ def stc_request_location():
     >>> stc_request_location().as_bytes()
     b'A10'
     """
-    return Command(0, b"A10")
+    return LocationQueryCommand(0, b"A10")
 
 
 def stc_restart_gsm():
