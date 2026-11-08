@@ -1,9 +1,10 @@
 """
 Library for working with file download gprs messages.
 """
-import logging
+
 import copy
 import datetime
+import logging
 from functools import singledispatch
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ class FileDownloadAggregator:
     """
     Object for aggregating file download commands. Across different files and devices.
     """
+
     def __init__(self):
         """
         FileDownloadAggregator constructor
@@ -59,7 +61,9 @@ class FileDownloadAggregator:
         num_packets = to_bytes(num_packets)
         packet_number = to_bytes(packet_number)
         key = self.check_and_create_key(imei, file_name)
-        self.download_list[key].add_file_bytes(file_name, num_packets, packet_number, file_bytes)
+        self.download_list[key].add_file_bytes(
+            file_name, num_packets, packet_number, file_bytes
+        )
         return self.complete_file(imei, file_name)
 
     def check_and_create_key(self, imei, file_name):
@@ -69,7 +73,7 @@ class FileDownloadAggregator:
         :param file_name: The file name for download
         :return: The file download key
         """
-        key = '{}-{}'.format(imei, file_name)
+        key = f"{imei}-{file_name}"
         if key not in self.download_list:
             self.download_list[key] = FileDownload(file_name)
         return key
@@ -96,7 +100,7 @@ class FileDownloadAggregator:
         """
         return_str = ""
         for key in self.download_list:
-            return_str = "{}\n{} {}".format(return_str, key, self.download_list[key])
+            return_str = f"{return_str}\n{key} {self.download_list[key]}"
 
         return return_str
 
@@ -105,6 +109,7 @@ class FileDownload:
     """
     Class to track a single file download
     """
+
     def __init__(self, file_name):
         """
         Constructor for the file download obejct
@@ -122,7 +127,9 @@ class FileDownload:
         :return: None
         """
         if gprs_packet and gprs_packet.enclosed_data:
-            file_name, num_packets, packet_number, file_bytes = gprs_packet.enclosed_data.get_file_data()
+            file_name, num_packets, packet_number, file_bytes = (
+                gprs_packet.enclosed_data.get_file_data()
+            )
             self.add_file_bytes(file_name, num_packets, packet_number, file_bytes)
 
     def add_file_bytes(self, file_name, num_packets, packet_number, file_bytes):
@@ -150,7 +157,7 @@ class FileDownload:
         """
         if not self.expecting_packets:
             return 0
-        for i in range(0, self.expecting_packets):
+        for i in range(self.expecting_packets):
             if i not in self.packets:
                 return i
         return None
@@ -162,9 +169,14 @@ class FileDownload:
         """
         if not self.expecting_packets:
             return False
-        for i in range(0, self.expecting_packets):
+        for i in range(self.expecting_packets):
             if i not in self.packets:
-                logger.log(13, "File is not yet complete. Missing %s from %s", i, self.expecting_packets)
+                logger.log(
+                    13,
+                    "File is not yet complete. Missing %s from %s",
+                    i,
+                    self.expecting_packets,
+                )
                 return False
         logger.log(13, "File is complete")
         return True
@@ -176,7 +188,7 @@ class FileDownload:
         """
         return_str = ""
         for i in self.packets:
-            return_str += "{}({}) ".format(i, len(self.packets[i]))
+            return_str += f"{i}({len(self.packets[i])}) "
         return return_str
 
     def return_file_contents(self):
@@ -188,59 +200,55 @@ class FileDownload:
             logger.log(13, "File is not complete yet. Returning None")
             return None
         file_bytes = b""
-        for i in range(0, self.expecting_packets):
+        for i in range(self.expecting_packets):
             file_bytes = b"".join([file_bytes, self.packets[i]])
         return file_bytes
 
     def __str__(self):
-        return "{} {} of {}".format(self.file_name, len(self.packets), self.expecting_packets)
+        return f"{self.file_name} {len(self.packets)} of {self.expecting_packets}"
 
 
 def main():
     """
     Main section for running interactive testing.
     """
-    main_logger = logging.getLogger('')
+    main_logger = logging.getLogger("")
     main_logger.setLevel(logging.DEBUG)
     char_handler = logging.StreamHandler()
     char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     char_handler.setFormatter(formatter)
     main_logger.addHandler(char_handler)
 
     file_agg = FileDownloadAggregator()
-    for test_byte in range(0, 14):
+    for test_byte in range(14):
         for test_imei in [b"0407", b"0408"]:
             test_file_name, test_file_bytes = file_agg.add_file_bytes(
                 test_imei,
                 b"testfile.jpg",
                 str(14).encode(),
                 str(test_byte).encode(),
-                b"a"
+                b"a",
             )
             print(file_agg)
             if test_file_bytes:
-                print("{} {}".format(test_file_name, test_file_bytes))
+                print(f"{test_file_name} {test_file_bytes}")
 
     print(file_agg)
 
-    for test_byte in range(0, 14):
+    for test_byte in range(14):
         for test_imei in ["0407", "0408"]:
             test_file_name, test_file_bytes = file_agg.add_file_bytes(
-                test_imei,
-                b"testfile.jpg",
-                14,
-                test_byte,
-                b"a"
+                test_imei, b"testfile.jpg", 14, test_byte, b"a"
             )
             print(file_agg)
             if test_file_bytes:
-                print("{} {}".format(test_file_name, test_file_bytes))
+                print(f"{test_file_name} {test_file_bytes}")
 
     print(file_agg)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

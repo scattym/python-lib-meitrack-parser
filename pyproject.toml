@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-ignore = [
+    "N999",  # Meitrack command modules are named command_<COMMAND> (e.g. command_A10)
+    "RUF012", # Mutable default value for class attribute (legacy command field_names lists)
+    "DTZ003", # datetime.utcnow / timezone naive timestamps
+]

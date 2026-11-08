@@ -1,6 +1,7 @@
 """
 Common meitrack command functions
 """
+
 import binascii
 import datetime
 import logging
@@ -26,6 +27,7 @@ class TaxiMeterData:
     """
     Class for working with taxi meter data from meitrack devices.
     """
+
     def __init__(self, payload=None):
         """
         Constructor for the taxi meter data class.
@@ -50,7 +52,7 @@ class TaxiMeterData:
         :param payload: The meitrack formatted taxi parameters.
         :return: None
         """
-        fields = payload.split(b'|')
+        fields = payload.split(b"|")
         if len(fields) >= 2:
             self.assisted_info = fields[0]
             self.start_time = fields[1]
@@ -105,28 +107,30 @@ class TaxiMeterData:
 
         :return: The fare trip time.
         """
-        if self.fare_trip_time:
-            if len(self.fare_trip_time) == 6:
-                return ":".join([
+        if self.fare_trip_time and len(self.fare_trip_time) == 6:
+            return ":".join(
+                [
                     self.fare_trip_time[0:2].decode(),
                     self.fare_trip_time[2:4].decode(),
-                    self.fare_trip_time[4:].decode()
-                ])
+                    self.fare_trip_time[4:].decode(),
+                ]
+            )
         return None
 
     def get_fare_waiting_time(self):
         """
-         Helper function to get the fare waiting time.
+        Helper function to get the fare waiting time.
 
-         :return: The fare waiting time.
-         """
-        if self.fare_waiting_time:
-            if len(self.fare_waiting_time) == 6:
-                return ":".join([
+        :return: The fare waiting time.
+        """
+        if self.fare_waiting_time and len(self.fare_waiting_time) == 6:
+            return ":".join(
+                [
                     self.fare_waiting_time[0:2].decode(),
                     self.fare_waiting_time[2:4].decode(),
-                    self.fare_waiting_time[4:].decode()
-                ])
+                    self.fare_waiting_time[4:].decode(),
+                ]
+            )
         return None
 
 
@@ -134,6 +138,7 @@ class Command:
     """
     Base class for all meitrack command objects.
     """
+
     def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for the command object
@@ -152,9 +157,9 @@ class Command:
         String representation of the command
         :return: String representation of the command
         """
-        result_str = "%s\n" % (self.payload,)
+        result_str = f"{self.payload}\n"
         for field in self.field_name_selector:
-            result_str += "\tField %s has value %s\n" % (field, self.field_dict.get(field))
+            result_str += f"\tField {field} has value {self.field_dict.get(field)}\n"
         return result_str
 
     def recalc_date(self):
@@ -166,7 +171,9 @@ class Command:
 
         if self.field_dict.get("date_time") is not None:
             logger.log(13, "Date field is %s", self.field_dict.get("date_time"))
-            self.field_dict["date_time"] = datetime.datetime.utcnow()
+            self.field_dict["date_time"] = datetime.datetime.now(datetime.UTC).replace(
+                tzinfo=None
+            )
 
     def as_bytes(self):
         """
@@ -182,11 +189,13 @@ class Command:
                 if self.field_dict.get(field) is not None:
                     if field == "date_time":
                         logger.log(13, "Date field is %s", self.field_dict.get(field))
-                        fields.append(datetime_to_meitrack_date(self.field_dict.get(field)))
+                        fields.append(
+                            datetime_to_meitrack_date(self.field_dict.get(field))
+                        )
                     else:
                         fields.append(self.field_dict.get(field))
         if fields:
-            return b','.join(fields)
+            return b",".join(fields)
 
         return self.payload
 
@@ -225,11 +234,13 @@ class Command:
         :return: None
         """
         if max_split:
-            fields = payload.split(b',', max_split)
+            fields = payload.split(b",", max_split)
         else:
-            fields = payload.split(b',')
+            fields = payload.split(b",")
         if len(fields) < 1:
-            raise GPRSParseError("Field length does not include event code", self.payload)
+            raise GPRSParseError(
+                "Field length does not include event code", self.payload
+            )
         if self.field_name_selector is None:
             logger.log(13, "No field names set")
             return
@@ -238,11 +249,16 @@ class Command:
             logger.log(13, "%s %s", len(fields), len(self.field_name_selector))
             logger.log(13, payload)
             raise GPRSParseError(
-                "Incorrect number of fields for data. Data field length is ", len(fields),
-                " but should be ", len(self.field_name_selector), ". Fields should be ",
-                str(self.field_name_selector), ", Data was: ", str(payload)
+                "Incorrect number of fields for data. Data field length is ",
+                len(fields),
+                " but should be ",
+                len(self.field_name_selector),
+                ". Fields should be ",
+                str(self.field_name_selector),
+                ", Data was: ",
+                str(payload),
             )
-        for i in range(0, len(fields)):
+        for i in range(len(fields)):
             field_name = self.field_name_selector[i]
             if field_name == "date_time":
                 self.field_dict[field_name] = meitrack_date_to_datetime(fields[i])
@@ -258,9 +274,9 @@ class Command:
         if self.field_dict.get("analog_input_value"):
             analog_list = self.field_dict.get("analog_input_value").split(b"|")
             if input_number <= len(analog_list):
-                logger.debug(analog_list[input_number-1])
-                logger.debug(int(analog_list[input_number-1], 16))
-                return int(analog_list[input_number-1], 16) / 100
+                logger.debug(analog_list[input_number - 1])
+                logger.debug(int(analog_list[input_number - 1], 16))
+                return int(analog_list[input_number - 1], 16) / 100
         return None
 
     def get_battery_voltage(self):
@@ -297,7 +313,7 @@ class Command:
                     "mnc": fields[1],
                     "lac": str(int(fields[2], 16)).encode(),
                     "ci": str(int(fields[3], 16)).encode(),
-                    "gsm_signal_strength": self.get_gsm_signal_strength()
+                    "gsm_signal_strength": self.get_gsm_signal_strength(),
                 }
                 return return_dict
         return None
@@ -323,7 +339,7 @@ class Command:
                 self.field_dict.get("file_name"),
                 self.field_dict.get("number_of_data_packets"),
                 self.field_dict.get("data_packet_number"),
-                self.field_dict.get("file_bytes")
+                self.field_dict.get("file_bytes"),
             )
 
         return None, None, None, None
@@ -338,7 +354,7 @@ class Command:
             return (
                 self.field_dict.get("number_of_data_packets"),
                 self.field_dict.get("data_packet_number"),
-                self.field_dict.get("file_list")
+                self.field_dict.get("file_list"),
             )
 
         return None, None, None
@@ -402,7 +418,9 @@ class Command:
         if rfid:
             if License is not None:
                 return License(rfid)
-            logger.warning("license.cardreader not available; returning raw rfid string")
+            logger.warning(
+                "license.cardreader not available; returning raw rfid string"
+            )
             return b2s(rfid) if isinstance(rfid, (bytes, bytearray)) else str(rfid)
         return None
 
@@ -432,7 +450,9 @@ class Command:
         :return: The analogue pin values as a dictionary.
         """
         if self.field_dict.get("analog_input_value"):
-            return meitrack_analogue_pins_to_dict(self.field_dict.get("analog_input_value"))
+            return meitrack_analogue_pins_to_dict(
+                self.field_dict.get("analog_input_value")
+            )
         return None
 
     def get_device_type(self):
@@ -442,7 +462,7 @@ class Command:
         :return: The distance travelled
         """
         if self.firmware_version:
-            return self.firmware_version.split(b'_')[0].decode()
+            return self.firmware_version.split(b"_")[0].decode()
         return None
 
 
@@ -465,12 +485,12 @@ def meitrack_digital_pins_to_dict(io_string):
 
     for counter, byte in enumerate(data_bytes[::-1]):
         logger.debug("byte is %s", byte)
-        for j in range(0, 8):
+        for j in range(8):
             if (byte >> j & 1) == 1:
                 logger.debug("bit on %s %s", counter, j)
-                mapping[counter*8+j] = True
+                mapping[counter * 8 + j] = True
             else:
-                mapping[counter*8+j] = False
+                mapping[counter * 8 + j] = False
 
     return mapping
 
@@ -487,7 +507,7 @@ def meitrack_analogue_pins_to_dict(io_string):
     {0: 10.24}
     """
     mapping = {}
-    fields = io_string.split(b'|')
+    fields = io_string.split(b"|")
     for i, field in enumerate(fields):
         mapping[i] = int(field, 16) / 100
 
@@ -507,13 +527,19 @@ def meitrack_date_to_datetime(date_time):
     # yymmddHHMMSS
     try:
         date_time_str = b2s(date_time)
-        date_time_str_utc = "%s%s" % (date_time_str, "Z")
+        date_time_str_utc = "{}{}".format(date_time_str, "Z")
         d = datetime.datetime.strptime(date_time_str_utc, "%y%m%d%H%M%SZ")
         return d
     except UnicodeDecodeError as err:
-        logger.error("Unable to convert datetime field to a string %s with error: %s", date_time, err)
+        logger.error(
+            "Unable to convert datetime field to a string %s with error: %s",
+            date_time,
+            err,
+        )
     except ValueError as err:
-        logger.error("Unable to calculate date from string %s with error: %s", date_time, err)
+        logger.error(
+            "Unable to calculate date from string %s with error: %s", date_time, err
+        )
     return None
 
 

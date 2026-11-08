@@ -1,10 +1,11 @@
 """
 Module for working with the meitrack FC1 command
 """
+
 import logging
 
 from meitrack.command.common import Command
-from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER, DIRECTION_SERVER_TO_CLIENT
 
 logger = logging.getLogger(__name__)
 
@@ -13,21 +14,26 @@ class SendOtaDataCommand(Command):
     """
     Class for setting the field names for the send ota data command
     """
+
     request_field_names = [
-        "command", "payload",
+        "command",
+        "payload",
     ]
     response_field_names = [
-        "command", "response",
+        "command",
+        "response",
     ]
 
-    def __init__(self, direction, payload=None, index=None, file_contents=None, device_type=None):
+    def __init__(
+        self, direction, payload=None, index=None, file_contents=None, device_type=None
+    ):
         """
         Constructor for setting the send ota data parameters
         :param direction: The payload direction.
         :param payload: The payload to parse.
         """
 
-        super(SendOtaDataCommand, self).__init__(direction, payload=payload, device_type=device_type)
+        super().__init__(direction, payload=payload, device_type=device_type)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:
@@ -40,16 +46,16 @@ class SendOtaDataCommand(Command):
                 self.index = payload[0:8]
                 self.length = payload[8:12]
                 self.file_contents = payload[12:]
-                self.field_dict['payload'] = payload
+                self.field_dict["payload"] = payload
 
         if index is not None and file_contents is not None:
-            self.field_dict['command'] = b'FC1'
+            self.field_dict["command"] = b"FC1"
             self.index = index
             self.file_contents = file_contents
             self.field_dict["payload"] = b"%s%s%s" % (
-                self.index.to_bytes(4, byteorder='big'),
-                len(file_contents).to_bytes(2, byteorder='big'),
-                file_contents
+                self.index.to_bytes(4, byteorder="big"),
+                len(file_contents).to_bytes(2, byteorder="big"),
+                file_contents,
             )
             # self.field_dict["payload"] = b"%08x%04x%s" % (self.index, len(file_contents), file_contents)
             self.payload = self.field_dict["payload"]
@@ -61,10 +67,12 @@ class SendOtaDataCommand(Command):
         """
 
         if self.direction == DIRECTION_CLIENT_TO_SERVER:
-            response = self.field_dict.get("response", b'')
-            if response in [b'NOT']:
+            response = self.field_dict.get("response", b"")
+            if response in [b"NOT"]:
                 return True
-            if (len(response) == 14 and response[12:14] in [b'00', b'02']) or (len(response) == 16 and response[14:16] in [b'00', b'02']):
+            if (len(response) == 14 and response[12:14] in [b"00", b"02"]) or (
+                len(response) == 16 and response[14:16] in [b"00", b"02"]
+            ):
                 return True
         return False
 
@@ -74,8 +82,10 @@ class SendOtaDataCommand(Command):
         :return: Response data1,Response data2 or None,None
         """
         if self.direction == DIRECTION_CLIENT_TO_SERVER:
-            response = self.field_dict.get("response", b'')
-            if (len(response) == 14 and response[12:14] == b'01') or (len(response) == 16 and response[14:16] == b'01'):
+            response = self.field_dict.get("response", b"")
+            if (len(response) == 14 and response[12:14] == b"01") or (
+                len(response) == 16 and response[14:16] == b"01"
+            ):
                 return int(response[0:8], 16), int(response[8:12], 16)
         return None, None
 
@@ -102,8 +112,8 @@ def stc_send_ota_data_command(file_bytes, chunk_size):
             SendOtaDataCommand(
                 0,
                 None,
-                index=index*chunk_size_int,
-                file_contents=file_bytes[offset:offset+chunk_size_int]
+                index=index * chunk_size_int,
+                file_contents=file_bytes[offset : offset + chunk_size_int],
             )
         )
     return command_list
@@ -113,20 +123,15 @@ def main():
     """
     Main section for running interactive testing.
     """
-    main_logger = logging.getLogger('')
+    main_logger = logging.getLogger("")
     main_logger.setLevel(logging.DEBUG)
     char_handler = logging.StreamHandler()
     char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     char_handler.setFormatter(formatter)
     main_logger.addHandler(char_handler)
-
-    tests = [
-        b"""FC1,000000test""",
-        b"""FC1,theresponse""",
-    ]
 
     test_command = SendOtaDataCommand(0, b"FC1,000000test")
     print(test_command.as_bytes())
@@ -135,12 +140,10 @@ def main():
     print(test_command.as_bytes())
     print(test_command)
 
-    commands = stc_send_ota_data_command(b"testfile"*190, b'1024')
+    commands = stc_send_ota_data_command(b"testfile" * 190, b"1024")
     for command in commands:
         print(command)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-

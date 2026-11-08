@@ -1,7 +1,7 @@
-#!/usr/bin/env python
 """
 Module for working with the meitrack commands
 """
+
 import logging
 import time
 
@@ -14,6 +14,18 @@ from meitrack.error import GPRSParameterError
 logger = logging.getLogger(__name__)
 
 
+def _validate_range(name: str, value: int, min_val: int, max_val: int) -> None:
+    """
+    Validate that value is within [min_val, max_val].
+
+    Raises GPRSParameterError if value is None or outside the range.
+    """
+    if value is None or not (min_val <= value <= max_val):
+        raise GPRSParameterError(
+            f"{name} must be between {min_val} and {max_val}. Was {value}"
+        )
+
+
 def stc_format_sdcard():
     """
     Build a file download command based on parameters from device
@@ -23,7 +35,7 @@ def stc_format_sdcard():
     >>> test = stc_format_sdcard(); print(test.as_bytes())
     b'DB3'
     """
-    return Command(0, b'DB3')
+    return Command(0, b"DB3")
 
 
 def stc_file_delete(file_name):
@@ -41,7 +53,7 @@ def stc_file_delete(file_name):
         file_name = file_name.encode()
     except AttributeError:
         pass
-    return Command(0, b','.join([b"D02", file_name]))
+    return Command(0, b",".join([b"D02", file_name]))
 
 
 def cts_file_download(file_name, num_packets, packet_number, file_bytes):
@@ -80,15 +92,14 @@ def stc_set_output_pin(speed, output_a, output_b, output_c, output_d, output_e):
     >>> stc_set_output_pin(1, 0, 0, 0, 0, 0).as_bytes()
     b'C01,1,00000'
     """
-
-    command_set = b'%b%b%b%b%b' % (
+    command_set = b"%b%b%b%b%b" % (
         s2b(output_a),
         s2b(output_b),
         s2b(output_c),
         s2b(output_d),
-        s2b(output_e)
+        s2b(output_e),
     )
-    return Command(0, b','.join([b"C01", s2b(speed), command_set]))
+    return Command(0, b",".join([b"C01", s2b(speed), command_set]))
 
 
 def stc_request_file_download(file_name, payload_start_index):
@@ -105,14 +116,7 @@ def stc_request_file_download(file_name, payload_start_index):
     >>> stc_request_file_download("test.file", 6).as_bytes()
     b'D00,test.file,6'
     """
-    try:
-        file_name = file_name.encode()
-    except AttributeError:
-        pass
-    if isinstance(payload_start_index, int):
-        payload_start_index = str(payload_start_index).encode()
-
-    return Command(0, b','.join([b"D00", file_name, payload_start_index]))
+    return Command(0, b",".join([b"D00", s2b(file_name), s2b(payload_start_index)]))
 
 
 def stc_request_take_photo(camera_number, file_name):
@@ -128,8 +132,10 @@ def stc_request_take_photo(camera_number, file_name):
     b'D03,2,testfile.jpg'
     """
     if file_name is None:
-        file_name = "camera-{}-{}.jpg".format(camera_number, int(time.time()))
-    return Command(0, b"D03," + str(camera_number).encode() + b"," + str(file_name).encode())
+        file_name = f"camera-{camera_number}-{int(time.time())}.jpg"
+    return Command(
+        0, b"D03," + str(camera_number).encode() + b"," + str(file_name).encode()
+    )
 
 
 def stc_request_photo_list(start=0):
@@ -142,7 +148,7 @@ def stc_request_photo_list(start=0):
     >>> stc_request_photo_list(7).as_bytes()
     b'D01,7'
     """
-    return Command(0, b"D01,%b" % (str(start).encode(),))
+    return Command(0, f"D01,{start}".encode())
 
 
 def stc_request_location():
@@ -202,13 +208,13 @@ def stc_set_heartbeat(minutes=0):
     meitrack.error.GPRSParameterError: Heartbeat must be between 0 and 65535. Was -1
 
     """
-    if minutes < 0 or minutes > 65535:
-        raise GPRSParameterError("Heartbeat must be between 0 and 65535. Was %s" % (minutes,))
-    return Command(0, b"A11,%b" % (str(minutes).encode(),))
+    _validate_range("Heartbeat", minutes, 0, 65535)
+    return Command(0, f"A11,{minutes}".encode())
 
 
-# device1=0, device2=20, device3=11, device4=13, device5=13
-def stc_set_io_device_params(model=b"A78", config=((1, 0), (2, 20), (3, 11), (4, 13), (5, 13))):
+def stc_set_io_device_params(
+    model=b"A78", config=((1, 0), (2, 20), (3, 11), (4, 13), (5, 13))
+):
     """
     Build a set io device parameters command.
 
@@ -225,11 +231,10 @@ def stc_set_io_device_params(model=b"A78", config=((1, 0), (2, 20), (3, 11), (4,
     """
     command_bytes = b"C91,%b" % (s2b(model),)
     for item in config:
-        command_bytes = b",".join([command_bytes, b"%b:%b" % (s2b(item[0]), s2b(item[1]))])
-    return Command(
-        0,
-        command_bytes
-    )
+        command_bytes = b",".join(
+            [command_bytes, b"%b:%b" % (s2b(item[0]), s2b(item[1]))]
+        )
+    return Command(0, command_bytes)
 
 
 def stc_set_tracking_by_time_interval(deci_seconds=0):
@@ -252,9 +257,8 @@ def stc_set_tracking_by_time_interval(deci_seconds=0):
         ...
     meitrack.error.GPRSParameterError: Time interval must be between 0 and 65535. Was 65536
     """
-    if deci_seconds < 0 or deci_seconds > 65535:
-        raise GPRSParameterError("Time interval must be between 0 and 65535. Was %s" % (deci_seconds,))
-    return Command(0, b"A12,%b" % (str(deci_seconds).encode(),))
+    _validate_range("Time interval", deci_seconds, 0, 65535)
+    return Command(0, f"A12,{deci_seconds}".encode())
 
 
 def stc_set_cornering_angle(angle=0):
@@ -277,9 +281,8 @@ def stc_set_cornering_angle(angle=0):
     ...
     meitrack.error.GPRSParameterError: Cornering angle must be between 0 and 359. Was 360
     """
-    if angle < 0 or angle > 359:
-        raise GPRSParameterError("Cornering angle must be between 0 and 359. Was %s" % (angle,))
-    return Command(0, b"A13,%b" % (s2b(angle)))
+    _validate_range("Cornering angle", angle, 0, 359)
+    return Command(0, f"A13,{angle}".encode())
 
 
 def stc_set_time_zone(minutes=0):
@@ -305,17 +308,10 @@ def stc_set_time_zone(minutes=0):
     meitrack.error.GPRSParameterError: Timezone offset must be between -32768 and 32768. Was 32769
 
     """
-    if minutes < -32768 or minutes > 32768:
-        raise GPRSParameterError("Timezone offset must be between -32768 and 32768. Was %s" % (minutes,))
-    return Command(0, b"B36,%b" % (s2b(minutes),))
+    _validate_range("Timezone offset", minutes, -32768, 32768)
+    return Command(0, f"B36,{minutes}".encode())
 
 
-# B46,E,T,S,U,D
-# E: Event Code, the event code of SOS is 1
-# T: The snapshot interval
-# S: The number of photos
-# U: Decide whether upload the image or not. 0 means don't upload, 1 means to upload
-# D: Decide whether delete the image after being uploaded or not, 0 means no deleting, 1 means to delete
 def stc_set_snapshot_parameters(event_code=1, interval=60, count=1, upload=1, delete=1):
     """
     Build a set snapshot parameters command
@@ -334,17 +330,20 @@ def stc_set_snapshot_parameters(event_code=1, interval=60, count=1, upload=1, de
     """
     return Command(
         0,
-        b"B46,%b,%b,%b,%b,%b" % (
+        b"B46,%b,%b,%b,%b,%b"
+        % (
             s2b(event_code),
             s2b(interval),
             s2b(count),
             s2b(upload),
             s2b(delete),
-        )
+        ),
     )
 
 
-def stc_set_fatigue_driving_alert(consecutive_driving_time_mins=0, alert_time_secs=0, acc_off_time_mins=0):
+def stc_set_fatigue_driving_alert(
+    consecutive_driving_time_mins=0, alert_time_secs=0, acc_off_time_mins=0
+):
     """
     Build a set fatigure driving alert parameters command
 
@@ -382,26 +381,18 @@ def stc_set_fatigue_driving_alert(consecutive_driving_time_mins=0, alert_time_se
     ...
     meitrack.error.GPRSParameterError: Acc off time must be between 0 and 1000. Was 1001
     """
-    if consecutive_driving_time_mins is None or consecutive_driving_time_mins < 0 \
-            or consecutive_driving_time_mins > 1000:
-        raise GPRSParameterError(
-            "Consecutive alert time must be between 0 and 1000. Was %s" % (consecutive_driving_time_mins,)
-        )
-    if alert_time_secs is None or alert_time_secs < 0 or alert_time_secs > 60000:
-        raise GPRSParameterError("Alert time must be between 0 and 60000. Was %s" % (alert_time_secs,))
-    if acc_off_time_mins is None or acc_off_time_mins < 0 or acc_off_time_mins > 1000:
-        raise GPRSParameterError("Acc off time must be between 0 and 1000. Was %s" % (acc_off_time_mins,))
+    _validate_range("Consecutive alert time", consecutive_driving_time_mins, 0, 1000)
+    _validate_range("Alert time", alert_time_secs, 0, 60000)
+    _validate_range("Acc off time", acc_off_time_mins, 0, 1000)
     return Command(
         0,
-        b"B15,%b,%b,%b" % (
-            s2b(consecutive_driving_time_mins),
-            s2b(alert_time_secs),
-            s2b(acc_off_time_mins),
-        )
+        f"B15,{consecutive_driving_time_mins},{alert_time_secs},{acc_off_time_mins}".encode(),
     )
 
 
-def stc_set_idle_alert_time(consecutive_speed_time_secs=0, speed_kmh=0, alert_time_secs=0):
+def stc_set_idle_alert_time(
+    consecutive_speed_time_secs=0, speed_kmh=0, alert_time_secs=0
+):
     """
     Build a set engine idle alert command
 
@@ -439,22 +430,12 @@ def stc_set_idle_alert_time(consecutive_speed_time_secs=0, speed_kmh=0, alert_ti
     ...
     meitrack.error.GPRSParameterError: Alert time must be between 0 and 60000. Was 60001
     """
-    if consecutive_speed_time_secs is None or consecutive_speed_time_secs < 0 or consecutive_speed_time_secs > 60000:
-        raise GPRSParameterError(
-            "Consecutive speed time must be between 0 and 60000. Was %s" % (consecutive_speed_time_secs,)
-        )
-    if speed_kmh is None or speed_kmh < 0 or speed_kmh > 200:
-        raise GPRSParameterError("Speed must be between 0 and 200. Was %s" % (speed_kmh,))
-    if alert_time_secs is None or alert_time_secs < 0 or alert_time_secs > 60000:
-        raise GPRSParameterError("Alert time must be between 0 and 60000. Was %s" % (alert_time_secs,))
-
+    _validate_range("Consecutive speed time", consecutive_speed_time_secs, 0, 60000)
+    _validate_range("Speed", speed_kmh, 0, 200)
+    _validate_range("Alert time", alert_time_secs, 0, 60000)
     return Command(
         0,
-        b"B14,%b,%b,%b" % (
-            s2b(consecutive_speed_time_secs),
-            s2b(speed_kmh),
-            s2b(alert_time_secs),
-        )
+        f"B14,{consecutive_speed_time_secs},{speed_kmh},{alert_time_secs}".encode(),
     )
 
 
@@ -485,23 +466,12 @@ def stc_set_speeding_alert(speed_kmh=0, disabled=True):
     ...
     meitrack.error.GPRSParameterError: Disabled must be True or False. Was 10
     """
-    if speed_kmh is None or speed_kmh < 0 or speed_kmh > 255:
-        raise GPRSParameterError("Speed must be between 0 and 255. Was %s" % (speed_kmh,))
-    if disabled is None or (disabled not in [True, False]):
-        raise GPRSParameterError("Disabled must be True or False. Was %s" % (speed_kmh,))
+    _validate_range("Speed", speed_kmh, 0, 255)
+    if disabled is None or disabled not in (True, False):
+        raise GPRSParameterError(f"Disabled must be True or False. Was {disabled}")
 
-    if disabled is True:
-        disabled_value = "1"
-    else:
-        disabled_value = "0"
-
-    return Command(
-        0,
-        b"B07,%b,%b" % (
-            s2b(speed_kmh),
-            s2b(disabled_value),
-        )
-    )
+    disabled_value = "1" if disabled else "0"
+    return Command(0, f"B07,{speed_kmh},{disabled_value}".encode())
 
 
 def stc_set_driver_license_type(license_type_str=""):
@@ -515,7 +485,6 @@ def stc_set_driver_license_type(license_type_str=""):
     >>> stc_set_driver_license_type("3200,35").as_bytes()
     b'C50,3200,35'
     """
-
     if license_type_str:
         return Command(0, b"C50,%b" % (s2b(license_type_str),))
 
@@ -558,9 +527,8 @@ def stc_set_tracking_by_distance(meters=0):
     ...
     meitrack.error.GPRSParameterError: Tracking by distance must be between 0 and 65535. Was 65536
     """
-    if meters < 0 or meters > 65535:
-        raise GPRSParameterError("Tracking by distance must be between 0 and 65535. Was %s" % (meters,))
-    return Command(0, b"A14,%b" % (s2b(meters),))
+    _validate_range("Tracking by distance", meters, 0, 65535)
+    return Command(0, f"A14,{meters}".encode())
 
 
 def stc_request_info():
@@ -575,7 +543,6 @@ def stc_request_info():
     return Command(0, b"E91")
 
 
-# B97
 def stc_read_photo_event_flags():
     """
     Build a request client device information command
@@ -585,11 +552,9 @@ def stc_read_photo_event_flags():
     >>> stc_read_photo_event_flags().as_bytes()
     b'B97'
     """
-
     return Command(0, b"B97")
 
 
-# B96,0000000000000001
 def stc_set_photo_event_flags(enabled_events):
     """
     Build a request client device information command
@@ -600,16 +565,10 @@ def stc_set_photo_event_flags(enabled_events):
     >>> stc_set_photo_event_flags([1,3,5,7,13,16]).as_bytes()
     b'B96,0101010100000100'
     """
-    flag_bytes = b""
-    for i in range(0, 16):
-        if i in enabled_events:
-            flag_bytes = b"%b1" % (flag_bytes,)
-        else:
-            flag_bytes = b"%b0" % (flag_bytes,)
-    return Command(0, b"B96,%b" % (flag_bytes,))
+    flag_bytes = b"".join(b"1" if i in enabled_events else b"0" for i in range(16))
+    return Command(0, b"B96," + flag_bytes)
 
 
-# B96,0000000000000001
 def stc_set_photo_event_flags_by_bytes(enabled_event_bytes):
     """
     Build a request client device information command
@@ -627,27 +586,9 @@ def stc_set_photo_event_flags_by_bytes(enabled_event_bytes):
 
 def main():
     """
-    Main section for running interactive testing.
+    Main entry point for command module.
     """
-    main_logger = logging.getLogger('')
-    main_logger.setLevel(logging.DEBUG)
-    char_handler = logging.StreamHandler()
-    char_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    char_handler.setFormatter(formatter)
-    main_logger.addHandler(char_handler)
-
-    print(stc_request_file_download(b"test_file", b"0"))
-    print(stc_request_file_download(b"test_file", 0))
-    print(stc_set_io_device_params(b"A78", ((1, 0), (2, 20), (3, 11), (4, 13), (5, 13))))
-    print(stc_set_io_device_params(b"A78", [[1, 0], [2, 20], [3, 11], [4, 13], [5, 13]]))
-    print(stc_set_snapshot_parameters())
-
-    import doctest
-    doctest.testmod()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

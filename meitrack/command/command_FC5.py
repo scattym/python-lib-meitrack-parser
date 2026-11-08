@@ -1,11 +1,12 @@
 """
 Module for working with the meitrack FC5 command
 """
+
 import binascii
 import logging
 
 from meitrack.command.common import Command
-from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER, DIRECTION_SERVER_TO_CLIENT
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +15,11 @@ class CheckDeviceCodeCommand(Command):
     """
     Class for setting the field names for the check device code command
     """
-    request_field_names = [
-        "command"
-    ]
+
+    request_field_names = ["command"]
     response_field_names = [
-        "command", "device_code",
+        "command",
+        "device_code",
     ]
 
     def __init__(self, direction, payload=None, device_type=None):
@@ -28,7 +29,7 @@ class CheckDeviceCodeCommand(Command):
         :param payload: The payload to parse.
         """
 
-        super(CheckDeviceCodeCommand, self).__init__(direction, payload=payload, device_type=device_type)
+        super().__init__(direction, payload=payload, device_type=device_type)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:
@@ -42,7 +43,10 @@ class CheckDeviceCodeCommand(Command):
         Function to return the device code from a check device code response message
         :return: The device code or None
         """
-        if self.direction == DIRECTION_CLIENT_TO_SERVER and self.field_dict.get("device_code") is not None:
+        if (
+            self.direction == DIRECTION_CLIENT_TO_SERVER
+            and self.field_dict.get("device_code") is not None
+        ):
             return binascii.hexlify(self.field_dict["device_code"])
         return None
 
@@ -56,19 +60,19 @@ def stc_check_device_code_command():
     >>> stc_check_device_code_command()
     <meitrack.command.command_FC5.CheckDeviceCodeCommand object at ...>
     """
-    return CheckDeviceCodeCommand(0, b'FC5')
+    return CheckDeviceCodeCommand(0, b"FC5")
 
 
 def main():
     """
     Main section for running interactive testing.
     """
-    main_logger = logging.getLogger('')
+    main_logger = logging.getLogger("")
     main_logger.setLevel(logging.DEBUG)
     char_handler = logging.StreamHandler()
     char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     char_handler.setFormatter(formatter)
     main_logger.addHandler(char_handler)
@@ -76,5 +80,5 @@ def main():
     print(stc_check_device_code_command())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
