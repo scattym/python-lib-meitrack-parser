@@ -2,6 +2,7 @@
 Unit tests for OTA firmware update suite (FC0 through FC7) and state machine,
 confirming Phase 1A bugfix on little-endian byte ordering.
 """
+
 import binascii
 
 from meitrack.command.command_FC0 import (
@@ -52,8 +53,7 @@ def test_fc0_auth_ota_update():
 
     # Client response success
     res_success = AuthOtaUpdateCommand(
-        DIRECTION_CLIENT_TO_SERVER,
-        b"FC0,000A,OK,1024,T333_V100,T333_V101.OTA"
+        DIRECTION_CLIENT_TO_SERVER, b"FC0,000A,OK,1024,T333_V100,T333_V101.OTA"
     )
     assert res_success.device_code == b"000A"
     assert res_success.response == b"OK"
@@ -107,13 +107,19 @@ def test_fc2_obtain_ota_checksum_endianness_phase1a_bugfix():
     """
     # Default is little-endian
     cmd_le = stc_obtain_ota_checksum_command(3, 5)
-    expected_le = b"FC2," + (3).to_bytes(4, byteorder="little") + (5).to_bytes(4, byteorder="little")
+    expected_le = (
+        b"FC2,"
+        + (3).to_bytes(4, byteorder="little")
+        + (5).to_bytes(4, byteorder="little")
+    )
     assert cmd_le.as_bytes() == expected_le
     assert cmd_le.as_bytes() == b"FC2,\x03\x00\x00\x00\x05\x00\x00\x00"
 
     # Big-endian option
     cmd_be = stc_obtain_ota_checksum_command(3, 5, byteorder="big")
-    expected_be = b"FC2," + (3).to_bytes(4, byteorder="big") + (5).to_bytes(4, byteorder="big")
+    expected_be = (
+        b"FC2," + (3).to_bytes(4, byteorder="big") + (5).to_bytes(4, byteorder="big")
+    )
     assert cmd_be.as_bytes() == expected_be
     assert cmd_be.as_bytes() == b"FC2,\x00\x00\x00\x03\x00\x00\x00\x05"
 
@@ -166,7 +172,7 @@ def test_fc5_check_device_code():
     cmd = stc_check_device_code_command()
     assert cmd.as_bytes() == b"FC5"
 
-    res = CheckDeviceCodeCommand(DIRECTION_CLIENT_TO_SERVER, b"FC5,\x00\x0A")
+    res = CheckDeviceCodeCommand(DIRECTION_CLIENT_TO_SERVER, b"FC5,\x00\x0a")
     assert res.ota_response_device_code() == b"000a"
 
     res_empty = CheckDeviceCodeCommand(DIRECTION_SERVER_TO_CLIENT, b"FC5")
@@ -219,7 +225,7 @@ def test_firmware_update_stage1_flow():
     assert req1.enclosed_data.command == b"FC5"
 
     # Device returns FC5 response with matching device code
-    resp1 = GPRS(b"$$A25,353358017784062,FC5,\x00\x0A*AA\r\n")
+    resp1 = GPRS(b"$$A25,353358017784062,FC5,\x00\x0a*AA\r\n")
     fu.parse_response(resp1)
     assert fu.is_error is False
 
@@ -246,7 +252,9 @@ def test_firmware_update_stage1_flow():
     assert req4.enclosed_data.command == b"FC0"
 
     # Device returns FC0,OK
-    resp4 = GPRS(b"$$A80,353358017784062,FC0,000A,OK,1024,T333_V090,T333_V100.OTA*AA\r\n")
+    resp4 = GPRS(
+        b"$$A80,353358017784062,FC0,000A,OK,1024,T333_V090,T333_V100.OTA*AA\r\n"
+    )
     fu.parse_response(resp4)
     assert fu.is_finished is True
     assert fu.is_error is False
@@ -267,7 +275,9 @@ def test_firmware_update_stage2_flow():
     assert fu.current_message is not None
 
     # Tracker responds to FC0 with packet_size 1024
-    resp0 = GPRS(b"$$A80,353358017784062,FC0,000A,OK,1024,T333_V090,T333_V100.OTA*AA\r\n")
+    resp0 = GPRS(
+        b"$$A80,353358017784062,FC0,000A,OK,1024,T333_V090,T333_V100.OTA*AA\r\n"
+    )
     fu.parse_response(resp0)
 
     # After FC0 response, FC1 chunk, FC2 checksum, FC3 start are dynamically queued
@@ -316,7 +326,7 @@ def test_firmware_update_error_handling_and_cancellation():
     )
     fu.return_next_payload()
     # Device code mismatch error
-    resp_mismatch = GPRS(b"$$A25,353358017784062,FC5,\x00\x0B*AA\r\n")
+    resp_mismatch = GPRS(b"$$A25,353358017784062,FC5,\x00\x0b*AA\r\n")
     fu.parse_response(resp_mismatch)
     assert fu.is_error is True
 

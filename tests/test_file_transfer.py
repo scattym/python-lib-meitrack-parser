@@ -2,6 +2,7 @@
 Unit tests for D00 (File Download) and D01 (File Listing) commands,
 aggregators, and file management workflows.
 """
+
 import datetime
 
 import pytest
@@ -32,8 +33,7 @@ from meitrack.gprs_protocol import GPRS
 
 def test_command_d00_request():
     cmd = FileDownloadCommand(
-        DIRECTION_SERVER_TO_CLIENT,
-        b"D00,180428115949_C1E11_N1U1D1.jpg,0"
+        DIRECTION_SERVER_TO_CLIENT, b"D00,180428115949_C1E11_N1U1D1.jpg,0"
     )
     assert isinstance(cmd, FileDownloadCommand)
     assert cmd.direction == DIRECTION_SERVER_TO_CLIENT

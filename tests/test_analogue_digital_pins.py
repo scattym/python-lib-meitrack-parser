@@ -1,6 +1,7 @@
 """
 Unit tests for analogue and digital pin telemetry, confirming Phase 1A bugfix.
 """
+
 from meitrack.command.command_AAA import TrackerCommand
 from meitrack.command.common import (
     Command,

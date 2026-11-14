@@ -2,6 +2,7 @@
 Unit tests for AAA (Automatic Event Report / Location Telemetry) command.
 Covers events 35, 37, 39, 50, 51, 109, model variations, and field extractions.
 """
+
 import datetime
 
 import pytest
@@ -128,7 +129,9 @@ def test_aaa_taxi_meter_event_109():
 
     assert isinstance(cmd, TrackerCommand)
     assert cmd.event_code == b"109"
-    assert cmd.taxi_meter_data == b"21|180622110810|180622113010|1000|6000|002200|000500"
+    assert (
+        cmd.taxi_meter_data == b"21|180622110810|180622113010|1000|6000|002200|000500"
+    )
 
     taxi_data = cmd.get_taxi_meter_data()
     assert isinstance(taxi_data, TaxiMeterData)
@@ -172,24 +175,47 @@ def test_taxi_meter_partial_payload():
 
 def test_aaa_model_variations_event_maps():
     # Event 2 on T366 is "Engine On"
-    cmd_t366 = TrackerCommand(DIRECTION_CLIENT_TO_SERVER, b"AAA,2,0,0,180101000000,A", device_type="T366G")
+    cmd_t366 = TrackerCommand(
+        DIRECTION_CLIENT_TO_SERVER, b"AAA,2,0,0,180101000000,A", device_type="T366G"
+    )
     assert cmd_t366.get_event_name() == "Engine On"
 
     # Event 35 on T333 is "Track By Time Interval"
-    cmd_t333 = TrackerCommand(DIRECTION_CLIENT_TO_SERVER, b"AAA,35,0,0,180101000000,A", device_type="T333")
+    cmd_t333 = TrackerCommand(
+        DIRECTION_CLIENT_TO_SERVER, b"AAA,35,0,0,180101000000,A", device_type="T333"
+    )
     assert cmd_t333.get_event_name() == "Track By Time Interval"
 
     # Unknown event code
-    cmd_unknown = TrackerCommand(DIRECTION_CLIENT_TO_SERVER, b"AAA,999,0,0,180101000000,A", device_type="T333")
+    cmd_unknown = TrackerCommand(
+        DIRECTION_CLIENT_TO_SERVER, b"AAA,999,0,0,180101000000,A", device_type="T333"
+    )
     assert cmd_unknown.get_event_name() is None
 
 
 def test_aaa_parse_errors():
     # Less than 2 fields raises GPRSParseError
-    with pytest.raises(GPRSParseError, match="Field length does not include event code"):
+    with pytest.raises(
+        GPRSParseError, match="Field length does not include event code"
+    ):
         TrackerCommand(DIRECTION_CLIENT_TO_SERVER, b"AAA")
 
     # Too many fields raises GPRSParseError
     too_many_fields = b"AAA,35," + b",".join([b"val"] * 50)
     with pytest.raises(GPRSParseError, match="Incorrect number of fields"):
         TrackerCommand(DIRECTION_CLIENT_TO_SERVER, too_many_fields)
+
+
+def test_aaa_parsed_objects_do_not_share_mutable_state():
+    raw = (
+        b"$$D160,864507032228727,AAA,35,24.819116,121.026091,180323023615,A,7,16,0,176,1.3,83,7,1174,"
+        b"466|97|527B|01035DB4,0000,0001|0000|0000|019A|0981,00000001,,3,,,36,23*DC\r\n"
+    )
+    a = GPRS(raw).enclosed_data
+    b = GPRS(raw).enclosed_data
+    assert a is not b
+    a.latitude = b"0"
+    assert b.latitude == b"24.819116"
+    # parsing must not mutate the shared class-level field list
+    assert TrackerCommand.field_names[0] == "command"
+    assert a.field_name_selector == b.field_name_selector

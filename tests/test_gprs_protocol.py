@@ -1,6 +1,7 @@
 """
 Unit tests for GPRS protocol framing, length calculation, checksum, and stream parsing.
 """
+
 import pytest
 
 from meitrack.common import (
@@ -33,9 +34,24 @@ def test_prefix_to_direction():
 
 def test_calc_signature():
     assert calc_signature(b"1234ABCD*AA") == 254
-    assert calc_signature(b"$$n1084,864507032323,D00,1804.jpg,16,0,\xff\xd8\xff\xdb\x00\x84\x00@%\x14\xc0J)*AA") == 120
-    assert calc_signature(b"$$n1084,864507032323,D00,1804.jpg,16,0,*\xd8\xff\xdb\x00\x84\x00\x00\xd3@%\x14J)*AA") == 182
-    assert calc_signature(b"$$n1084,864507032323,D00,1804.jpg,16,0,\xff\xd8\xff\xdb\x00\x84\x00*AA") == 204
+    assert (
+        calc_signature(
+            b"$$n1084,864507032323,D00,1804.jpg,16,0,\xff\xd8\xff\xdb\x00\x84\x00@%\x14\xc0J)*AA"
+        )
+        == 120
+    )
+    assert (
+        calc_signature(
+            b"$$n1084,864507032323,D00,1804.jpg,16,0,*\xd8\xff\xdb\x00\x84\x00\x00\xd3@%\x14J)*AA"
+        )
+        == 182
+    )
+    assert (
+        calc_signature(
+            b"$$n1084,864507032323,D00,1804.jpg,16,0,\xff\xd8\xff\xdb\x00\x84\x00*AA"
+        )
+        == 204
+    )
 
     # Calculation up to and including '*'
     payload = b"@@Q25,353358017784062,A10*6A\r\n"
@@ -68,11 +84,37 @@ def test_gprs_properties_and_accessors():
 
     gprs.imei = b"123456789012345"
     gprs.leftover = b"AAA,35"
-    assert gprs.data_length == str(len(b"," + gprs.imei + b"," + gprs.leftover + b"*" + b"FE" + END_OF_MESSAGE_STRING)).encode()
+    assert (
+        gprs.data_length
+        == str(
+            len(
+                b","
+                + gprs.imei
+                + b","
+                + gprs.leftover
+                + b"*"
+                + b"FE"
+                + END_OF_MESSAGE_STRING
+            )
+        ).encode()
+    )
 
     gprs.data_length = 50
     # Overridden internal data length
-    assert gprs.data_length == str(len(b"," + gprs.imei + b"," + gprs.leftover + b"*" + b"FE" + END_OF_MESSAGE_STRING)).encode()
+    assert (
+        gprs.data_length
+        == str(
+            len(
+                b","
+                + gprs.imei
+                + b","
+                + gprs.leftover
+                + b"*"
+                + b"FE"
+                + END_OF_MESSAGE_STRING
+            )
+        ).encode()
+    )
 
     # Str output
     str_repr = str(gprs)
@@ -146,7 +188,9 @@ def test_parse_data_payload_single_and_multi():
 
     # Downlink stream
     downlink_pkt = b"@@Q25,353358017784062,A10*6A\r\n"
-    packets, before, leftover = parse_data_payload(downlink_pkt, DIRECTION_SERVER_TO_CLIENT)
+    packets, before, leftover = parse_data_payload(
+        downlink_pkt, DIRECTION_SERVER_TO_CLIENT
+    )
     assert len(packets) == 1
     assert packets[0].command_type == b"A10"
 
@@ -156,42 +200,76 @@ def test_parse_data_payload_framing_edges_and_errors():
 
     # Preceding garbage bytes before valid start token
     noisy_buffer = b"GARBAGE_NOISE_BYTES" + pkt
-    packets, before, leftover = parse_data_payload(noisy_buffer, DIRECTION_CLIENT_TO_SERVER)
+    packets, before, leftover = parse_data_payload(
+        noisy_buffer, DIRECTION_CLIENT_TO_SERVER
+    )
     assert len(packets) == 1
     assert before == b"GARBAGE_NOISE_BYTES"
     assert leftover == b""
 
     # Incomplete packet (partial buffer)
     partial_buffer = pkt[:15]
-    packets, before, leftover = parse_data_payload(partial_buffer, DIRECTION_CLIENT_TO_SERVER)
+    packets, before, leftover = parse_data_payload(
+        partial_buffer, DIRECTION_CLIENT_TO_SERVER
+    )
     assert len(packets) == 0
     assert leftover == partial_buffer
 
     # Missing start token entirely
     no_prefix_buf = b"12345,some,random,bytes\r\n"
-    packets, before, leftover = parse_data_payload(no_prefix_buf, DIRECTION_CLIENT_TO_SERVER)
+    packets, before, leftover = parse_data_payload(
+        no_prefix_buf, DIRECTION_CLIENT_TO_SERVER
+    )
     assert len(packets) == 0
     assert leftover == no_prefix_buf
 
     # Missing first comma
     no_comma_pkt = b"$$S28no_comma_here\r\n"
-    packets, before, leftover = parse_data_payload(no_comma_pkt, DIRECTION_CLIENT_TO_SERVER)
+    packets, before, leftover = parse_data_payload(
+        no_comma_pkt, DIRECTION_CLIENT_TO_SERVER
+    )
     assert len(packets) == 0
     assert leftover == no_comma_pkt
 
     # Corrupted / invalid integer in length field
     corrupt_length_pkt = b"$$SINVALID,353358017784062,A11,OK*FE\r\n"
-    packets, before, leftover = parse_data_payload(corrupt_length_pkt, DIRECTION_CLIENT_TO_SERVER)
+    packets, before, leftover = parse_data_payload(
+        corrupt_length_pkt, DIRECTION_CLIENT_TO_SERVER
+    )
     assert len(packets) == 0
     assert leftover == corrupt_length_pkt
 
     # Length field exceeds MAX_DATA_LENGTH (2048)
-    huge_length_pkt = f"$$A{MAX_DATA_LENGTH + 100},353358017784062,A11,OK*FE\r\n".encode()
+    huge_length_pkt = (
+        f"$$A{MAX_DATA_LENGTH + 100},353358017784062,A11,OK*FE\r\n".encode()
+    )
     with pytest.raises(GPRSParseError, match="longer than the protocol allows"):
         parse_data_payload(huge_length_pkt, DIRECTION_CLIENT_TO_SERVER)
 
     # Length does not lead to \r\n terminator
     # Length says 10 bytes, but slice doesn't end with \r\n
     bad_terminator_pkt = b"$$S10,123456789012345,A11,OK*FE\r\n"
-    with pytest.raises(GPRSParseError, match="Found begin token, but length does not lead to end of payload"):
+    with pytest.raises(
+        GPRSParseError,
+        match="Found begin token, but length does not lead to end of payload",
+    ):
         parse_data_payload(bad_terminator_pkt, DIRECTION_CLIENT_TO_SERVER)
+
+
+def _reference_calc_signature(payload):
+    checksum = 0
+    lastchar = payload.rfind(b"*")
+    for char in payload[0 : lastchar + 1]:
+        checksum = checksum + char
+    return checksum & 0xFF
+
+
+def test_calc_signature_matches_reference_on_random_bytes():
+    import random
+
+    from meitrack.gprs_protocol import calc_signature
+
+    rng = random.Random(1234)
+    for _ in range(500):
+        data = bytes(rng.randrange(256) for _ in range(rng.randrange(0, 300)))
+        assert calc_signature(data) == _reference_calc_signature(data)

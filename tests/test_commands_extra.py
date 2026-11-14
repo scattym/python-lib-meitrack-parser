@@ -2,6 +2,7 @@
 Comprehensive tests covering A13, C91, E91, event resolution,
 command factory parameter validations, stub processor, and module runners.
 """
+
 import pytest
 
 import meitrack.event
@@ -52,7 +53,9 @@ def test_command_a13_cornering():
 
 
 def test_command_c91_io_params():
-    req = SetIOParamsCommand(DIRECTION_SERVER_TO_CLIENT, b"C91,A78,1:0,2:0,3:0,4:13,5:13")
+    req = SetIOParamsCommand(
+        DIRECTION_SERVER_TO_CLIENT, b"C91,A78,1:0,2:0,3:0,4:13,5:13"
+    )
     assert req.command == b"C91"
     assert req.model == b"A78"
     assert req.device1 == b"1:0"
@@ -69,7 +72,9 @@ def test_command_e91_device_info():
     assert req.command == b"E91"
     assert req.as_bytes() == b"E91"
 
-    res = RequestDeviceInfoCommand(DIRECTION_CLIENT_TO_SERVER, b"E91,T333_Y39V083,123456789")
+    res = RequestDeviceInfoCommand(
+        DIRECTION_CLIENT_TO_SERVER, b"E91,T333_Y39V083,123456789"
+    )
     assert res.command == b"E91"
     assert res.firmware_version == b"T333_Y39V083"
     assert res.serial_number == b"123456789"

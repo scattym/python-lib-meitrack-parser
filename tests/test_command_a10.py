@@ -1,6 +1,7 @@
 """
 Unit tests for A10 (Real-Time Location Query) command, confirming Phase 1A implementation.
 """
+
 from meitrack.command import stc_request_location
 from meitrack.command.command_A10 import (
     LocationQueryCommand,

@@ -375,12 +375,8 @@ def calc_signature(payload):
     """
     # print(type(payload))
     # print(payload)
-    checksum = 0
     lastchar = payload.rfind(b"*")
-    for char in payload[0 : lastchar + 1]:
-        checksum = checksum + char
-    checksum = checksum & 0xFF
-    # print("checksum is ", checksum)
+    checksum = sum(payload[0 : lastchar + 1]) & 0xFF
     return checksum
 
 
