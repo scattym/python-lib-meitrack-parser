@@ -1,6 +1,7 @@
-2.11 (unreleased)
------------------
+3.0 (unreleased)
+----------------
 
+- BREAKING: missing command fields now raise AttributeError instead of returning None; major version bump for the substantial refactor.
 - Add StreamParser for stateful stream framing, CommandBuilder fluent API and scripts/meitrack_cli.py.
 - Add A10 command, typed telemetry properties, automatic packet direction detection, and GPRS/parse_data_payload/calc_signature facade exports.
 - Add unit test suite (169 tests) and ai_context documentation.

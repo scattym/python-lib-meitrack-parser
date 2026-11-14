@@ -1,11 +1,11 @@
 # Codebase Architecture & Core Dependencies Analysis
 
 ## 1. Overview
-The codebase located at `<repo>` is a Python library named **`meitrackparser`** (version `2.11.dev0`), authored to parse, construct, and manage binary/ASCII telematics streams from Meitrack GPS tracking units.
+The codebase located at `<repo>` is a Python library named **`meitrackparser`** (version `3.0.dev0`), authored to parse, construct, and manage binary/ASCII telematics streams from Meitrack GPS tracking units.
 
 ### Package Metadata
 - **Package Name:** `meitrackparser`
-- **Current Version:** `2.11.dev0`
+- **Current Version:** `3.0.dev0`
 - **Target Devices:** Meitrack 4G/3G/2G GPS Trackers (T333, T366, T366G primary; also compatible with T711L, T633L, T622, T399, TS299L, TC68L, TC68SG).
 - **Primary Script:** `scripts/mtparse` (CLI parsing utility for standard input streams).
 

@@ -66,7 +66,7 @@ Intermediate runs (phase3a/3b) are in the same directory. Single-machine runs; t
 
 ## Future plans
 
-- Open PR for the branch and review; then release 2.11.
+- Review and merge PR #1; then release 3.0.
 - Format `setup.py`; consider moving to `pyproject.toml`-only packaging.
 - Extend `CommandBuilder` to more commands; add perf regression gate.
 

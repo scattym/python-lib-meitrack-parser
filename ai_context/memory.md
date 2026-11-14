@@ -30,7 +30,7 @@ Maintained per AGENTS.md section 7. Read this and [0-Architecture.md](0-Architec
 
 1. Commit the new `ai_context/` files and CHANGELOG entry.
 2. Open PR for `refactor/phase-1-correctness`.
-3. Deploy / release 2.11 after review.
+3. Deploy / release 3.0 after review.
 4. Fix `setup.py` (fails `ruff format`).
 5. Optional: extend `CommandBuilder`, add benchmark regression gate.
 
