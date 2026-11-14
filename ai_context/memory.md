@@ -37,8 +37,8 @@ Maintained per AGENTS.md section 7. Read this and [0-Architecture.md](0-Architec
 ## Documentation references
 
 - [0-Architecture.md](0-Architecture.md)
-- `../../knowledge/*.md` (protocol, OTA, events, commands, architecture, API ergonomics)
-- `../../analysis/refactor_plan.md`, `baseline_scores.md`, `step_verification_phase1.md`, `benchmark_*.json`
+- `knowledge/*.md` (protocol, OTA, events, commands, architecture, API ergonomics)
+- `analysis/refactor_plan.md`, `baseline_scores.md`, `step_verification_phase1.md`, `benchmark_*.json`
 
 ## Session log
 

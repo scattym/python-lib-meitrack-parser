@@ -43,7 +43,7 @@ reverse:  CommandBuilder -> command object -> GPRS -> bytes
 ## Quality gates
 
 - 169 tests passing (pytest); `mypy` clean; `ruff` clean.
-- Tools live in `/home/hermes/apps/code-refactor/.venv/bin/`.
+- Tools live in `<workspace>/.venv/bin/`.
 
 ## Performance (from `analysis/benchmark_*.json`; baseline vs phase3c, Python 3.14.9)
 
@@ -72,9 +72,9 @@ Intermediate runs (phase3a/3b) are in the same directory. Single-machine runs; t
 
 ## Related documents (relative to repo root, `../knowledge` and `../analysis`)
 
-- [Codebase architecture and dependencies](../../knowledge/codebase_architecture_and_dependencies.md)
-- [API ergonomics recommendations](../../knowledge/api_ergonomics_and_architecture_recommendations.md)
-- [Protocol spec](../../knowledge/meitrack_protocol_spec.md), [OTA](../../knowledge/meitrack_ota_protocol.md), [event codes](../../knowledge/meitrack_event_codes.md), [commands](../../knowledge/meitrack_commands_reference.md), [peripherals](../../knowledge/peripherals_and_custom_features.md)
-- [Refactor plan](../../analysis/refactor_plan.md), [baseline scores](../../analysis/baseline_scores.md), [phase 1 verification](../../analysis/step_verification_phase1.md)
-- Benchmarks: `../../analysis/benchmark_baseline.json` ... `benchmark_phase3c.json`
+- [Codebase architecture and dependencies](knowledge/codebase_architecture_and_dependencies.md)
+- [API ergonomics recommendations](knowledge/api_ergonomics_and_architecture_recommendations.md)
+- [Protocol spec](knowledge/meitrack_protocol_spec.md), [OTA](knowledge/meitrack_ota_protocol.md), [event codes](knowledge/meitrack_event_codes.md), [commands](knowledge/meitrack_commands_reference.md), [peripherals](knowledge/peripherals_and_custom_features.md)
+- [Refactor plan](analysis/refactor_plan.md), [baseline scores](analysis/baseline_scores.md), [phase 1 verification](analysis/step_verification_phase1.md)
+- Benchmarks: `analysis/benchmark_baseline.json` ... `benchmark_phase3c.json`
 - [memory.md](memory.md)
