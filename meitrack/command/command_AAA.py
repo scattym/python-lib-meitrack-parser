@@ -177,6 +177,41 @@ class TrackerCommand(Command):
         "taxi_meter_data",
     ]
 
+    @property
+    def lat(self):
+        """Latitude or None if absent."""
+        return self.field_dict.get("latitude")
+
+    @property
+    def lon(self):
+        """Longitude or None if absent."""
+        return self.field_dict.get("longitude")
+
+    @property
+    def speed(self):
+        """Speed or None if absent."""
+        return self.field_dict.get("speed")
+
+    @property
+    def heading(self):
+        """Heading or None if absent."""
+        return self.field_dict.get("direction")
+
+    @property
+    def event(self):
+        """Event code or None if absent."""
+        return self.field_dict.get("event_code")
+
+    @property
+    def date_time(self):
+        """Date/time or None if absent."""
+        return self.field_dict.get("date_time")
+
+    @property
+    def imei(self):
+        """IMEI or None if absent."""
+        return self.field_dict.get("imei")
+
     def __init__(self, direction, payload=None, device_type=None):
         """
         Constructor for setting tracker command parameters

@@ -213,15 +213,20 @@ class Command:
 
     def __getattr__(self, item):
         """
-        Helper function to return a particular field from the field dictionary.
+        Return a field from the field dictionary.
 
-        :param item: The item to return
-        :return: the raw parameter or None if not present
+        :param item: The field name
+        :raises AttributeError: if the field is not present
         """
-        if item in self.field_dict:
-            return self.field_dict[item]
-        return None
-        # raise AttributeError("Field %s not set" % (item,))
+        if item.startswith("__") and item.endswith("__"):
+            raise AttributeError(item)
+        try:
+            field_dict = object.__getattribute__(self, "field_dict")
+        except AttributeError:
+            raise AttributeError(item) from None
+        if item in field_dict:
+            return field_dict[item]
+        raise AttributeError(item)
 
     def parse_payload(self, payload, max_split=None):
         """
@@ -461,8 +466,9 @@ class Command:
 
         :return: The distance travelled
         """
-        if self.firmware_version:
-            return self.firmware_version.split(b"_")[0].decode()
+        firmware_version = self.field_dict.get("firmware_version")
+        if firmware_version:
+            return firmware_version.split(b"_")[0].decode()
         return None
 
 

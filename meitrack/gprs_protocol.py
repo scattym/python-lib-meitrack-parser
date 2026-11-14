@@ -299,17 +299,24 @@ def _validate_and_extract_frame(payload, first_comma, data_length):
     return message, remaining
 
 
-def parse_data_payload(payload, direction, device_type=None):
+def parse_data_payload(payload, direction=None, device_type=None):
     """
     Helper function to parse a payload into a list of gprs messages
     :param payload: The payload to parse
-    :param direction: The direction of the payload
+    :param direction: Payload direction; auto-detected from '$$'/'@@' if None
     :param device_type: The string representation of the device type.
     :return: The gprs list as well any part of the payload that was not consumable.
     """
     leftover = b""
     before = b""
     gprs_list = []
+    if direction is None:
+        c2s = payload.find(CLIENT_TO_SERVER_PREFIX)
+        s2c = payload.find(SERVER_TO_CLIENT_PREFIX)
+        if c2s >= 0 and (s2c < 0 or c2s < s2c):
+            direction = DIRECTION_CLIENT_TO_SERVER
+        else:
+            direction = DIRECTION_SERVER_TO_CLIENT
     prefix = (
         CLIENT_TO_SERVER_PREFIX
         if direction == DIRECTION_CLIENT_TO_SERVER
