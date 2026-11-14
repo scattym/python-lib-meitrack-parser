@@ -1,0 +1,92 @@
+{
+  "timestamp": "2026-11-14T06:56:56Z",
+  "environment": {
+    "python_version": "3.14.9 (main, Oct 21 2026, 17:48:02) [Clang 23.1.3 ]",
+    "platform": "linux"
+  },
+  "benchmarks": [
+    {
+      "packet_name": "AAA_TAXI",
+      "packet_length_bytes": 250,
+      "iterations": 10000,
+      "total_time_s": 0.2271,
+      "throughput_msg_per_sec": 44037.75,
+      "latency_us": {
+        "mean": 22.13,
+        "median": 21.64,
+        "p90": 22.73,
+        "p95": 23.03,
+        "p99": 35.78,
+        "min": 20.53,
+        "max": 62.26,
+        "stdev": 2.07
+      }
+    },
+    {
+      "packet_name": "AAA_STANDARD",
+      "packet_length_bytes": 166,
+      "iterations": 10000,
+      "total_time_s": 0.2176,
+      "throughput_msg_per_sec": 45965.9,
+      "latency_us": {
+        "mean": 21.17,
+        "median": 20.83,
+        "p90": 21.44,
+        "p95": 21.69,
+        "p99": 35.62,
+        "min": 19.77,
+        "max": 71.88,
+        "stdev": 2.54
+      }
+    },
+    {
+      "packet_name": "AAA_RFID",
+      "packet_length_bytes": 308,
+      "iterations": 10000,
+      "total_time_s": 0.2196,
+      "throughput_msg_per_sec": 45542.52,
+      "latency_us": {
+        "mean": 21.36,
+        "median": 20.92,
+        "p90": 21.29,
+        "p95": 21.85,
+        "p99": 37.64,
+        "min": 20.18,
+        "max": 68.76,
+        "stdev": 2.61
+      }
+    },
+    {
+      "packet_name": "A11_HEARTBEAT",
+      "packet_length_bytes": 33,
+      "iterations": 10000,
+      "total_time_s": 0.0182,
+      "throughput_msg_per_sec": 548358.89,
+      "latency_us": {
+        "mean": 1.6,
+        "median": 1.58,
+        "p90": 1.62,
+        "p95": 1.64,
+        "p99": 1.67,
+        "min": 1.49,
+        "max": 19.57,
+        "stdev": 0.51
+      }
+    }
+  ],
+  "stream_framing": {
+    "benchmark": "stream_framing_parse_data_payload",
+    "stream_size_bytes": 757,
+    "iterations": 5000,
+    "total_time_s": 0.4017,
+    "throughput_streams_per_sec": 12448.25,
+    "latency_us": {
+      "mean": 78.65,
+      "median": 77.33,
+      "p95": 83.07,
+      "p99": 109.69,
+      "min": 75.4,
+      "max": 153.19
+    }
+  }
+}

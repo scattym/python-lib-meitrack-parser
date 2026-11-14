@@ -1,8 +1,10 @@
 """
 Module for converting meitrack gprs commands to Command objects
 """
+
 import logging
 
+from meitrack.command.command_A10 import LocationQueryCommand
 from meitrack.command.command_AAA import TrackerCommand
 from meitrack.command.command_D00 import FileDownloadCommand
 from meitrack.command.command_D01 import FileListCommand
@@ -16,12 +18,12 @@ from meitrack.command.command_FC5 import CheckDeviceCodeCommand
 from meitrack.command.command_FC6 import CheckFirmwareVersionCommand
 from meitrack.command.command_FC7 import SetOtaServerCommand
 from meitrack.command.common import Command
-from meitrack.common import DIRECTION_CLIENT_TO_SERVER, DIRECTION_SERVER_TO_CLIENT
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER, DIRECTION_SERVER_TO_CLIENT  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
 COMMAND_LIST = {
-    b"A10": {"name": "Real-Time Location Query", "class": None},
+    b"A10": {"name": "Real-Time Location Query", "class": LocationQueryCommand},
     b"A11": {"name": "Setting a Heartbeat Packet Reporting Interval", "class": None},
     b"A12": {"name": "Tracking by Time Interval", "class": None},
     b"A13": {"name": "Setting the Cornering Report Function", "class": None},
@@ -44,7 +46,10 @@ COMMAND_LIST = {
     b"B34": {"name": "Setting a Log Interval", "class": None},
     b"B35": {"name": "Setting the SMS Time Zone", "class": None},
     b"B36": {"name": "Setting the GPRS Time Zone", "class": None},
-    b"B60": {"name": "Checking the Engine First to Determine Tracker Running Status", "class": None},
+    b"B60": {
+        "name": "Checking the Engine First to Determine Tracker Running Status",
+        "class": None,
+    },
     b"B99": {"name": "Setting Event Authorization", "class": None},
     b"C01": {"name": "Controlling Output Status", "class": None},
     b"C02": {"name": "Notifying the Tracker of Sending an SMS", "class": None},
@@ -53,7 +58,10 @@ COMMAND_LIST = {
     b"C40": {"name": "Registering a Temperature Sensor Number", "class": None},
     b"C41": {"name": "Deleting a Registered Temperature Sensor", "class": None},
     b"C42": {"name": "Reading the Temperature Sensor SN and Number", "class": None},
-    b"C43": {"name": "Setting a Temperature Value for the High/Low Temperature Alarm and Logical Name", "class": None},
+    b"C43": {
+        "name": "Setting a Temperature Value for the High/Low Temperature Alarm and Logical Name",
+        "class": None,
+    },
     b"C44": {"name": "Reading Temperature Sensor Parameters", "class": None},
     b"C46": {"name": "Checking Temperature Sensor Parameters", "class": None},
     b"D00": {"name": "File download command", "class": FileDownloadCommand},
@@ -64,12 +72,18 @@ COMMAND_LIST = {
     b"D13": {"name": "Reading an Authorized iButton Key", "class": None},
     b"D14": {"name": "Deleting an Authorized iButton Key", "class": None},
     b"D15": {"name": "Deleting Authorized iButton Keys in Batches", "class": None},
-    b"D16": {"name": "Checking the Checksum of the Authorized iButton ID Database", "class": None},
+    b"D16": {
+        "name": "Checking the Checksum of the Authorized iButton ID Database",
+        "class": None,
+    },
     b"D34": {"name": "Setting Idling Time", "class": None},
     b"D71": {"name": "Setting GPS Data Filtering", "class": None},
     b"D72": {"name": "Setting Output Triggering", "class": None},
     b"D73": {"name": "Allocating GPRS Cache and GPS LOG Storage Space", "class": None},
-    b"E91": {"name": "Reading Device's Firmware Version and SN", "class": RequestDeviceInfoCommand},
+    b"E91": {
+        "name": "Reading Device's Firmware Version and SN",
+        "class": RequestDeviceInfoCommand,
+    },
     b"FC0": {"name": "Auth ota update", "class": AuthOtaUpdateCommand},
     b"FC1": {"name": "Send ota data", "class": SendOtaDataCommand},
     b"FC2": {"name": "Obtain ota checksum", "class": ObtainOtaChecksumCommand},
@@ -104,27 +118,17 @@ def command_to_object(direction, command_type, payload, device_type=None):
     """
     logger.log(13, "command type: %s, with payload %s", command_type, payload)
     if command_type in COMMAND_LIST and COMMAND_LIST[command_type]["class"] is not None:
-        return COMMAND_LIST[command_type]["class"](direction, payload, device_type=device_type)
+        return COMMAND_LIST[command_type]["class"](
+            direction, payload, device_type=device_type
+        )
     return Command(direction, payload, device_type=device_type)
 
 
 def main():
     """
-    Main section for running interactive testing.
+    Main entry point for command to object mapping.
     """
-    main_logger = logging.getLogger('')
-    main_logger.setLevel(logging.DEBUG)
-    char_handler = logging.StreamHandler()
-    char_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    char_handler.setFormatter(formatter)
-    main_logger.addHandler(char_handler)
-
-    for each_command in COMMAND_LIST:
-        print("%s: %s" % (each_command, COMMAND_LIST[each_command]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

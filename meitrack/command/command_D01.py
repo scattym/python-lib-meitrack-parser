@@ -1,6 +1,7 @@
 """
 Module for working with the meitrack D01 command
 """
+
 import logging
 
 from meitrack.command.common import Command
@@ -26,11 +27,13 @@ class FileListCommand(Command):
     """
     Class for setting the field names for the file listing command
     """
-    request_field_names = [
-        "command", "data_packet_start_number"
-    ]
+
+    request_field_names = ["command", "data_packet_start_number"]
     response_field_names = [
-        "command", "number_of_data_packets", "data_packet_number", "file_list"
+        "command",
+        "number_of_data_packets",
+        "data_packet_number",
+        "file_list",
     ]
 
     def __init__(self, direction, payload=None, device_type=None):
@@ -40,11 +43,11 @@ class FileListCommand(Command):
         :param payload: The payload to parse.
         """
 
-        super(FileListCommand, self).__init__(direction, payload=payload, device_type=device_type)
+        super().__init__(direction, payload=payload, device_type=device_type)
         logger.log(13, payload)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:
             self.field_name_selector = self.response_field_names
 
-        super(FileListCommand, self).parse_payload(payload)
+        super().parse_payload(payload)

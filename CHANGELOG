@@ -1,7 +1,14 @@
-2.11 (unreleased)
------------------
+3.0 (unreleased)
+----------------
 
-- Nothing changed yet.
+- BREAKING: missing command fields now raise AttributeError instead of returning None; major version bump for the substantial refactor.
+- Add StreamParser for stateful stream framing, CommandBuilder fluent API and scripts/meitrack_cli.py.
+- Add A10 command, typed telemetry properties, automatic packet direction detection, and GPRS/parse_data_payload/calc_signature facade exports.
+- Add unit test suite (169 tests) and ai_context documentation.
+- Change missing command fields to raise AttributeError.
+- Change core for speed: offset-based stream framing, no deepcopy in AAA command, sum() in calc_signature.
+- Change code style to ruff; simplify high-complexity functions and remove dead code.
+- Fix analogue pin telemetry, OTA endianness and the hard dependency on the proprietary license module.
 
 
 2.10 (2019-07-02)

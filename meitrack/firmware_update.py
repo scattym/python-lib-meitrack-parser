@@ -4,6 +4,7 @@ Library for working with firmware update gprs messages
 
 import datetime
 import logging
+from typing import Literal
 
 from meitrack.command.command_FC0 import stc_auth_ota_update_command
 from meitrack.command.command_FC1 import stc_send_ota_data_command
@@ -27,7 +28,10 @@ class FirmwareUpdate:
     """
     Class to track firmware update state
     """
-    def __init__(self, imei, device_code, ip_address, port, file_name, file_bytes, stage):
+
+    def __init__(
+        self, imei, device_code, ip_address, port, file_name, file_bytes, stage
+    ):
         """
         Constructor for the firmware update class
         :param imei: The imei of the device
@@ -52,7 +56,13 @@ class FirmwareUpdate:
         self.chunk_size = None
 
         self.last_message = datetime.datetime.now()
-        if self.imei and self.ip_address and self.port and self.file_name and self.device_code:
+        if (
+            self.imei
+            and self.ip_address
+            and self.port
+            and self.file_name
+            and self.device_code
+        ):
             self.build_messages(stage)
 
     def __str__(self):
@@ -60,12 +70,10 @@ class FirmwareUpdate:
         The string representation of a firmware update object
         :return: The string representation of a firmware update object
         """
-        firmware_string = "imei: {}, file_name: {}, is_finished: {}, is_error {}\n".format(
-            self.imei, self.file_name, self.is_finished, self.is_error
-        )
+        firmware_string = f"imei: {self.imei}, file_name: {self.file_name}, is_finished: {self.is_finished}, is_error {self.is_error}\n"
         for index, message in enumerate(self.messages):
             if message["response"] is not None:
-                firmware_string += "message {} is not complete\n".format(index)
+                firmware_string += f"message {index} is not complete\n"
         return firmware_string
 
     def build_messages(self, stage):
@@ -86,7 +94,11 @@ class FirmwareUpdate:
             # At stage 2 of the firmware update process, we are expecting a new
             # connection with the fc0 message so that we know the chunk size
             self.messages = [
-                {"request": self.fc0(), "response": None, "sent": (datetime.datetime.now()-EPOCH).total_seconds()},
+                {
+                    "request": self.fc0(),
+                    "response": None,
+                    "sent": (datetime.datetime.now() - EPOCH).total_seconds(),
+                },
             ]
             self.current_message = self.messages[0]["request"]
 
@@ -109,19 +121,63 @@ class FirmwareUpdate:
                         gprs_message.enclosed_data["ota_file_name"],
                     )
                 else:
-                    self.gprs_file_list = stc_send_ota_data(self.imei, self.file_bytes, self.chunk_size)
+                    self.gprs_file_list = stc_send_ota_data(
+                        self.imei, self.file_bytes, self.chunk_size
+                    )
                     if not self.gprs_file_list:
-                        logger.error("Error in creating file list. Preparing to cancel download")
+                        logger.error(
+                            "Error in creating file list. Preparing to cancel download"
+                        )
                         self.is_error = True
                     for gprs in self.gprs_file_list:
-                        self.messages.append({"request": gprs, "response": None, "sent": 0})
+                        self.messages.append(
+                            {"request": gprs, "response": None, "sent": 0}
+                        )
 
-                    self.messages.append({"request": self.fc2(), "response": None, "sent": 0})
-                    self.messages.append({"request": self.fc3(), "response": None, "sent": 0})
+                    self.messages.append(
+                        {"request": self.fc2(), "response": None, "sent": 0}
+                    )
+                    self.messages.append(
+                        {"request": self.fc3(), "response": None, "sent": 0}
+                    )
 
             else:
                 logger.log(13, "No file bytes. Not adding FC1 commands")
         else:
+            self.is_error = True
+
+    def _handle_fc0_response(self, response_gprs):
+        self.parse_fc0(response_gprs)
+
+    def _handle_fc5_response(self, response_gprs):
+        if response_gprs.enclosed_data.ota_response_device_code() != self.device_code:
+            logger.error(
+                "Response device id %s does not match firmware device code: %s",
+                response_gprs.enclosed_data.ota_response_device_code(),
+                self.device_code,
+            )
+            self.is_error = True
+
+    def _dispatch_command_response(self, response_gprs):
+        dispatch = {
+            b"FC0": self._handle_fc0_response,
+            b"FC5": self._handle_fc5_response,
+        }
+        handler = dispatch.get(response_gprs.enclosed_data.command)
+        if handler:
+            handler(response_gprs)
+
+    def _process_response_match(self, message, response_gprs):
+        self._dispatch_command_response(response_gprs)
+        message["response"] = response_gprs
+        self.current_message = None
+
+        if message["response"].enclosed_data.is_response_error():
+            logger.error(
+                "An error was returned during firmware update. Request %s, Response %s",
+                message["request"],
+                message["response"],
+            )
             self.is_error = True
 
     def parse_response(self, response_gprs):
@@ -130,45 +186,22 @@ class FirmwareUpdate:
         :param response_gprs: The gprs message
         :return: None
         """
+        resp_cmd = response_gprs.enclosed_data.command
         for message in self.messages:
-            # logger.debug("Checking message %s", message)
-            if message["sent"] != 0 and message["response"] is None:
-                logger.debug(
-                    "Comparing request command %s to response command %s",
-                    message["request"].enclosed_data.command,
-                    response_gprs.enclosed_data.command
-                )
-                if message["request"].enclosed_data.command == response_gprs.enclosed_data.command:
-                    logger.debug("Found match for command %s", message["request"].enclosed_data.command)
+            if message["sent"] == 0 or message["response"] is not None:
+                continue
+            req_cmd = message["request"].enclosed_data.command
+            logger.debug(
+                "Comparing request command %s to response command %s",
+                req_cmd,
+                resp_cmd,
+            )
+            if req_cmd == resp_cmd:
+                logger.debug("Found match for command %s", req_cmd)
+                self._process_response_match(message, response_gprs)
 
-                    # fc0 command has the chunk size, so we can now populate the fc1 commands
-                    # with the specific chunks.
-                    if response_gprs.enclosed_data.command == b'FC0':
-                        self.parse_fc0(response_gprs)
-
-                    message["response"] = response_gprs
-                    self.current_message = None
-
-                    if message["response"].enclosed_data.is_response_error():
-                        logger.error(
-                            "An error was returned during firmware update. Request %s, Response %s",
-                            message["request"],
-                            message["response"]
-                        )
-                        self.is_error = True
-
-                    if response_gprs.enclosed_data.command == b'FC5':
-                        if response_gprs.enclosed_data.ota_response_device_code() != self.device_code:
-                            logger.error(
-                                "Response device id %s does not match firmware device code: %s",
-                                response_gprs.enclosed_data.ota_response_device_code(),
-                                self.device_code
-                            )
-                            self.is_error = True
-        for message in self.messages:
-            if message["response"] is None:
-                return
-        self.is_finished = True
+        if all(msg["response"] is not None for msg in self.messages):
+            self.is_finished = True
         # self.check_is_complete()
 
     # def check_is_complete(self):
@@ -188,7 +221,11 @@ class FirmwareUpdate:
         """
         now = (datetime.datetime.now() - EPOCH).total_seconds()
         for message in self.messages:
-            if message["sent"] != 0 and message["response"] is None and (now - message["sent"]) >= 30:
+            if (
+                message["sent"] != 0
+                and message["response"] is None
+                and (now - message["sent"]) >= 30
+            ):
                 logger.debug("Timing out firmware message %s", message)
                 message["response"] = "timeout"
                 if self.current_message == message["request"]:
@@ -208,7 +245,7 @@ class FirmwareUpdate:
         if self.current_message is not None:
             logger.debug(
                 "Current message already sent. Not returning a new one yet. Current message: %s",
-                self.current_message
+                self.current_message,
             )
         else:
             logger.debug("We have a new message to send.")
@@ -312,8 +349,8 @@ def stc_auth_ota_update(imei):
     """
     com = stc_auth_ota_update_command()
     gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
+    gprs.direction = b"@@"
+    gprs.data_identifier = b"a"
     gprs.enclosed_data = com
     gprs.imei = imei
 
@@ -341,8 +378,8 @@ def stc_send_ota_data(imei, file_bytes, chunk_size):
         return []
     for com in com_list:
         gprs = GPRS()
-        gprs.direction = b'@@'
-        gprs.data_identifier = b'a'
+        gprs.direction = b"@@"
+        gprs.data_identifier = b"a"
         gprs.enclosed_data = com
         gprs.imei = imei
         gprs_list.append(gprs)
@@ -350,7 +387,9 @@ def stc_send_ota_data(imei, file_bytes, chunk_size):
     return gprs_list
 
 
-def stc_obtain_ota_checksum(imei, start, file_length):
+def stc_obtain_ota_checksum(
+    imei, start, file_length, byteorder: Literal["little", "big"] = "little"
+):
     """
     Helper function to build a obtain ota checksum gprs command
     :param imei: The target device imei
@@ -358,12 +397,12 @@ def stc_obtain_ota_checksum(imei, start, file_length):
     :param file_length: The length of the checksum bytes
     :return: obtain ota checksum gprs command
     >>> stc_obtain_ota_checksum(b"0407", 0, 5).as_bytes()
-    b'@@a23,0407,FC2,\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x05*7F\\r\\n'
+    b'@@a23,0407,FC2,\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00*7F\\r\\n'
     """
-    com = stc_obtain_ota_checksum_command(start, file_length)
+    com = stc_obtain_ota_checksum_command(start, file_length, byteorder=byteorder)
     gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
+    gprs.direction = b"@@"
+    gprs.data_identifier = b"a"
     gprs.enclosed_data = com
     gprs.imei = imei
 
@@ -380,8 +419,8 @@ def stc_start_ota_update(imei):
     """
     com = stc_start_ota_update_command()
     gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
+    gprs.direction = b"@@"
+    gprs.data_identifier = b"a"
     gprs.enclosed_data = com
     gprs.imei = imei
 
@@ -398,8 +437,8 @@ def stc_cancel_ota_update(imei):
     """
     com = stc_cancel_ota_update_command()
     gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
+    gprs.direction = b"@@"
+    gprs.data_identifier = b"a"
     gprs.enclosed_data = com
     gprs.imei = imei
 
@@ -416,8 +455,8 @@ def stc_check_device_code(imei):
     """
     com = stc_check_device_code_command()
     gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
+    gprs.direction = b"@@"
+    gprs.data_identifier = b"a"
     gprs.enclosed_data = com
     gprs.imei = imei
 
@@ -435,8 +474,8 @@ def stc_check_firmware_version(imei, file_name):
     """
     com = stc_check_firmware_version_command(file_name)
     gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
+    gprs.direction = b"@@"
+    gprs.data_identifier = b"a"
     gprs.enclosed_data = com
     gprs.imei = imei
 
@@ -455,8 +494,8 @@ def stc_set_ota_server(imei, ip_address, port):
     """
     com = stc_set_ota_server_command(ip_address, port)
     gprs = GPRS()
-    gprs.direction = b'@@'
-    gprs.data_identifier = b'a'
+    gprs.direction = b"@@"
+    gprs.data_identifier = b"a"
     gprs.enclosed_data = com
     gprs.imei = imei
 
@@ -467,52 +506,55 @@ def main():
     """
     Main section for running interactive testing.
     """
-    main_logger = logging.getLogger('')
+    main_logger = logging.getLogger("")
     main_logger.setLevel(logging.DEBUG)
     char_handler = logging.StreamHandler()
     char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(lineno)s - %(levelname)s - %(message)s'
+        "%(asctime)s - %(name)s - %(lineno)s - %(levelname)s - %(message)s"
     )
     char_handler.setFormatter(formatter)
     main_logger.addHandler(char_handler)
 
-    print(stc_auth_ota_update(b'0407'))
-    print(stc_auth_ota_update(b'0407').as_bytes())
+    print(stc_auth_ota_update(b"0407"))
+    print(stc_auth_ota_update(b"0407").as_bytes())
 
-    gprss = stc_send_ota_data(b'0407', b"testfil"*190, 1408)
+    gprss = stc_send_ota_data(b"0407", b"testfil" * 190, 1408)
     for test_gprs in gprss:
         print(test_gprs)
         print(test_gprs.as_bytes())
 
-    print(stc_obtain_ota_checksum(b'0407', 1, 1024))
-    print(stc_obtain_ota_checksum(b'0407', 1, 1024).as_bytes())
-    print(stc_start_ota_update(b'0407'))
-    print(stc_start_ota_update(b'0407').as_bytes())
-    print(stc_cancel_ota_update(b'0407'))
-    print(stc_cancel_ota_update(b'0407').as_bytes())
-    print(stc_check_device_code(b'0407'))
-    print(stc_check_device_code(b'0407').as_bytes())
-    print(stc_check_firmware_version(b'0407', b'testfile.ota'))
-    print(stc_check_firmware_version(b'0407', b'testfile.ota').as_bytes())
-    print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100'))
-    print(stc_set_ota_server(b'0407', b'1.1.1.1', b'6100').as_bytes())
+    print(stc_obtain_ota_checksum(b"0407", 1, 1024))
+    print(stc_obtain_ota_checksum(b"0407", 1, 1024).as_bytes())
+    print(stc_start_ota_update(b"0407"))
+    print(stc_start_ota_update(b"0407").as_bytes())
+    print(stc_cancel_ota_update(b"0407"))
+    print(stc_cancel_ota_update(b"0407").as_bytes())
+    print(stc_check_device_code(b"0407"))
+    print(stc_check_device_code(b"0407").as_bytes())
+    print(stc_check_firmware_version(b"0407", b"testfile.ota"))
+    print(stc_check_firmware_version(b"0407", b"testfile.ota").as_bytes())
+    print(stc_set_ota_server(b"0407", b"1.1.1.1", b"6100"))
+    print(stc_set_ota_server(b"0407", b"1.1.1.1", b"6100").as_bytes())
     fu = FirmwareUpdate(
-        b'0407', b'\x00\x00\x04\x01',
-        b'home.scattym.com',
-        b'65533',
-        b'testfile.ota',
-        b'testfilecontents'*200,
-        b'stage2'
+        b"0407",
+        b"\x00\x00\x04\x01",
+        b"home.scattym.com",
+        b"65533",
+        b"testfile.ota",
+        b"testfilecontents" * 200,
+        b"stage2",
     )
-    gprs_message = GPRS(b"""$$K67,864507032323403,FC0,\x00A,OK,1408,T333_Y10H1412V046,testfile.ota*AA\r\n""")
+    gprs_message = GPRS(
+        b"""$$K67,864507032323403,FC0,\x00A,OK,1408,T333_Y10H1412V046,testfile.ota*AA\r\n"""
+    )
     fu.parse_fc0(gprs_message)
-    for i in range(0,4):
+    for i in range(4):
         fu.current_message = None
         msg = fu.return_next_payload()
         if msg:
             print(msg.as_bytes())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

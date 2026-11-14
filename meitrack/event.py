@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Module for handling meitrack event id to event name mappings.
 """
@@ -84,7 +83,7 @@ def event_id_to_name(event_id):
     """
     try:
         return EVENT[event_id]
-    except ValueError as err:
+    except ValueError:
         return "Unknown event"
 
 
@@ -92,9 +91,9 @@ class Event:
     """
     Top level event object. Unsued
     """
+
     def __init__(self, payload=None):
         """
         Constructor for unused event class
         :param payload: The payload of the event
         """
-        pass

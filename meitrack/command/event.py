@@ -1,6 +1,7 @@
 """
 Library for managing event codes and mappings to text
 """
+
 import logging
 from functools import singledispatch
 
@@ -148,7 +149,9 @@ EVENT_MAP_T366G = EVENT_MAP_T366.copy()
 
 
 @singledispatch
-def event_to_name(event_code: int, event_map: dict=EVENT_MAP_T333) -> str:
+def event_to_name(
+    event_code: object, event_map: dict[int, str] = EVENT_MAP_T333
+) -> str | None:
     """
     Function to convert event code as an integer to a event name string
     :param event_code: The event code
@@ -165,15 +168,18 @@ def event_to_name(event_code: int, event_map: dict=EVENT_MAP_T333) -> str:
     >>> event_to_name(b"2", EVENT_MAP_T366)
     'Engine On'
     """
-    return_str = event_map.get(event_code)
-    if not return_str:
-        logger.error("Unable to lookup event code %s", event_code)
+    if isinstance(event_code, int):
+        return_str = event_map.get(event_code)
+        if not return_str:
+            logger.error("Unable to lookup event code %s", event_code)
+        return return_str
 
-    return return_str
+    logger.error("Unable to lookup event code %s", event_code)
+    return None
 
 
 @event_to_name.register(str)
-def _(event_code: str, event_map: dict=EVENT_MAP_T333) -> str:
+def _(event_code: str, event_map: dict[int, str] = EVENT_MAP_T333) -> str | None:
     """
     Function to convert event code as an string to a event name string
     :param event_code: The event code
@@ -184,11 +190,14 @@ def _(event_code: str, event_map: dict=EVENT_MAP_T333) -> str:
         lookup_value = int(event_code)
         return event_to_name(lookup_value, event_map=event_map)
     except ValueError as err:
-        logger.error("Unable to process integer from string %s with error: %s", event_code, err)
+        logger.error(
+            "Unable to process integer from string %s with error: %s", event_code, err
+        )
+        return None
 
 
 @event_to_name.register(bytes)
-def _(event_code: bytes, event_map: dict=EVENT_MAP_T333) -> str:
+def _(event_code: bytes, event_map: dict[int, str] = EVENT_MAP_T333) -> str | None:
     """
     Function to convert event code as an byte string to a event name string
     :param event_code: The event code
@@ -199,11 +208,14 @@ def _(event_code: bytes, event_map: dict=EVENT_MAP_T333) -> str:
         lookup_value = int(event_code.decode())
         return event_to_name(lookup_value, event_map=event_map)
     except ValueError as err:
-        logger.error("Unable to process integer from bytes %s with error %s", event_code, err)
+        logger.error(
+            "Unable to process integer from bytes %s with error %s", event_code, err
+        )
+        return None
 
 
 @singledispatch
-def event_to_id(event_code: int) -> int:
+def event_to_id(event_code: object) -> int | None:
     """
     Function to convert event code as an integer to a event code integer
     :param event_code: The event code
@@ -215,11 +227,13 @@ def event_to_id(event_code: int) -> int:
     >>> event_to_id(b"145")
     145
     """
-    return event_code
+    if isinstance(event_code, int):
+        return event_code
+    return None
 
 
 @event_to_id.register(str)
-def _(event_code: str) -> str:
+def _(event_code: str) -> int | None:
     """
     Function to convert event code as a string to a event code string
     :param event_code: The event code
@@ -229,11 +243,14 @@ def _(event_code: str) -> str:
         lookup_value = int(event_code)
         return event_to_id(lookup_value)
     except ValueError as err:
-        logger.error("Unable to process integer from string %s with error: %s", event_code, err)
+        logger.error(
+            "Unable to process integer from string %s with error: %s", event_code, err
+        )
+        return None
 
 
 @event_to_id.register(bytes)
-def _(event_code: bytes) -> str:
+def _(event_code: bytes) -> int | None:
     """
     Function to convert event code as a byte string to a event code string
     :param event_code: The event code
@@ -243,19 +260,22 @@ def _(event_code: bytes) -> str:
         lookup_value = int(event_code.decode())
         return event_to_id(lookup_value)
     except ValueError as err:
-        logger.error("Unable to process integer from bytes %s with error: %s", event_code, err)
+        logger.error(
+            "Unable to process integer from bytes %s with error: %s", event_code, err
+        )
+        return None
 
 
 def main():
     """
     Main section for running interactive testing.
     """
-    main_logger = logging.getLogger('')
+    main_logger = logging.getLogger("")
     main_logger.setLevel(logging.DEBUG)
     char_handler = logging.StreamHandler()
     char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     char_handler.setFormatter(formatter)
     main_logger.addHandler(char_handler)
@@ -267,11 +287,9 @@ def main():
     print(event_to_name(None))
 
     print(event_to_name(2, EVENT_MAP_T366))
-    print(event_to_name(b'2', EVENT_MAP_T366))
-    print(event_to_name('2', EVENT_MAP_T366))
+    print(event_to_name(b"2", EVENT_MAP_T366))
+    print(event_to_name("2", EVENT_MAP_T366))
 
 
 if __name__ == "__main__":
     main()
-
-

@@ -1,10 +1,11 @@
 """
 Module for working with the meitrack FC0 command
 """
+
 import logging
 
 from meitrack.command.common import Command
-from meitrack.common import DIRECTION_SERVER_TO_CLIENT, DIRECTION_CLIENT_TO_SERVER
+from meitrack.common import DIRECTION_CLIENT_TO_SERVER, DIRECTION_SERVER_TO_CLIENT
 
 logger = logging.getLogger(__name__)
 
@@ -13,11 +14,18 @@ class AuthOtaUpdateCommand(Command):
     """
     Class for setting the field names for the auth ota update command
     """
+
     request_field_names = [
-        "command", "action",
+        "command",
+        "action",
     ]
     response_field_names = [
-        "command", "device_code", "response", "packet_size", "current_firmware", "ota_file_name"
+        "command",
+        "device_code",
+        "response",
+        "packet_size",
+        "current_firmware",
+        "ota_file_name",
     ]
 
     def __init__(self, direction, payload=None, device_type=None):
@@ -27,7 +35,7 @@ class AuthOtaUpdateCommand(Command):
         :param payload: The payload to parse.
         """
 
-        super(AuthOtaUpdateCommand, self).__init__(direction, payload=payload, device_type=device_type)
+        super().__init__(direction, payload=payload, device_type=device_type)
         if direction == DIRECTION_SERVER_TO_CLIENT:
             self.field_name_selector = self.request_field_names
         else:
@@ -42,10 +50,10 @@ class AuthOtaUpdateCommand(Command):
         :return: True or False depending on whether the message is identifying an error
         """
 
-        if self.direction == DIRECTION_CLIENT_TO_SERVER:
-            if self.field_dict.get("response", b'') in [b'Err']:
-                return True
-        return False
+        return bool(
+            self.direction == DIRECTION_CLIENT_TO_SERVER
+            and self.field_dict.get("response", b"") in [b"Err"]
+        )
 
 
 def stc_auth_ota_update_command():
@@ -64,12 +72,12 @@ def main():
     """
     Main section for running interactive testing.
     """
-    main_logger = logging.getLogger('')
+    main_logger = logging.getLogger("")
     main_logger.setLevel(logging.DEBUG)
     char_handler = logging.StreamHandler()
     char_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     char_handler.setFormatter(formatter)
     main_logger.addHandler(char_handler)
@@ -77,5 +85,5 @@ def main():
     print(stc_auth_ota_update_command())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
