@@ -150,3 +150,14 @@ You are required to maintain a persistent history of our work in the file `ai_co
     * Reference any new documentation files created
 3.  **Cross-Session Consistency:** Use memory.md to ensure you do not repeat mistakes or lose context between invocations
 4.  **Keep Current:** Update memory.md as work progresses, not just at session end
+
+---
+## 8. Version control & Collaboration
+Never commit as part of your work.
+
+---
+## 9. Version control & Collaboration
+Never commit as part of your work.
+
+## 10. Formatting & Style
+Do not waste time on formatting or style unless explicitly requested. Focus on functionality, correctness, and clarity first. Use standard formatting tools (e.g., `black`, `isort`) to handle style automatically.
