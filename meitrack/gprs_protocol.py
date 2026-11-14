@@ -283,20 +283,75 @@ def _extract_frame_length(payload, first_comma):
     return data_length
 
 
-def _validate_and_extract_frame(payload, first_comma, data_length):
-    end_idx = first_comma + data_length
-    if data_length == 0 or len(payload) < end_idx:
-        return None, payload
-    logger.log(13, "Start of payload is %s", payload[0:2])
-    logger.log(13, "End of payload is %s", payload[-2:])
-    message = payload[:end_idx]
-    remaining = payload[end_idx:]
-    if not message.endswith(END_OF_MESSAGE_STRING):
-        logger.error("Last two characters of message is >%s<", message[-2:])
-        raise GPRSParseError(
-            f"Found begin token, but length does not lead to end of payload. {remaining}"
-        )
-    return message, remaining
+def _resolve_prefix(payload, direction):
+    """Return the start prefix for *direction*, auto-detecting from payload if None."""
+    if direction is None:
+        c2s = payload.find(CLIENT_TO_SERVER_PREFIX)
+        s2c = payload.find(SERVER_TO_CLIENT_PREFIX)
+        if c2s >= 0 and (s2c < 0 or c2s < s2c):
+            direction = DIRECTION_CLIENT_TO_SERVER
+        else:
+            direction = DIRECTION_SERVER_TO_CLIENT
+    if direction == DIRECTION_CLIENT_TO_SERVER:
+        return CLIENT_TO_SERVER_PREFIX
+    return SERVER_TO_CLIENT_PREFIX
+
+
+def _scan_frames(payload, prefix, device_type, gprs_list, state):
+    """
+    Offset based framing loop shared by parse_data_payload and StreamParser.
+
+    Parsed packets are appended to *gprs_list*. ``state["pos"]`` is the offset
+    of the first unconsumed byte (kept up to date, so it is valid even if a
+    GPRSParseError is raised), ``state["before"]`` the first run of garbage
+    preceding a frame. Returns the unconsumable leftover (b"" if none).
+    """
+    pos = 0
+    total = len(payload)
+    while pos < total:
+        start = payload.find(prefix, pos)
+        if start < 0:
+            logger.error("Unable to find start payload, %s", str(payload[pos:]))
+            return payload[pos:]
+        if start > pos and not state["before"]:
+            state["before"] = payload[pos:start]
+        pos = state["pos"] = start
+
+        first_comma = payload.find(b",", start)
+        if first_comma < 0 or first_comma == start:
+            logger.error(
+                "No first comma found. Can't get to calculate length of payload"
+            )
+            return payload[start:]
+
+        rel_comma = first_comma - start
+        try:
+            data_length = int(payload[start + 3 : first_comma])
+        except ValueError:
+            logger.error(
+                "Unable to calculate length field from payload %s", payload[start:]
+            )
+            return payload[start:]
+        if data_length > MAX_DATA_LENGTH:
+            raise GPRSParseError(
+                f"Data length is longer than the protocol allows: {data_length}"
+            )
+        end_idx = start + rel_comma + data_length
+        if data_length == 0 or total < end_idx:
+            return payload[start:]
+        if not payload.endswith(END_OF_MESSAGE_STRING, start, end_idx):
+            logger.error(
+                "Last two characters of message is >%s<", payload[end_idx - 2 : end_idx]
+            )
+            raise GPRSParseError(
+                "Found begin token, but length does not lead to end of payload. "
+                f"{payload[end_idx:]}"
+            )
+        current_gprs = GPRS(payload[start:end_idx], device_type=device_type)
+        logger.debug("gprs fields: %s", current_gprs)
+        gprs_list.append(current_gprs)
+        pos = state["pos"] = end_idx
+    return b""
 
 
 def parse_data_payload(payload, direction=None, device_type=None):
@@ -307,56 +362,11 @@ def parse_data_payload(payload, direction=None, device_type=None):
     :param device_type: The string representation of the device type.
     :return: The gprs list as well any part of the payload that was not consumable.
     """
-    leftover = b""
-    before = b""
+    prefix = _resolve_prefix(payload, direction)
     gprs_list = []
-    if direction is None:
-        c2s = payload.find(CLIENT_TO_SERVER_PREFIX)
-        s2c = payload.find(SERVER_TO_CLIENT_PREFIX)
-        if c2s >= 0 and (s2c < 0 or c2s < s2c):
-            direction = DIRECTION_CLIENT_TO_SERVER
-        else:
-            direction = DIRECTION_SERVER_TO_CLIENT
-    prefix = (
-        CLIENT_TO_SERVER_PREFIX
-        if direction == DIRECTION_CLIENT_TO_SERVER
-        else SERVER_TO_CLIENT_PREFIX
-    )
-
-    while payload:
-        direction_start = payload.find(prefix)
-        if direction_start < 0:
-            logger.error("Unable to find start payload, %s", str(payload))
-            leftover = payload
-            break
-
-        if direction_start > 0 and not before:
-            before = payload[:direction_start]
-
-        payload = payload[direction_start:]
-        first_comma = payload.find(b",")
-        if first_comma <= 0:
-            logger.error(
-                "No first comma found. Can't get to calculate length of payload"
-            )
-            leftover = payload
-            break
-
-        logger.log(13, "Data length is %s", payload[3:first_comma])
-        data_length = _extract_frame_length(payload, first_comma)
-        message, remaining = _validate_and_extract_frame(
-            payload, first_comma, data_length
-        )
-        if message is None:
-            leftover = remaining
-            break
-
-        payload = remaining
-        current_gprs = GPRS(message, device_type=device_type)
-        logger.debug("gprs fields: %s", current_gprs)
-        gprs_list.append(current_gprs)
-
-    return gprs_list, before, leftover
+    state = {"pos": 0, "before": b""}
+    leftover = _scan_frames(payload, prefix, device_type, gprs_list, state)
+    return gprs_list, state["before"], leftover
 
 
 def calc_signature(payload):
